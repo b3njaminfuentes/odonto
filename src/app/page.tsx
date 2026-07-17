@@ -55,12 +55,12 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           {/* Aquí se cargarán "antes.jpg" y "despues.jpg" cuando las pongas en la carpeta */}
           <BeforeAfterSlider 
-            beforeImage="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?q=80&w=800&auto=format&fit=crop" 
-            afterImage="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?q=80&w=800&auto=format&fit=crop"
+            beforeImage="/images/antes.jpg" 
+            afterImage="/images/despues.jpg"
           />
           <div className="mt-8 text-center">
-            <h3 className="text-xl font-medium text-primary">Carillas y Estética Dental</h3>
-            <p className="text-textMain/70 mt-2">Diseño de sonrisa personalizado de alta precisión</p>
+            <h3 className="text-xl font-medium text-primary">Ortodoncia y Alineación Dental</h3>
+            <p className="text-textMain/70 mt-2">Transformación real con nuestros tratamientos personalizados</p>
           </div>
         </div>
       </section>
