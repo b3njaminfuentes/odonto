@@ -150,8 +150,7 @@ export default function Home() {
             <ul className="space-y-4">
               {[
                 "Esterilización de nivel hospitalario",
-                "Escáner digital 3D (Adiós a los moldes incómodos)",
-                "Cirugía guiada para implantes",
+                "Cirugía de implantes",
                 "Materiales biocompatibles de alta gama"
               ].map((tech, i) => (
                 <li key={i} className="flex items-center gap-3 text-textMain/80">
@@ -180,7 +179,7 @@ export default function Home() {
                 <Award size={14} /> Negocio liderado por mujeres
               </div>
               <h2 className="text-3xl md:text-5xl font-serif text-primary mb-4">Dra. Villarroel</h2>
-              <h3 className="text-xl text-accent mb-6">Especialista en Implantología y Estética</h3>
+              <h3 className="text-xl text-accent mb-6">Especialista en Ortopedia y Ortodoncia</h3>
               <p className="text-textMain/70 text-lg leading-relaxed mb-6">
                 Con más de 20 años de experiencia, mi objetivo es brindarte una atención odontológica de excelencia, en un ambiente donde te sientas escuchado y seguro. Creemos que una sonrisa sana cambia vidas.
               </p>
@@ -199,7 +198,7 @@ export default function Home() {
           {/* Columna 1: Info y Formulario/Calendario Placeholder */}
           <div>
             <h2 className="text-3xl font-serif text-primary mb-4">Visitá nuestra clínica</h2>
-            <p className="text-textMain/70 mb-8">Jorge Washington, Cochabamba, Bolivia.</p>
+            <p className="text-textMain/70 mb-8">Calle Man Césped #342 y Washington, Edificio El Porvenir, Cochabamba, Bolivia.</p>
             
             <div className="space-y-6 mb-10">
               <div className="flex items-start gap-4">
@@ -217,7 +216,7 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="font-medium text-textMain">Horarios de Atención</p>
-                  <p className="text-textMain/70">Lunes a Viernes<br/>Mañana: hasta 12:00 PM<br/>Tarde: desde 15:00 PM</p>
+                  <p className="text-textMain/70">Lunes a Viernes<br/>Mañana: hasta 12:00 PM<br/>Tarde: desde 15:00 PM<br/>Sábados: Previa cita</p>
                 </div>
               </div>
             </div>
@@ -286,8 +285,8 @@ export default function Home() {
             <h4 className="text-white font-medium mb-4">Contacto</h4>
             <ul className="space-y-3">
               <li>+591 72212402</li>
-              <li>Jorge Washington, Cochabamba</li>
-              <li>Lunes a Viernes</li>
+              <li>Calle Man Césped #342, Ed. El Porvenir, Cbba</li>
+              <li>Lunes a Viernes (Sábados previa cita)</li>
             </ul>
           </div>
         </div>
