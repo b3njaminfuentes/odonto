@@ -78,12 +78,12 @@ export default function Home() {
               { title: "Implantes Dentales", desc: "Recuperá la funcionalidad y estética con implantes de titanio de primera línea.", image: "/images/implantes.jpg", icon: <ShieldCheck size={24}/> },
               { title: "Diseño de Sonrisa y Carillas", desc: "Resultados naturales y duraderos. El cambio estético que siempre soñaste.", image: "/images/carillas.jpg", icon: <Smile size={24}/> },
               { title: "Ortopedia y Ortodoncia", desc: "Alineación dental para una mordida perfecta. Tu cambio empieza hoy.", image: "/images/ortodoncia.jpg", icon: <CheckCircle size={24}/> },
-              { title: "Rehabilitación Oral", desc: "Coronas, puentes y placas (totales y parciales) con materiales de alta estética.", image: "/images/molares.jpg", icon: <Star size={24}/> },
+              { title: "Rehabilitación Oral", desc: "Coronas, puentes y placas (totales y parciales) con materiales de alta estética.", image: "/images/rehabilitacion.jpg", icon: <Star size={24}/> },
               { title: "Blanqueamiento Dental", desc: "Aclará varios tonos en una sola sesión de forma segura y sin dolor.", image: "/images/blanqueamiento.jpg", icon: <Sparkles size={24}/> },
-              { title: "Endodoncia", desc: "Tratamiento de conductos especializado para salvar tus piezas dentales.", image: "/images/tecnologia.jpg", icon: <Stethoscope size={24}/> },
-              { title: "Gingivoplastia", desc: "Contorneado de encías para armonizar el tamaño de tus dientes y tu sonrisa.", image: "/images/blanqueamiento.jpg", icon: <Smile size={24}/> },
+              { title: "Endodoncia", desc: "Tratamiento de conductos especializado para salvar tus piezas dentales.", image: "/images/endodoncia.jpg", icon: <Stethoscope size={24}/> },
+              { title: "Gingivoplastia", desc: "Contorneado de encías para armonizar el tamaño de tus dientes y tu sonrisa.", image: "/images/gingivoplastia.jpg", icon: <Smile size={24}/> },
               { title: "Cirugía (Terceros Molares)", desc: "Extracciones seguras y planificadas. Agenda tu valoración hoy mismo.", image: "/images/molares.jpg", icon: <Stethoscope size={24}/> },
-              { title: "Higiene y Prevención", desc: "Limpieza profunda con ultrasonido para mantener tus encías sanas.", image: "/images/blanqueamiento.jpg", icon: <ShieldCheck size={24}/> },
+              { title: "Higiene y Prevención", desc: "Limpieza profunda con ultrasonido para mantener tus encías sanas.", image: "/images/limpieza.jpg", icon: <ShieldCheck size={24}/> },
             ].map((service, i) => (
               <div key={i} className="group p-8 rounded-3xl bg-secondary/30 border border-neutral/10 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
                 {/* Background image effect on hover if image exists */}
