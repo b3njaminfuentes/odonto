@@ -6,81 +6,232 @@ datasource db {
   provider  = "postgresql"
 }
 
+enum PatientStatus {
+  ACTIVE
+  IN_TREATMENT
+  CONTROL
+  INACTIVE
+}
+
+enum AppointmentStatus {
+  DISPONIBLE
+  PENDIENTE
+  CONFIRMADO
+  OCUPADO
+  CANCELADO
+}
+
+enum TreatmentStatus {
+  ACTIVO
+  COMPLETADO
+  PAUSADO
+  CANCELADO
+}
+
+enum PaymentStatus {
+  PENDIENTE
+  COMPLETADO
+  FALLIDO
+  REEMBOLSADO
+}
+
+model Profile {
+  id        String   @id @db.Uuid // Referencia a auth.users.id
+  role      String   @default("patient") // 'admin' | 'patient'
+  email     String   @unique
+  createdAt DateTime @default(now())
+
+  patient Patient?
+
+  @@index([email])
+}
+
 model Patient {
-  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String?       @unique @db.Uuid // Supabase auth.users ID
-  patientCode  String        @unique @db.VarChar(20)
-  fullName     String        @db.VarChar(255)
-  email        String?       @db.VarChar(255)
-  phone        String?       @db.VarChar(50)
-  createdAt    DateTime      @default(now()) @db.Timestamptz(6)
-  
+  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  profileId        String?       @unique @db.Uuid
+  patientCode      String        @unique
+  dni              String?       @unique
+  passport         String?
+  firstName        String
+  lastName         String
+  dob              DateTime      @db.Date
+  phone            String?
+  emergencyContact String?
+  address          String?
+  status           PatientStatus @default(ACTIVE)
+  profilePhotoId   String?       @db.Uuid // Opcional, referencia a CaseMedia o un bucket ID
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  profile      Profile?         @relation(fields: [profileId], references: [id])
   appointments Appointment[]
-  cases        Case[]
+  treatments   Treatment[]
+  history      ClinicalHistory?
+  odontogram   Odontogram?
+  diagnoses    Diagnosis[]
   payments     Payment[]
+  events       TimelineEvent[]
 
-  @@map("patients")
+  @@index([dni])
+  @@index([phone])
+  @@index([status])
 }
 
-model Appointment {
-  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  patientId       String?   @db.Uuid
-  treatmentType   String?   @db.VarChar(100)
-  appointmentDate DateTime  @db.Date
-  startTime       DateTime  @db.Time(6)
-  endTime         DateTime  @db.Time(6)
-  status          String?   @default("reservado") @db.VarChar(50)
-  createdAt       DateTime  @default(now()) @db.Timestamptz(6)
+model Diagnosis {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patientId   String   @db.Uuid
+  description String
+  toothNumber String? // notación FDI, opcional
+  diagnosedAt DateTime @default(now())
+  diagnosedBy String   @db.Uuid
+  treatmentId String?  @db.Uuid
 
-  patient Patient? @relation(fields: [patientId], references: [id])
-  payments Payment[]
+  patient   Patient    @relation(fields: [patientId], references: [id])
+  treatment Treatment? @relation(fields: [treatmentId], references: [id])
 
-  @@map("appointments")
+  @@index([patientId])
+  @@index([treatmentId])
 }
 
-model Case {
-  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  patientId     String?   @db.Uuid
-  title         String    @db.VarChar(255)
-  description   String?
-  treatmentType String?   @db.VarChar(100)
-  createdBy     String?   @db.Uuid // Doctor ID (Supabase auth.users ID)
-  createdAt     DateTime  @default(now()) @db.Timestamptz(6)
+model Odontogram {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patientId String   @unique @db.Uuid
+  chart     Json
+  updatedAt DateTime @updatedAt
 
-  patient Patient? @relation(fields: [patientId], references: [id])
-  media   CaseMedia[]
+  patient Patient @relation(fields: [patientId], references: [id])
+}
 
-  @@map("cases")
+model ClinicalHistory {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patientId        String   @unique @db.Uuid
+  medicalHistory   Json?
+  dentalBackground String?
+  observations     String?
+  updatedAt        DateTime @updatedAt
+
+  patient  Patient                  @relation(fields: [patientId], references: [id])
+  versions ClinicalHistoryVersion[]
+}
+
+model ClinicalHistoryVersion {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicalHistoryId String   @db.Uuid
+  medicalHistory    Json?
+  dentalBackground  String?
+  observations      String?
+  changedBy         String   @db.Uuid
+  createdAt         DateTime @default(now())
+
+  clinicalHistory ClinicalHistory @relation(fields: [clinicalHistoryId], references: [id])
+
+  @@index([clinicalHistoryId])
+}
+
+model Treatment {
+  id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patientId        String          @db.Uuid
+  name             String
+  description      String?
+  toothNumber      String?
+  startDate        DateTime        @db.Date
+  estimatedEndDate DateTime?       @db.Date
+  status           TreatmentStatus @default(ACTIVO)
+  budget           Decimal?        @db.Decimal(10, 2)
+  finalCost        Decimal?        @db.Decimal(10, 2)
+  createdAt        DateTime        @default(now())
+
+  patient   Patient     @relation(fields: [patientId], references: [id])
+  media     CaseMedia[]
+  diagnoses Diagnosis[]
+  payments  Payment[]
+
+  @@index([patientId])
+  @@index([status])
 }
 
 model CaseMedia {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  caseId     String?  @db.Uuid
-  mediaType  String?  @db.VarChar(50)
-  url        String
-  caption    String?
-  visibility String?  @default("solo_paciente_dueno") @db.VarChar(50)
-  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patientId   String   @db.Uuid
+  treatmentId String?  @db.Uuid
+  bucket      String // 'patients-profile', 'cases-images', 'cases-videos', 'radiographs', 'documents'
+  fileUrl     String
+  category    String?
+  description String?
+  mimeType    String?
+  size        Int?
+  uploadedBy  String   @db.Uuid
+  createdAt   DateTime @default(now())
 
-  case Case? @relation(fields: [caseId], references: [id])
+  treatment Treatment? @relation(fields: [treatmentId], references: [id])
 
-  @@map("case_media")
+  @@index([patientId])
+  @@index([treatmentId])
+}
+
+model Appointment {
+  id            String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patientId     String?           @db.Uuid
+  treatmentType String?
+  startsAt      DateTime
+  endsAt        DateTime
+  status        AppointmentStatus @default(DISPONIBLE)
+  createdAt     DateTime          @default(now())
+
+  patient Patient? @relation(fields: [patientId], references: [id])
+
+  @@index([patientId])
+  @@index([startsAt])
+  @@index([status])
 }
 
 model Payment {
-  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  patientId     String?   @db.Uuid
-  appointmentId String?   @db.Uuid
-  amount        Decimal   @db.Decimal(10, 2)
-  currency      String?   @default("BOB") @db.VarChar(10)
-  status        String?   @default("pendiente") @db.VarChar(50)
-  method        String?   @db.VarChar(50)
-  paidAt        DateTime? @db.Timestamptz(6)
-  qrReference   String?   @db.VarChar(255)
-  createdAt     DateTime  @default(now()) @db.Timestamptz(6)
+  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patientId   String        @db.Uuid
+  treatmentId String?       @db.Uuid
+  amount      Decimal       @db.Decimal(10, 2)
+  currency    String        @default("BOB")
+  status      PaymentStatus @default(PENDIENTE)
+  method      String?
+  notes       String?
+  receiptUrl  String?
+  date        DateTime      @default(now())
 
-  patient     Patient?     @relation(fields: [patientId], references: [id])
-  appointment Appointment? @relation(fields: [appointmentId], references: [id])
+  patient   Patient    @relation(fields: [patientId], references: [id])
+  treatment Treatment? @relation(fields: [treatmentId], references: [id])
 
-  @@map("payments")
+  @@index([patientId])
+  @@index([treatmentId])
+}
+
+model TimelineEvent {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patientId   String   @db.Uuid
+  eventType   String
+  title       String
+  description String?
+  metadata    Json?
+  severity    String?  @default("info") // info, warning, critical
+  createdBy   String?  @db.Uuid
+  createdAt   DateTime @default(now())
+
+  patient Patient @relation(fields: [patientId], references: [id])
+
+  @@index([patientId])
+  @@index([createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  action    String
+  entity    String
+  entityId  String
+  metadata  Json?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
 }
