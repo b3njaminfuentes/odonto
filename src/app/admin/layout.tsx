@@ -11,6 +11,7 @@ import {
   Bot,
   LogOut
 } from 'lucide-react'
+import { signOut } from '@/app/auth/actions'
 
 const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -59,7 +60,7 @@ export default function AdminLayout({
               <p className="text-xs text-gray-500">Administradora</p>
             </div>
           </div>
-          <form action="/auth/signout" method="post">
+          <form action={signOut}>
             <button type="submit" className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Cerrar Sesión">
               <LogOut className="w-5 h-5" />
             </button>
