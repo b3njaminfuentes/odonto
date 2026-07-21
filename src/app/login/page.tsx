@@ -17,8 +17,14 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
+    let loginEmail = email.trim();
+    if (!loginEmail.includes("@")) {
+      // Si ingresa un código (ej: 2001 o VLR-001), lo convertimos en un pseudo-email interno
+      loginEmail = `${loginEmail.toLowerCase()}@clinicavillarroel.com`;
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: loginEmail,
       password,
     });
 
