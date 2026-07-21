@@ -34,7 +34,7 @@ export default function AdminLayout({
       {/* Sidebar */}
       <aside className="w-64 bg-surface border-r border-gray-100 flex-shrink-0 hidden md:flex flex-col">
         <div className="h-16 flex items-center px-6 border-b border-gray-100">
-          <h1 className="text-xl font-bold tracking-tight text-primary">Clinic OS</h1>
+          <h1 className="text-xl font-bold tracking-tight text-primary">Clínica Odontológica Villarroel</h1>
         </div>
         
         <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1">

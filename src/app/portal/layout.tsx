@@ -28,7 +28,7 @@ export default async function PortalLayout({ children }: { children: React.React
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
-              <h1 className="text-xl font-bold font-serif tracking-wide">Clinic OS</h1>
+              <h1 className="text-xl font-bold font-serif tracking-wide">Clínica Odontológica Villarroel</h1>
               <span className="hidden sm:inline text-primary/40">|</span>
               <span className="hidden sm:inline font-medium text-sm text-primary/80 bg-white/10 px-2 py-0.5 rounded-full">Portal de Paciente</span>
             </div>
