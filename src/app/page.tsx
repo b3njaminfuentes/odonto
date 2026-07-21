@@ -166,6 +166,55 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 3.12 Sobre Nosotros */}
+      <section className="py-24 bg-secondary/30" id="sobre-nosotros">
+        <div className="max-w-7xl mx-auto px-6 md:px-12">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-serif text-primary mb-4">Sobre Nosotros</h2>
+            <p className="text-textMain/70 max-w-2xl mx-auto">Nuestra filosofía de trabajo y compromiso con tu sonrisa.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-neutral/5 hover:shadow-md transition-shadow">
+              <h3 className="text-2xl font-serif text-primary mb-4 flex items-center gap-3">
+                <Star className="text-accent" size={24} /> Misión
+              </h3>
+              <p className="text-textMain/70 leading-relaxed">
+                Brindar atención odontológica de excelencia en implantología y estética dental, combinando precisión técnica, tecnología de vanguardia y un trato cercano que haga sentir a cada paciente escuchado y seguro.
+              </p>
+            </div>
+            
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-neutral/5 hover:shadow-md transition-shadow">
+              <h3 className="text-2xl font-serif text-primary mb-4 flex items-center gap-3">
+                <Sparkles className="text-accent" size={24} /> Visión
+              </h3>
+              <p className="text-textMain/70 leading-relaxed">
+                Ser la clínica de referencia en Cochabamba en implantes y diseño de sonrisa, reconocida por la confianza de sus pacientes y por formar parte de un estándar internacional de calidad clínica.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-primary text-white rounded-[3rem] p-8 md:p-12">
+            <h3 className="text-2xl md:text-3xl font-serif mb-10 text-center">Nuestros Valores</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+              {[
+                { title: "Precisión clínica", desc: "Cada diagnóstico y procedimiento respaldado por tecnología digital." },
+                { title: "Calidez humana", desc: "La paciente y su tranquilidad están primero." },
+                { title: "Actualización constante", desc: "Formación continua a nivel internacional." },
+                { title: "Transparencia", desc: "El paciente sabe en todo momento qué tratamiento tiene, qué debe y qué sigue." }
+              ].map((valor, i) => (
+                <div key={i} className="bg-white/10 p-6 rounded-2xl border border-white/10 hover:bg-white/15 transition-colors">
+                  <h4 className="font-medium text-lg mb-3 flex items-center gap-2">
+                    <CheckCircle className="text-accent" size={18} /> {valor.title}
+                  </h4>
+                  <p className="text-white/70 text-sm leading-relaxed">{valor.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 3.8 Equipo / Doctora */}
       <section className="py-24 bg-white" id="clinica">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
@@ -181,7 +230,7 @@ export default function Home() {
               <h2 className="text-3xl md:text-5xl font-serif text-primary mb-4">Dra. Villarroel</h2>
               <h3 className="text-xl text-accent mb-6">Especialista en Ortopedia y Ortodoncia</h3>
               <p className="text-textMain/70 text-lg leading-relaxed mb-6">
-                Con más de 20 años de experiencia, mi objetivo es brindarte una atención odontológica de excelencia, en un ambiente donde te sientas escuchado y seguro. Creemos que una sonrisa sana cambia vidas.
+                La Dra. Villarroel formó su base profesional en la Universidad Mayor de San Simón, en Cochabamba, la facultad de odontología de mayor prestigio de Bolivia. Se especializó en Ortodoncia en Perú, y continuó su formación con sub-especialidades en Buenos Aires, Argentina. Sumó experiencia clínica en Washington D.C., Estados Unidos, y cursos de perfeccionamiento en Brasil. Hoy combina más de 20 años de trayectoria con un enfoque en implantología y estética dental de alta precisión, siempre actualizada con los estándares clínicos internacionales.
               </p>
               <a href="https://wa.me/59172212402" className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full hover-scale">
                 Hablar con la doctora
@@ -277,6 +326,7 @@ export default function Home() {
             <ul className="space-y-3">
               <li><a href="#servicios" className="hover:text-white transition-colors">Servicios</a></li>
               <li><a href="#casos" className="hover:text-white transition-colors">Casos de Éxito</a></li>
+              <li><a href="#sobre-nosotros" className="hover:text-white transition-colors">Sobre Nosotros</a></li>
               <li><a href="#clinica" className="hover:text-white transition-colors">La Clínica</a></li>
               <li><a href="#contacto" className="hover:text-white transition-colors">Contacto</a></li>
             </ul>
