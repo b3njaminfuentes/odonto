@@ -9,11 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/google": "^4.0.21",
+    "@ai-sdk/react": "^4.0.37",
     "@google/generative-ai": "^0.24.1",
     "@prisma/client": "^7.9.0",
     "@studio-freight/lenis": "^1.0.42",
     "@supabase/ssr": "^0.12.3",
     "@supabase/supabase-js": "^2.110.8",
+    "ai": "^7.0.34",
     "date-fns": "^4.4.0",
     "embla-carousel-auto-scroll": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
