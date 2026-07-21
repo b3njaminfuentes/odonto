@@ -24,11 +24,18 @@ export async function POST(req: Request) {
         systemInstruction: SYSTEM_INSTRUCTION
     });
 
+    let validHistory = history.map((msg: any) => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.text }],
+    }));
+
+    // Gemini requiere que el historial comience siempre con el usuario
+    while (validHistory.length > 0 && validHistory[0].role === 'model') {
+      validHistory.shift();
+    }
+
     const chat = model.startChat({
-      history: history.map((msg: any) => ({
-        role: msg.role === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.text }],
-      })),
+      history: validHistory,
     });
 
     const result = await chat.sendMessage(message);
