@@ -1,60 +1,82 @@
-import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
-import { Star, FileText, Calendar, CreditCard, LogOut } from "lucide-react";
-import Link from "next/link";
+import React from 'react'
+import Link from 'next/link'
+import { createClient } from '@/utils/supabase/server'
+import { LogOut, Home, CreditCard, Activity } from 'lucide-react'
 
-export default async function PortalLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+const navItems = [
+  { name: 'Mi Resumen', href: '/portal', icon: Home },
+  { name: 'Pagos', href: '/portal/pagos', icon: CreditCard },
+  { name: 'Mi Progreso', href: '/portal/progreso', icon: Activity },
+]
 
-  if (!user) {
-    redirect("/login");
+export default async function PortalLayout({ children }: { children: React.ReactNode }) {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // Buscar datos básicos del paciente (si existen)
+  let firstName = 'Paciente'
+  if (user) {
+    const { data } = await supabase.from('Patient').select('firstName').eq('profileId', user.id).single()
+    if (data) firstName = data.firstName
   }
 
   return (
-    <div className="min-h-screen bg-secondary flex">
-      {/* Sidebar Privado */}
-      <aside className="w-64 bg-white border-r border-neutral/10 hidden md:flex flex-col">
-        <div className="p-6 border-b border-neutral/10">
-          <h2 className="text-xl font-serif text-primary">Mi Portal</h2>
-          <p className="text-xs text-textMain/60 mt-1">Clínica Villarroel</p>
+    <div className="min-h-screen bg-secondary flex flex-col">
+      {/* Top Navbar */}
+      <header className="bg-primary text-white shadow-md sticky top-0 z-40">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-3">
+              <h1 className="text-xl font-bold font-serif tracking-wide">Clinic OS</h1>
+              <span className="hidden sm:inline text-primary/40">|</span>
+              <span className="hidden sm:inline font-medium text-sm text-primary/80 bg-white/10 px-2 py-0.5 rounded-full">Portal de Paciente</span>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-medium">Hola, {firstName}</span>
+              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold">
+                {firstName[0]}
+              </div>
+            </div>
+          </div>
         </div>
+      </header>
+
+      {/* Main Content Area */}
+      <main className="flex-1 w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-8">
         
-        <nav className="flex-1 p-4 space-y-2">
-          <Link href="/portal" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-textMain hover:bg-primary/5 hover:text-primary transition-colors">
-            <Calendar size={18} />
-            Mi Tratamiento
-          </Link>
-          <Link href="/portal/progreso" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-textMain hover:bg-primary/5 hover:text-primary transition-colors">
-            <Star size={18} />
-            Progreso y Casos
-          </Link>
-          <Link href="/portal/pagos" className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-textMain hover:bg-primary/5 hover:text-primary transition-colors">
-            <CreditCard size={18} />
-            Pagos
-          </Link>
+        {/* Mobile/Desktop Navigation */}
+        <nav className="md:w-64 flex-shrink-0">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sticky top-24">
+            <ul className="space-y-2">
+              {navItems.map((item) => (
+                <li key={item.name}>
+                  <Link 
+                    href={item.href}
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-primary/5 hover:text-primary transition-colors font-medium"
+                  >
+                    <item.icon className="w-5 h-5 opacity-70" />
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+              <li className="pt-4 mt-4 border-t border-gray-100">
+                <form action="/auth/signout" method="post">
+                  <button type="submit" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-danger hover:bg-danger/10 transition-colors font-medium">
+                    <LogOut className="w-5 h-5 opacity-70" />
+                    Cerrar Sesión
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </div>
         </nav>
 
-        <div className="p-4 border-t border-neutral/10">
-          <form action="/auth/signout" method="post">
-            <button className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 w-full transition-colors">
-              <LogOut size={18} />
-              Cerrar Sesión
-            </button>
-          </form>
-        </div>
-      </aside>
-
-      {/* Contenido Principal */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-6 md:p-12 max-w-5xl mx-auto">
+        {/* Page Content */}
+        <div className="flex-1 min-w-0">
           {children}
         </div>
       </main>
     </div>
-  );
+  )
 }
