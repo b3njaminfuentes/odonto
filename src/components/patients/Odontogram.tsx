@@ -5,11 +5,12 @@ import { Info } from 'lucide-react'
 
 interface OdontogramProps {
   patientId: string
+  readOnly?: boolean
 }
 
 type ToothState = 'normal' | 'caries' | 'extracción' | 'corona'
 
-export function Odontogram({ patientId }: OdontogramProps) {
+export function Odontogram({ patientId, readOnly = false }: OdontogramProps) {
   // Estado local para el estado de los dientes (se guardaría en Supabase en la fase de backend)
   const [teethData, setTeethData] = useState<Record<number, ToothState>>({})
   const [selectedTooth, setSelectedTooth] = useState<number | null>(null)
@@ -18,6 +19,7 @@ export function Odontogram({ patientId }: OdontogramProps) {
   const lowerTeeth = [48,47,46,45,44,43,42,41, 31,32,33,34,35,36,37,38]
 
   const handleToothClick = (toothId: number) => {
+    if (readOnly) return
     setSelectedTooth(toothId)
   }
 
@@ -51,6 +53,7 @@ export function Odontogram({ patientId }: OdontogramProps) {
               className={`w-8 h-10 sm:w-10 sm:h-12 rounded-lg border-2 flex items-center justify-center font-bold text-sm transition-all
                 ${getToothColor(state)}
                 ${isSelected ? 'ring-4 ring-primary/30 scale-110' : ''}
+                ${readOnly ? 'cursor-default' : 'cursor-pointer'}
               `}
             >
               {state === 'extracción' ? 'X' : ''}
@@ -98,13 +101,15 @@ export function Odontogram({ patientId }: OdontogramProps) {
 
       </div>
       
-      <div className="mt-4 p-4 bg-infoLight/30 rounded-xl border border-info/20 flex gap-3 text-info">
-        <Info className="w-5 h-5 flex-shrink-0" />
-        <p className="text-sm">
-          Este es un odontograma interactivo preliminar. Haz click en cualquier diente para marcar su estado. 
-          En la versión de backend los datos se guardarán automáticamente en la tabla <code>Odontogram</code>.
-        </p>
-      </div>
+      {!readOnly && (
+        <div className="mt-4 p-4 bg-infoLight/30 rounded-xl border border-info/20 flex gap-3 text-info">
+          <Info className="w-5 h-5 flex-shrink-0" />
+          <p className="text-sm">
+            Este es un odontograma interactivo preliminar. Haz click en cualquier diente para marcar su estado. 
+            En la versión de backend los datos se guardarán automáticamente en la tabla <code>Odontogram</code>.
+          </p>
+        </div>
+      )}
     </div>
   )
 }

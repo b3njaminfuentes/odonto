@@ -1,59 +1,70 @@
-import { createClient } from "@/lib/supabase/server";
-import { CheckCircle2, Clock } from "lucide-react";
+import React from 'react'
+import { createClient } from '@/utils/supabase/server'
+import { DollarSign, CheckCircle2, MessageCircle } from 'lucide-react'
+
+export const dynamic = 'force-dynamic'
 
 export default async function PagosPage() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) return null
+
+  // Para el MVP simulamos los pagos
+  const balances = {
+    total: 450, // $450
+    paid: 150,
+    due: 300
+  }
+
+  const wppMessage = encodeURIComponent(`Hola Dra. Villarroel, mi email es ${user.email}. Quisiera hacer un pago por mi tratamiento, ¿me podría compartir los métodos de pago?`)
 
   return (
-    <div>
-      <h1 className="text-3xl font-serif text-primary mb-2">Mis Pagos</h1>
-      <p className="text-textMain/70 mb-8">Historial de pagos y saldos pendientes.</p>
-
-      <div className="bg-white rounded-3xl p-8 border border-neutral/10 shadow-sm mb-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <h2 className="text-lg text-textMain/70">Saldo Pendiente</h2>
-            <p className="text-4xl font-serif text-primary mt-1">Bs. 500.00</p>
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      
+      {/* Resumen de Cuenta */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+          <p className="text-sm font-medium text-gray-500 mb-1">Costo Total (Estimado)</p>
+          <p className="text-2xl font-bold text-gray-900">${balances.total}</p>
+        </div>
+        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+          <p className="text-sm font-medium text-gray-500 mb-1">Pagado hasta la fecha</p>
+          <p className="text-2xl font-bold text-success flex items-center gap-2">
+            ${balances.paid}
+            <CheckCircle2 className="w-5 h-5" />
+          </p>
+        </div>
+        <div className="bg-white p-6 rounded-2xl border border-danger/20 shadow-sm relative overflow-hidden group">
+          <div className="absolute inset-0 bg-danger/5 group-hover:bg-danger/10 transition-colors"></div>
+          <div className="relative z-10">
+            <p className="text-sm font-medium text-danger/80 mb-1">Saldo Pendiente</p>
+            <p className="text-2xl font-bold text-danger">${balances.due}</p>
           </div>
-          <button className="bg-accent text-white px-8 py-3 rounded-xl font-medium hover:bg-accent/90 transition-colors shadow-lg shadow-accent/20">
-            Pagar con QR
-          </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl p-8 border border-neutral/10 shadow-sm">
-        <h2 className="text-xl font-serif text-primary mb-6">Historial</h2>
-        <div className="space-y-4">
-          
-          <div className="flex items-center justify-between p-4 rounded-xl border border-neutral/10 bg-secondary/30">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
-                <CheckCircle2 size={20} />
-              </div>
-              <div>
-                <p className="font-medium text-textMain">Pago de Cuota Inicial</p>
-                <p className="text-sm text-textMain/60">12 de Julio, 2026</p>
-              </div>
-            </div>
-            <div className="font-medium text-primary">Bs. 1000.00</div>
-          </div>
-
-          <div className="flex items-center justify-between p-4 rounded-xl border border-neutral/10 bg-white">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center">
-                <Clock size={20} />
-              </div>
-              <div>
-                <p className="font-medium text-textMain">Mantenimiento Mensual</p>
-                <p className="text-sm text-textMain/60">Vence: 25 de Julio, 2026</p>
-              </div>
-            </div>
-            <div className="font-medium text-orange-600">Bs. 500.00</div>
-          </div>
-
+      {/* Acciones de Pago */}
+      <div className="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm text-center">
+        <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-4">
+          <DollarSign className="w-8 h-8" />
         </div>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Realizar un pago</h2>
+        <p className="text-gray-500 max-w-md mx-auto mb-6">
+          Para realizar el pago de tu saldo pendiente (${balances.due}), comunícate directamente con la clínica por WhatsApp para recibir las instrucciones de transferencia o métodos de pago disponibles.
+        </p>
+
+        <a 
+          href={`https://wa.me/59112345678?text=${wppMessage}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white font-medium rounded-xl transition-colors shadow-sm"
+        >
+          <MessageCircle className="w-5 h-5" />
+          Contactar por WhatsApp
+        </a>
       </div>
+
     </div>
-  );
+  )
 }
