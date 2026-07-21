@@ -1,52 +1,88 @@
-import { createClient } from "@/lib/supabase/server";
+import React from 'react'
+import { createClient } from '@/utils/supabase/server'
+import { KPICard } from '@/components/ui/KPICard'
+import { Users, Calendar, Banknote, Activity } from 'lucide-react'
+
+export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboardPage() {
-  const supabase = createClient();
-  
-  // TODO: Fetch appointments for today
-  
-  return (
-    <div>
-      <h1 className="text-3xl font-serif text-primary mb-2">Agenda de Hoy</h1>
-      <p className="text-textMain/70 mb-8">Gestión de citas y pacientes.</p>
+  const supabase = createClient()
 
-      <div className="bg-white rounded-3xl p-8 border border-neutral/10 shadow-sm">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 rounded-xl border border-neutral/10 hover:border-primary/30 transition-colors">
-            <div className="flex items-center gap-6">
-              <div className="text-center">
-                <div className="text-lg font-bold text-primary">15:30</div>
-                <div className="text-xs text-textMain/60 uppercase">Hoy</div>
-              </div>
-              <div className="w-px h-10 bg-neutral/20"></div>
-              <div>
-                <p className="font-medium text-textMain">Juan Pérez (VLR-001)</p>
-                <p className="text-sm text-textMain/60">Revisión de Ortodoncia</p>
-              </div>
-            </div>
-            <div>
-              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium border border-green-200">Confirmado</span>
-            </div>
+  // 1. Obtener Pacientes Activos
+  const { count: activePatients } = await supabase
+    .from('Patient')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'ACTIVE')
+
+  // 2. Obtener Citas de Hoy (Pendientes o Confirmadas)
+  const today = new Date().toISOString().split('T')[0]
+  const { count: todayAppointments } = await supabase
+    .from('Appointment')
+    .select('id', { count: 'exact', head: true })
+    .gte('startsAt', `${today}T00:00:00Z`)
+    .lte('startsAt', `${today}T23:59:59Z`)
+    .in('status', ['PENDIENTE', 'CONFIRMADO'])
+
+  // 3. Obtener Pagos Pendientes (Cantidad y Suma)
+  // Nota: Como queremos ser precisos, podemos obtener los registros y sumar en JS 
+  // si Supabase no expone .sum() directo desde la API REST básica.
+  const { data: pendingPaymentsData } = await supabase
+    .from('Payment')
+    .select('amount')
+    .eq('status', 'PENDIENTE')
+
+  const totalPendingMoney = pendingPaymentsData?.reduce((acc, curr) => acc + Number(curr.amount), 0) || 0
+
+  return (
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col gap-1">
+        <h1 className="text-3xl font-serif text-gray-900 tracking-tight">Dashboard</h1>
+        <p className="text-gray-500">Un vistazo rápido al estado de la clínica hoy.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <KPICard
+          title="Pacientes Activos"
+          value={activePatients || 0}
+          icon={Users}
+          trend={{ value: 12, isPositive: true }}
+          description="En tratamiento o control"
+        />
+        <KPICard
+          title="Citas Hoy"
+          value={todayAppointments || 0}
+          icon={Calendar}
+          description="Pendientes y confirmadas"
+        />
+        <KPICard
+          title="Pagos Pendientes"
+          value={`Bs ${totalPendingMoney.toFixed(2)}`}
+          icon={Banknote}
+          description={`${pendingPaymentsData?.length || 0} facturas por cobrar`}
+        />
+        <KPICard
+          title="Próximas Cirugías"
+          value="0"
+          icon={Activity}
+          description="Agendadas esta semana"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-surface rounded-xl p-6 shadow-sm border border-gray-100 min-h-[400px]">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Actividad Reciente</h2>
+          <div className="flex items-center justify-center h-full text-gray-400">
+            Aún no hay actividad registrada hoy.
           </div>
-          
-          <div className="flex items-center justify-between p-4 rounded-xl border border-neutral/10 hover:border-primary/30 transition-colors">
-            <div className="flex items-center gap-6">
-              <div className="text-center">
-                <div className="text-lg font-bold text-primary">17:00</div>
-                <div className="text-xs text-textMain/60 uppercase">Hoy</div>
-              </div>
-              <div className="w-px h-10 bg-neutral/20"></div>
-              <div>
-                <p className="font-medium text-textMain">María López (VLR-002)</p>
-                <p className="text-sm text-textMain/60">Evaluación Implantes</p>
-              </div>
-            </div>
-            <div>
-              <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-medium border border-yellow-200">Reservado</span>
-            </div>
+        </div>
+
+        <div className="bg-surface rounded-xl p-6 shadow-sm border border-gray-100 min-h-[400px]">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Recordatorios</h2>
+          <div className="flex items-center justify-center h-full text-gray-400">
+            Todo al día.
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
