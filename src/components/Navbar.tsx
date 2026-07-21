@@ -32,7 +32,10 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Link href="/login" className="hidden sm:flex text-sm font-medium text-textMain/70 hover:text-primary transition-colors items-center gap-1">
+          <Link 
+            href="/login" 
+            className="hidden sm:flex text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 px-5 py-2.5 rounded-full transition-all items-center gap-1"
+          >
             Ingresar
           </Link>
           <a 
