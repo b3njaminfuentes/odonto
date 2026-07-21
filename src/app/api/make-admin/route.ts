@@ -11,11 +11,14 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'No estás logueado. Inicia sesión primero.' }, { status: 401 })
   }
 
-  // Actualizar el rol a 'admin'
+  // Actualizar el rol a 'admin' asegurando que exista el perfil
   const { error } = await supabase
     .from('Profile')
-    .update({ role: 'admin' })
-    .eq('id', session.user.id)
+    .upsert({ 
+      id: session.user.id, 
+      role: 'admin',
+      email: session.user.email!
+    })
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
