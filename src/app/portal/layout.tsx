@@ -2,6 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { LogOut, Home, CreditCard, Activity } from 'lucide-react'
+import { signOut } from '@/app/auth/actions'
 
 const navItems = [
   { name: 'Mi Resumen', href: '/portal', icon: Home },
@@ -61,7 +62,7 @@ export default async function PortalLayout({ children }: { children: React.React
                 </li>
               ))}
               <li className="pt-4 mt-4 border-t border-gray-100">
-                <form action="/auth/signout" method="post">
+                <form action={signOut}>
                   <button type="submit" className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-danger hover:bg-danger/10 transition-colors font-medium">
                     <LogOut className="w-5 h-5 opacity-70" />
                     Cerrar Sesión
