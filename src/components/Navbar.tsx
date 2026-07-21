@@ -31,16 +31,21 @@ export default function Navbar() {
           <Link href="#contacto" className="hover:text-primary transition-colors">Contacto</Link>
         </div>
 
-        <a 
-          href="https://wa.me/59172212402?text=Hola%2C%20quiero%20reservar%20un%20turno%20en%20Cl%C3%ADnica%20Villarroel." 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 hover-scale shadow-lg shadow-primary/20 transition-all"
-        >
-          <MessageCircle size={18} />
-          <span className="hidden sm:inline">Reservar por WhatsApp</span>
-          <span className="sm:hidden">Reservar</span>
-        </a>
+        <div className="flex items-center gap-3">
+          <Link href="/login" className="hidden sm:flex text-sm font-medium text-textMain/70 hover:text-primary transition-colors items-center gap-1">
+            Ingresar
+          </Link>
+          <a 
+            href="https://wa.me/59172212402?text=Hola%2C%20quiero%20reservar%20un%20turno%20en%20Cl%C3%ADnica%20Villarroel." 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-full text-sm font-medium flex items-center gap-2 hover-scale shadow-lg shadow-primary/20 transition-all"
+          >
+            <MessageCircle size={18} />
+            <span className="hidden sm:inline">Reservar por WhatsApp</span>
+            <span className="sm:hidden">Reservar</span>
+          </a>
+        </div>
       </div>
     </nav>
   );
