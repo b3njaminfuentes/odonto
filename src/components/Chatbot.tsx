@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot } from "lucide-react";
+import Image from "next/image";
+import { X, Send, Bot } from "lucide-react";
 
 type Message = {
   role: "user" | "model";
@@ -65,10 +66,28 @@ export default function Chatbot() {
       {/* Botón Flotante */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`${isOpen ? 'hidden' : 'flex'} w-14 h-14 bg-accent text-white rounded-full items-center justify-center shadow-2xl hover:scale-110 transition-transform`}
-        aria-label="Abrir chat"
+        className={`${isOpen ? 'hidden' : 'flex'} w-[90px] h-[126px] bg-transparent border-none p-0 items-center justify-center cursor-pointer hover:scale-105 transition-transform z-50 drop-shadow-2xl`}
+        aria-label="Abrir chat con Muelita"
+        style={{ animation: "muelita-float 3.2s ease-in-out infinite" }}
       >
-        <MessageCircle size={28} />
+        <Image
+          src="/muelita.svg"
+          alt="Muelita, asistente virtual"
+          width={90}
+          height={126}
+          priority
+        />
+        <style jsx>{`
+          @keyframes muelita-float {
+            0%,
+            100% {
+              transform: translateY(0px);
+            }
+            50% {
+              transform: translateY(-14px);
+            }
+          }
+        `}</style>
       </button>
 
       {/* Ventana de Chat */}
