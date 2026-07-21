@@ -8,7 +8,8 @@ import {
   CreditCard, 
   FolderOpen,
   Settings,
-  Bot
+  Bot,
+  LogOut
 } from 'lucide-react'
 
 const navigation = [
@@ -48,7 +49,7 @@ export default function AdminLayout({
           ))}
         </nav>
         
-        <div className="p-4 border-t border-gray-100">
+        <div className="p-4 border-t border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
               MV
@@ -58,6 +59,11 @@ export default function AdminLayout({
               <p className="text-xs text-gray-500">Administradora</p>
             </div>
           </div>
+          <form action="/auth/signout" method="post">
+            <button type="submit" className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Cerrar Sesión">
+              <LogOut className="w-5 h-5" />
+            </button>
+          </form>
         </div>
       </aside>
 
