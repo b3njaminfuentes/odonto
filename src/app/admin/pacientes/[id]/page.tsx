@@ -1,109 +1,95 @@
-import { createClient } from "@/lib/supabase/server";
-import { ArrowLeft, Upload, FileText, CreditCard, PlayCircle } from "lucide-react";
-import Link from "next/link";
+import React from 'react'
+import { notFound } from 'next/navigation'
+import { createClient } from '@/utils/supabase/server'
+import Link from 'next/link'
+import { ArrowLeft, Edit, CalendarPlus } from 'lucide-react'
+import { StatusBadge } from '@/components/ui/StatusBadge'
+import { PatientTabs } from '@/components/patients/PatientTabs'
 
-export default async function PacienteDetallePage({ params }: { params: { id: string } }) {
-  // const supabase = createClient();
-  
+export const dynamic = 'force-dynamic'
+
+export default async function PatientProfilePage({ params }: { params: { id: string } }) {
+  const supabase = createClient()
+
+  // Buscar el paciente
+  const { data: patient, error } = await supabase
+    .from('Patient')
+    .select('*')
+    .eq('id', params.id)
+    .single()
+
+  if (error || !patient) {
+    return notFound()
+  }
+
+  // Calculamos la edad a partir de la fecha de nacimiento
+  const calculateAge = (dob: string) => {
+    const diff = Date.now() - new Date(dob).getTime()
+    return Math.abs(new Date(diff).getUTCFullYear() - 1970)
+  }
+  const age = calculateAge(patient.dob)
+
+  const getStatusColor = (status: string) => {
+    if (status === 'ACTIVE') return 'success'
+    if (status === 'INACTIVE') return 'warning'
+    return 'default'
+  }
+
   return (
-    <div>
-      <Link href="/admin/pacientes" className="inline-flex items-center gap-2 text-textMain/60 hover:text-primary transition-colors mb-6 text-sm font-medium">
-        <ArrowLeft size={16} />
-        Volver a Pacientes
-      </Link>
-
-      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
-        <div>
-          <h1 className="text-3xl font-serif text-primary mb-2">Juan Pérez</h1>
-          <p className="text-textMain/70">Código: <span className="font-medium text-primary">VLR-001</span> • +591 70000001</p>
-        </div>
-        <div className="flex gap-3">
-          <button className="bg-white border border-neutral/20 text-primary px-4 py-2 rounded-xl text-sm font-medium hover:bg-neutral/5 transition-colors">
-            Editar Perfil
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      
+      {/* Top bar */}
+      <div className="flex items-center justify-between">
+        <Link 
+          href="/admin/pacientes"
+          className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Volver a pacientes
+        </Link>
+        <div className="flex gap-2">
+          <button className="px-4 py-2 bg-white border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm text-sm">
+            <Edit className="w-4 h-4" />
+            Editar
+          </button>
+          <button className="px-4 py-2 bg-primary text-white font-medium rounded-xl hover:bg-primary/90 transition-colors flex items-center gap-2 shadow-sm text-sm">
+            <CalendarPlus className="w-4 h-4" />
+            Agendar
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Columna Izquierda: Tabs / Acciones */}
-        <div className="col-span-1 space-y-4">
-          <button className="w-full bg-white p-4 rounded-2xl border border-primary/20 shadow-sm flex items-center justify-between text-left group hover:border-primary transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                <FileText size={18} />
-              </div>
-              <div>
-                <p className="font-medium text-primary">Historial Clínico</p>
-                <p className="text-xs text-textMain/60">Tratamientos y notas</p>
-              </div>
-            </div>
-          </button>
-
-          <button className="w-full bg-white p-4 rounded-2xl border border-neutral/10 shadow-sm flex items-center justify-between text-left group hover:border-primary/50 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-accent/10 text-accent flex items-center justify-center">
-                <Upload size={18} />
-              </div>
-              <div>
-                <p className="font-medium text-textMain">Subir Fotos/Casos</p>
-                <p className="text-xs text-textMain/60">Actualizar progreso</p>
-              </div>
-            </div>
-          </button>
-
-          <button className="w-full bg-white p-4 rounded-2xl border border-neutral/10 shadow-sm flex items-center justify-between text-left group hover:border-primary/50 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center">
-                <CreditCard size={18} />
-              </div>
-              <div>
-                <p className="font-medium text-textMain">Pagos y Saldos</p>
-                <p className="text-xs text-textMain/60">Gestionar cobranzas</p>
-              </div>
-            </div>
-          </button>
-
-          <button className="w-full bg-white p-4 rounded-2xl border border-neutral/10 shadow-sm flex items-center justify-between text-left group hover:border-primary/50 transition-colors">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
-                <PlayCircle size={18} />
-              </div>
-              <div>
-                <p className="font-medium text-textMain">Asignar Videos</p>
-                <p className="text-xs text-textMain/60">Post-operatorios</p>
-              </div>
-            </div>
-          </button>
+      {/* Header Profile Card */}
+      <div className="bg-surface rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col md:flex-row gap-6 md:items-center">
+        <div className="w-24 h-24 rounded-full bg-primary/10 text-primary flex items-center justify-center text-3xl font-bold border-4 border-white shadow-sm flex-shrink-0">
+          {patient.firstName[0]}{patient.lastName[0]}
         </div>
-
-        {/* Columna Derecha: Contenido Activo (Mock) */}
-        <div className="col-span-1 lg:col-span-2">
-          <div className="bg-white rounded-3xl p-8 border border-neutral/10 shadow-sm">
-             <h2 className="text-xl font-serif text-primary mb-6">Detalles del Tratamiento Actual</h2>
-             <div className="space-y-6">
-                <div>
-                  <p className="text-sm font-medium text-textMain/60 mb-1">Motivo de Consulta</p>
-                  <p className="text-textMain bg-secondary/30 p-4 rounded-xl border border-neutral/5">
-                    Paciente refiere dolor en piezas posteriores y desea evaluación para ortodoncia invisible.
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-textMain/60 mb-1">Diagnóstico</p>
-                  <p className="text-textMain bg-secondary/30 p-4 rounded-xl border border-neutral/5">
-                    Maloclusión clase II. Caries incipiente en pieza 46.
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-textMain/60 mb-1">Plan de Tratamiento</p>
-                  <ul className="list-disc list-inside text-textMain space-y-2 bg-secondary/30 p-4 rounded-xl border border-neutral/5">
-                    <li>Fase 1: Profilaxis y restauración resina P46.</li>
-                    <li>Fase 2: Escaneo digital y plan de alineadores.</li>
-                  </ul>
-                </div>
-             </div>
+        
+        <div className="flex-1">
+          <div className="flex flex-wrap items-center gap-3 mb-1">
+            <h1 className="text-2xl font-bold text-gray-900 font-serif">
+              {patient.firstName} {patient.lastName}
+            </h1>
+            <StatusBadge 
+              status={getStatusColor(patient.status)} 
+              text={patient.status === 'ACTIVE' ? 'Activo' : patient.status === 'INACTIVE' ? 'Inactivo' : 'Archivado'} 
+            />
+            <span className="text-xs font-mono bg-gray-100 text-gray-500 px-2 py-1 rounded-md">
+              {patient.patientCode}
+            </span>
+          </div>
+          
+          <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3 text-sm text-gray-600">
+            <p><strong className="text-gray-900 font-medium">Edad:</strong> {age} años</p>
+            <p><strong className="text-gray-900 font-medium">DNI:</strong> {patient.dni || 'N/A'}</p>
+            <p><strong className="text-gray-900 font-medium">Email:</strong> {patient.email || 'N/A'}</p>
+            <p><strong className="text-gray-900 font-medium">Tel:</strong> {patient.phone || 'N/A'}</p>
           </div>
         </div>
       </div>
+
+      {/* Tabs Layout */}
+      <PatientTabs patientId={patient.id} />
     </div>
-  );
+  )
 }
