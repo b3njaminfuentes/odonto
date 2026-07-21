@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   
   // 1. Crear el usuario en Auth
   const { data: authData, error: authError } = await supabase.auth.signUp({
-    email: '2001@paciente.clinica.com',
+    email: 'u-2001@paciente.clinica.com',
     password: 'marisol tequila',
   })
 
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
 
   if (!userId && authError?.message === 'User already registered') {
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: '2001@paciente.clinica.com',
+      email: 'u-2001@paciente.clinica.com',
       password: 'marisol tequila',
     })
     if (signInError) {

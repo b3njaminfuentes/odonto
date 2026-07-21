@@ -20,9 +20,8 @@ export default function LoginForm() {
 
     try {
       // Si el usuario introduce un código o DNI sin '@', le agregamos un dominio interno.
-      // Esto permite que el login de Supabase funcione (exige formato email) mientras que 
-      // el paciente solo tiene que recordar su código.
-      const loginEmail = email.includes('@') ? email : `${email}@paciente.clinica.com`
+      // Le agregamos el prefijo 'u-' por si ingresan solo números, para que Supabase lo tome como email válido.
+      const loginEmail = email.includes('@') ? email : `u-${email}@paciente.clinica.com`
 
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email: loginEmail,
