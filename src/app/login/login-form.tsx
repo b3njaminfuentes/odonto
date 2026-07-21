@@ -19,8 +19,13 @@ export default function LoginForm() {
     setLoading(true)
 
     try {
+      // Si el usuario introduce un código o DNI sin '@', le agregamos un dominio interno.
+      // Esto permite que el login de Supabase funcione (exige formato email) mientras que 
+      // el paciente solo tiene que recordar su código.
+      const loginEmail = email.includes('@') ? email : `${email}@paciente.clinica.com`
+
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
+        email: loginEmail,
         password,
       })
 
@@ -42,15 +47,15 @@ export default function LoginForm() {
     <form onSubmit={handleLogin} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Correo Electrónico
+          Correo Electrónico o Código de Paciente
         </label>
         <input
-          type="email"
+          type="text"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
-          placeholder="tu@email.com"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+          placeholder="Ej: tu@email.com o PT-12345"
         />
       </div>
 
@@ -63,7 +68,7 @@ export default function LoginForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
           placeholder="••••••••"
         />
       </div>
@@ -77,7 +82,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-2.5 px-4 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition-colors focus:ring-4 focus:ring-gray-200 disabled:opacity-70 disabled:cursor-not-allowed"
+        className="w-full py-2.5 px-4 bg-primary hover:bg-primary/90 text-white font-medium rounded-lg transition-colors focus:ring-4 focus:ring-primary/20 disabled:opacity-70 disabled:cursor-not-allowed"
       >
         {loading ? 'Iniciando sesión...' : 'Ingresar'}
       </button>
