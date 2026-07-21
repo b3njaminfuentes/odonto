@@ -65,7 +65,7 @@ export default function Chatbot() {
       {/* Botón Flotante */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={\`\${isOpen ? 'hidden' : 'flex'} w-14 h-14 bg-accent text-white rounded-full items-center justify-center shadow-2xl hover:scale-110 transition-transform\`}
+        className={`${isOpen ? 'hidden' : 'flex'} w-14 h-14 bg-accent text-white rounded-full items-center justify-center shadow-2xl hover:scale-110 transition-transform`}
         aria-label="Abrir chat"
       >
         <MessageCircle size={28} />
@@ -93,8 +93,8 @@ export default function Chatbot() {
           {/* Area de mensajes */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-neutral/5">
             {messages.map((msg, idx) => (
-              <div key={idx} className={\`flex \${msg.role === 'user' ? 'justify-end' : 'justify-start'}\`}>
-                <div className={\`max-w-[80%] p-3 rounded-2xl text-sm \${msg.role === 'user' ? 'bg-primary text-white rounded-tr-sm' : 'bg-white border border-neutral/10 text-textMain rounded-tl-sm shadow-sm'}\`}>
+              <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.role === 'user' ? 'bg-primary text-white rounded-tr-sm' : 'bg-white border border-neutral/10 text-textMain rounded-tl-sm shadow-sm'}`}>
                   {msg.text}
                 </div>
               </div>
