@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
+import Chatbot from "@/components/Chatbot";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -43,6 +44,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-secondary">
         <SmoothScroll>
           {children}
+          <Chatbot />
         </SmoothScroll>
       </body>
     </html>
