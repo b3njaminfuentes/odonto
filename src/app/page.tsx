@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import ReviewsSlider from "@/components/ReviewsSlider";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import BookingCalendar from "@/components/BookingCalendar";
+import CertificatesGallery from "@/components/CertificatesGallery";
 import { Star, CheckCircle, Clock, MapPin, Phone, Award, ArrowRight, ShieldCheck, Smile, Stethoscope, Sparkles } from "lucide-react";
 
 export default function Home() {
@@ -236,6 +237,12 @@ export default function Home() {
                 Hablar con la doctora
               </a>
             </div>
+          </div>
+          
+          {/* Galería de Certificados */}
+          <div className="mt-20">
+            <h3 className="text-2xl md:text-3xl font-serif text-primary mb-12 text-center">Trayectoria y Certificaciones</h3>
+            <CertificatesGallery />
           </div>
         </div>
       </section>
