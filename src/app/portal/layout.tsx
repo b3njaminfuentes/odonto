@@ -1,13 +1,15 @@
 import React from 'react'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
-import { LogOut, Home, CreditCard, Activity } from 'lucide-react'
+import { LogOut, Home, CreditCard, Activity, Calendar, FileText } from 'lucide-react'
 import { signOut } from '@/app/auth/actions'
 
 const navItems = [
   { name: 'Mi Resumen', href: '/portal', icon: Home },
-  { name: 'Pagos', href: '/portal/pagos', icon: CreditCard },
   { name: 'Mi Progreso', href: '/portal/progreso', icon: Activity },
+  { name: 'Mis Pagos', href: '/portal/pagos', icon: CreditCard },
+  { name: 'Mis Citas', href: '/portal/citas', icon: Calendar },
+  { name: 'Mis Documentos', href: '/portal/documentos', icon: FileText },
 ]
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
