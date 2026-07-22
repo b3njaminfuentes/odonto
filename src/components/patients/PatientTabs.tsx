@@ -7,6 +7,8 @@ import { GalleryViewer } from './GalleryViewer'
 import { ClinicalHistoryForm } from './ClinicalHistoryForm'
 import { PatientTreatments } from './PatientTreatments'
 import { PatientSummaryTab } from './PatientSummaryTab'
+import { PatientPayments } from './PatientPayments'
+import { PatientAppointments } from './PatientAppointments'
 
 interface PatientTabsProps {
   patientId: string
@@ -126,6 +128,17 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
           <GalleryViewer patientId={patientId} />
         )}
 
+        {activeTab === 'pagos' && (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+            <PatientPayments patientId={patientId} />
+          </div>
+        )}
+
+        {activeTab === 'citas' && (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+            <PatientAppointments patientId={patientId} />
+          </div>
+        )}
       </div>
     </div>
   )
