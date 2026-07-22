@@ -8,67 +8,72 @@ import { logAuditAction } from '@/utils/audit'
 const generatePatientCode = () => `PT-${Math.floor(100000 + Math.random() * 900000)}`
 
 export async function createPatient(formData: FormData) {
-  const supabase = createClient()
-  const adminSupabase = createAdminClient()
-  
-  const firstName = formData.get('firstName') as string
-  const lastName = formData.get('lastName') as string
-  const dob = formData.get('dob') as string
-  const email = formData.get('email') as string
-  const phone = formData.get('phone') as string
-  const dni = formData.get('dni') as string
-  const emergencyContactName = formData.get('emergencyContactName') as string
-  const emergencyContactPhone = formData.get('emergencyContactPhone') as string
+  try {
+    const supabase = createClient()
+    const adminSupabase = createAdminClient()
+    
+    const firstName = formData.get('firstName') as string
+    const lastName = formData.get('lastName') as string
+    const dob = formData.get('dob') as string
+    const email = formData.get('email') as string
+    const phone = formData.get('phone') as string
+    const dni = formData.get('dni') as string
+    const emergencyContactName = formData.get('emergencyContactName') as string
+    const emergencyContactPhone = formData.get('emergencyContactPhone') as string
 
-  // Validación básica
-  if (!firstName || !lastName || !dob) {
-    return { error: 'Nombre, Apellido y Fecha de Nacimiento son obligatorios.' }
-  }
-
-  // Insertar en Supabase usando el Admin Client para bypasear RLS si es necesario
-  const { data, error } = await adminSupabase
-    .from('Patient')
-    .insert({
-      patientCode: generatePatientCode(),
-      firstName,
-      lastName,
-      dob,
-      email: email || null,
-      phone: phone || null,
-      dni: dni || null,
-      emergencyContactName: emergencyContactName || null,
-      emergencyContactPhone: emergencyContactPhone || null,
-      status: 'ACTIVE',
-      updatedAt: new Date().toISOString(),
-    })
-    .select()
-    .single()
-
-  if (error) {
-    console.error('Error creating patient:', error)
-    if (error.code === '23505') {
-      return { error: 'Ya existe un paciente con ese DNI o Email.' }
+    // Validación básica
+    if (!firstName || !lastName || !dob) {
+      return { error: 'Nombre, Apellido y Fecha de Nacimiento son obligatorios.' }
     }
-    return { error: `Error de BD: ${error.message || JSON.stringify(error)}` }
+
+    // Insertar en Supabase usando el Admin Client para bypasear RLS si es necesario
+    const { data, error } = await adminSupabase
+      .from('Patient')
+      .insert({
+        patientCode: generatePatientCode(),
+        firstName,
+        lastName,
+        dob,
+        email: email || null,
+        phone: phone || null,
+        dni: dni || null,
+        emergencyContactName: emergencyContactName || null,
+        emergencyContactPhone: emergencyContactPhone || null,
+        status: 'ACTIVE',
+        updatedAt: new Date().toISOString(),
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating patient:', error)
+      if (error.code === '23505') {
+        return { error: 'Ya existe un paciente con ese DNI o Email.' }
+      }
+      return { error: `Error de BD: ${error.message || JSON.stringify(error)}` }
+    }
+
+    // Get current user id to log action
+    const { data: { session } } = await supabase.auth.getSession()
+
+    if (session?.user?.id) {
+      await logAuditAction({
+        userId: session.user.id,
+        action: 'CREATE',
+        entity: 'Patient',
+        entityId: data.id,
+        metadata: { patientCode: data.patientCode }
+      })
+    }
+
+    // Refresca la caché de Next.js para que el nuevo paciente aparezca instantáneamente
+    revalidatePath('/admin/pacientes')
+    
+    return { success: true, patient: data }
+  } catch (err: any) {
+    console.error('Unhandled exception in createPatient:', err)
+    return { error: `Server exception: ${err?.message || 'Unknown error'}` }
   }
-
-  // Get current user id to log action
-  const { data: { session } } = await supabase.auth.getSession()
-
-  if (session?.user?.id) {
-    await logAuditAction({
-      userId: session.user.id,
-      action: 'CREATE',
-      entity: 'Patient',
-      entityId: data.id,
-      metadata: { patientCode: data.patientCode }
-    })
-  }
-
-  // Refresca la caché de Next.js para que el nuevo paciente aparezca instantáneamente
-  revalidatePath('/admin/pacientes')
-  
-  return { success: true, patient: data }
 }
 
 export async function getMorePatients(offset: number) {
