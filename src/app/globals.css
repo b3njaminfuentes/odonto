@@ -10,6 +10,15 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
   }
+
+  /* Chrome Autofill Fix for Minimalist Design */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus, 
+  input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: #0F172A !important;
+  }
 }
 
 @layer utilities {
@@ -35,7 +44,7 @@
     @apply transition-transform duration-300 hover:scale-[1.03];
   }
   .card-hover {
-    @apply transition-all duration-300 hover:-translate-y-3 hover:shadow-neo;
+    @apply transition-all duration-300 hover:-translate-y-3 hover:shadow-md;
   }
 }
 

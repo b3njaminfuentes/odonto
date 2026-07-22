@@ -11,6 +11,7 @@ enum PatientStatus {
   IN_TREATMENT
   CONTROL
   INACTIVE
+  ARCHIVED
 }
 
 enum AppointmentStatus {
@@ -161,6 +162,7 @@ model CaseMedia {
   mimeType    String?
   size        Int?
   uploadedBy  String   @db.Uuid
+  visibleToPatient Boolean @default(false)
   createdAt   DateTime @default(now())
 
   treatment Treatment? @relation(fields: [treatmentId], references: [id])

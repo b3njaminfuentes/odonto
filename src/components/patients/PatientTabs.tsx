@@ -1,27 +1,40 @@
 'use client'
 
 import React, { useState } from 'react'
-import { FileText, Smile, ImageIcon, Stethoscope } from 'lucide-react'
+import { FileText, Smile, ImageIcon, Stethoscope, Activity } from 'lucide-react'
 import { Odontogram } from './Odontogram'
 import { GalleryViewer } from './GalleryViewer'
 import { ClinicalHistoryForm } from './ClinicalHistoryForm'
 import { PatientTreatments } from './PatientTreatments'
+import { PatientSummaryTab } from './PatientSummaryTab'
 
 interface PatientTabsProps {
   patientId: string
+  summaryData: any
 }
 
-export function PatientTabs({ patientId }: PatientTabsProps) {
-  const [activeTab, setActiveTab] = useState<'historial' | 'odontograma' | 'tratamientos' | 'galeria'>('odontograma')
+export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
+  const [activeTab, setActiveTab] = useState<'resumen' | 'historial' | 'odontograma' | 'tratamientos' | 'galeria' | 'pagos' | 'citas'>('resumen')
 
   return (
     <div className="bg-surface rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[700px]">
       
       {/* Tab Navigation */}
-      <div className="flex items-center border-b border-slate-100 overflow-x-auto">
+      <div className="flex items-center border-b border-slate-100 overflow-x-auto scrollbar-hide">
+        <button
+          onClick={() => setActiveTab('resumen')}
+          className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
+            activeTab === 'resumen' 
+            ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
+            : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+          }`}
+        >
+          <Activity className="w-4 h-4" />
+          Resumen
+        </button>
         <button
           onClick={() => setActiveTab('historial')}
-          className={`flex-1 py-4 px-6 text-sm font-medium flex items-center justify-center gap-2 border-b-2 transition-colors ${
+          className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
             activeTab === 'historial' 
             ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
             : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
@@ -32,7 +45,7 @@ export function PatientTabs({ patientId }: PatientTabsProps) {
         </button>
         <button
           onClick={() => setActiveTab('odontograma')}
-          className={`flex-1 py-4 px-6 text-sm font-medium flex items-center justify-center gap-2 border-b-2 transition-colors ${
+          className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
             activeTab === 'odontograma' 
             ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
             : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
@@ -43,7 +56,7 @@ export function PatientTabs({ patientId }: PatientTabsProps) {
         </button>
         <button
           onClick={() => setActiveTab('tratamientos')}
-          className={`flex-1 py-4 px-6 text-sm font-medium flex items-center justify-center gap-2 border-b-2 transition-colors ${
+          className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
             activeTab === 'tratamientos' 
             ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
             : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
@@ -54,20 +67,45 @@ export function PatientTabs({ patientId }: PatientTabsProps) {
         </button>
         <button
           onClick={() => setActiveTab('galeria')}
-          className={`flex-1 py-4 px-6 text-sm font-medium flex items-center justify-center gap-2 border-b-2 transition-colors ${
+          className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
             activeTab === 'galeria' 
             ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
             : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
           }`}
         >
           <ImageIcon className="w-4 h-4" />
-          Galería (Imágenes y Radiografías)
+          Documentos y Fotos
+        </button>
+        {/* Placeholder for Pagos & Citas tabs to be built in later phases */}
+        <button
+          onClick={() => setActiveTab('pagos')}
+          className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
+            activeTab === 'pagos' 
+            ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
+            : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+          }`}
+        >
+          Pagos
+        </button>
+        <button
+          onClick={() => setActiveTab('citas')}
+          className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
+            activeTab === 'citas' 
+            ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
+            : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+          }`}
+        >
+          Citas
         </button>
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+      <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50 relative">
         
+        {activeTab === 'resumen' && (
+          <PatientSummaryTab summaryData={summaryData} />
+        )}
+
         {activeTab === 'historial' && (
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8">
             <ClinicalHistoryForm patientId={patientId} />
