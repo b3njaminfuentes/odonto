@@ -6,77 +6,124 @@ import { logAuditAction } from '@/utils/audit'
 
 export async function getClinicalHistory(patientId: string) {
   const supabase = createClient()
+  
   const { data, error } = await supabase
     .from('ClinicalHistory')
-    .select('*')
+    .select(`
+      *,
+      versions:ClinicalHistoryVersion(
+        id,
+        medicalHistory,
+        dentalBackground,
+        observations,
+        changedBy,
+        createdAt
+      )
+    `)
     .eq('patientId', patientId)
     .single()
 
   if (error && error.code !== 'PGRST116') {
-    // PGRST116 means no rows returned, which is fine for a new patient
     console.error('Error fetching clinical history:', error)
+  }
+
+  if (data && data.versions) {
+    data.versions.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   }
 
   return data || null
 }
 
-export async function saveClinicalHistory(formData: FormData) {
+export async function saveEvolutionNote(patientId: string, noteText: string, currentMedicalHistory: any) {
   const supabase = createClient()
   const { data: { session } } = await supabase.auth.getSession()
 
-  if (!session) {
-    return { error: 'No autorizado' }
+  if (!session) return { error: 'No autorizado' }
+
+  let historyId: string
+  const { data: existingHistory } = await supabase
+    .from('ClinicalHistory')
+    .select('id')
+    .eq('patientId', patientId)
+    .single()
+
+  if (!existingHistory) {
+    const { data: newHistory, error: createErr } = await supabase
+      .from('ClinicalHistory')
+      .insert({ patientId, medicalHistory: currentMedicalHistory, observations: noteText })
+      .select('id')
+      .single()
+      
+    if (createErr || !newHistory) return { error: 'No se pudo inicializar el historial.' }
+    historyId = newHistory.id
+  } else {
+    historyId = existingHistory.id
+    await supabase.from('ClinicalHistory').update({ observations: noteText, medicalHistory: currentMedicalHistory }).eq('id', historyId)
   }
 
-  const patientId = formData.get('patientId') as string
-  const medicalBackground = formData.get('medicalBackground') as string
-  const dentalBackground = formData.get('dentalBackground') as string
-  const allergies = formData.get('allergies') as string
-  const observations = formData.get('observations') as string
-
-  // UPSERT the history
-  const { data, error } = await supabase
-    .from('ClinicalHistory')
-    .upsert({
-      patientId,
-      medicalBackground,
-      dentalBackground,
-      allergies,
-      observations
-    }, { onConflict: 'patientId' })
+  const { data: version, error: versionError } = await supabase
+    .from('ClinicalHistoryVersion')
+    .insert({
+      clinicalHistoryId: historyId,
+      medicalHistory: currentMedicalHistory,
+      observations: noteText,
+      changedBy: session.user.id
+    })
     .select()
     .single()
 
-  if (error) {
-    console.error('Error saving clinical history:', error)
-    return { error: 'No se pudo guardar el historial' }
-  }
-
-  // Record version history in ClinicalHistoryVersion
-  const { error: versionError } = await supabase
-    .from('ClinicalHistoryVersion')
-    .insert({
-      historyId: data.id,
-      medicalBackground,
-      dentalBackground,
-      allergies,
-      observations,
-      modifiedBy: session.user.id
-    })
-
   if (versionError) {
     console.error('Error saving history version:', versionError)
+    return { error: 'No se pudo guardar la nota de evolución.' }
   }
 
   await logAuditAction({
     userId: session.user.id,
-    action: 'UPDATE_HISTORY',
-    entity: 'ClinicalHistory',
-    entityId: data.id,
+    action: 'ADD_EVOLUTION_NOTE',
+    entity: 'ClinicalHistoryVersion',
+    entityId: version.id,
     metadata: { patientId }
   })
 
   revalidatePath(`/admin/pacientes/${patientId}`)
+  return { success: true }
+}
 
-  return { success: true, history: data }
+export async function updateGeneralHistory(patientId: string, medicalHistory: any, dentalBackground: string) {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return { error: 'No autorizado' }
+
+  let historyId: string
+  const { data: existingHistory } = await supabase
+    .from('ClinicalHistory')
+    .select('id, observations')
+    .eq('patientId', patientId)
+    .single()
+
+  if (!existingHistory) {
+    const { data: newHistory, error: createErr } = await supabase
+      .from('ClinicalHistory')
+      .insert({ patientId, medicalHistory, dentalBackground })
+      .select('id')
+      .single()
+    if (createErr || !newHistory) return { error: 'No se pudo guardar el historial.' }
+    historyId = newHistory.id
+  } else {
+    historyId = existingHistory.id
+    await supabase.from('ClinicalHistory')
+      .update({ medicalHistory, dentalBackground })
+      .eq('id', historyId)
+  }
+
+  await supabase.from('ClinicalHistoryVersion').insert({
+    clinicalHistoryId: historyId,
+    medicalHistory,
+    dentalBackground,
+    observations: existingHistory ? existingHistory.observations : 'Actualización de antecedentes',
+    changedBy: session.user.id
+  })
+
+  revalidatePath(`/admin/pacientes/${patientId}`)
+  return { success: true }
 }
