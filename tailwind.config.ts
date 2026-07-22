@@ -9,13 +9,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: "#0B3D2E", // Keep for text contrast where needed
-        secondary: "#FAF8F3",
-        accent: "#C9A44C",
-        neutral: "#8C8A85",
-        textMain: "#141414",
+        primary: "#0D9488", // Teal 600 - Clinical Warm
+        primaryHover: "#0F766E", // Teal 700
+        secondary: "#F8FAFC", // Slate 50
+        accent: "#14B8A6", // Teal 500
+        neutral: "#64748B", // Slate 500
+        textMain: "#0F172A", // Slate 900
         surface: "#FFFFFF",
-        surfaceHover: "#F9FAFB",
+        surfaceHover: "#F1F5F9", // Slate 100
         success: "#10B981",
         successLight: "#D1FAE5",
         warning: "#F59E0B",
@@ -24,15 +25,6 @@ const config: Config = {
         dangerLight: "#FEE2E2",
         info: "#3B82F6",
         infoLight: "#DBEAFE",
-        
-        // Neo-Brutalism Palette
-        neoYellow: "#FFD426",
-        neoPink: "#FF69B4",
-        neoGreen: "#5FF35F",
-        neoPurple: "#9D74FF",
-        neoBlue: "#4169E1",
-        neoBg: "#FDFDFD",
-        neoBorder: "#000000",
       },
       fontFamily: {
         serif: ["var(--font-fraunces)"],
@@ -43,10 +35,7 @@ const config: Config = {
         '128': '32rem',
       },
       boxShadow: {
-        soft: '0 20px 60px rgba(11, 61, 46, 0.08)',
-        neo: '4px 4px 0px 0px rgba(0,0,0,1)',
-        'neo-hover': '2px 2px 0px 0px rgba(0,0,0,1)',
-        'neo-lg': '8px 8px 0px 0px rgba(0,0,0,1)',
+        soft: '0 4px 20px -2px rgba(13, 148, 136, 0.05)',
       },
       borderWidth: {
         '3': '3px',

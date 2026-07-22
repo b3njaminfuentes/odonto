@@ -88,7 +88,7 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
   return (
     <div className="flex flex-col h-full">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-serif text-gray-900">Galería del Paciente</h2>
+        <h2 className="text-xl font-serif text-slate-900">Galería del Paciente</h2>
         <input 
           type="file" 
           ref={fileInputRef} 
@@ -99,7 +99,7 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
         <button 
           onClick={handleUploadClick}
           disabled={isUploading}
-          className="flex items-center gap-2 bg-primary/10 text-primary hover:bg-primary/20 px-4 py-2 rounded-xl font-medium transition-colors text-sm disabled:opacity-50"
+          className="flex items-center gap-2 bg-teal-50 text-teal-700 hover:bg-teal-100 px-4 py-2 rounded-xl font-medium transition-colors text-sm disabled:opacity-50"
         >
           {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
           {isUploading ? 'Subiendo...' : 'Subir Archivo'}
@@ -108,14 +108,14 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Subida rápida */}
           <div 
             onClick={handleUploadClick}
-            className="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center justify-center p-6 text-gray-400 hover:border-primary hover:bg-primary/5 hover:text-primary transition-all cursor-pointer min-h-[200px]"
+            className="border border-dashed border-slate-300 rounded-xl bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-400 hover:border-teal-400 hover:bg-teal-50 hover:text-teal-600 transition-all cursor-pointer min-h-[200px]"
           >
             <Upload className="w-8 h-8 mb-2" />
             <p className="text-sm font-medium">Click aquí para subir</p>
@@ -124,10 +124,10 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
 
           {/* Imágenes y Archivos */}
           {images.map((img) => (
-            <div key={img.id} className="group relative bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm card-hover">
-              <div className="aspect-[4/3] bg-gray-100 relative flex items-center justify-center">
+            <div key={img.id} className="group relative bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+              <div className="aspect-[4/3] bg-slate-100 relative flex items-center justify-center">
                 {img.category === 'document' ? (
-                  <File className="w-16 h-16 text-gray-400" />
+                  <File className="w-16 h-16 text-slate-400" />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img 
@@ -147,16 +147,16 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
               </div>
               <div className="p-4">
                 <div className="flex justify-between items-start mb-1">
-                  <h4 className="font-bold text-gray-900 text-sm truncate" title={img.description}>{img.description}</h4>
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                  <h4 className="font-bold text-slate-900 text-sm truncate" title={img.description}>{img.description}</h4>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">
                     {img.category === 'document' ? 'DOC' : 'IMG'}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-slate-500">
                   {new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(img.createdAt))}
                 </p>
                 {img.category === 'document' && (
-                  <a href={img.signedUrl} target="_blank" rel="noopener noreferrer" className="text-primary text-xs font-medium hover:underline mt-2 inline-block">
+                  <a href={img.signedUrl} target="_blank" rel="noopener noreferrer" className="text-teal-600 text-xs font-medium hover:underline mt-2 inline-block">
                     Ver documento
                   </a>
                 )}

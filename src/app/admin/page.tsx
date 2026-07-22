@@ -53,8 +53,8 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col gap-1">
-        <h1 className="text-4xl font-black uppercase text-black tracking-tight">Dashboard</h1>
-        <p className="text-black font-bold">Un vistazo rápido al estado de la clínica hoy.</p>
+        <h1 className="text-3xl font-serif text-teal-900 tracking-tight">Dashboard</h1>
+        <p className="text-slate-500">Un vistazo rápido al estado de la clínica hoy.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -64,45 +64,45 @@ export default async function AdminDashboardPage() {
           icon={Users}
           trend={{ value: 12, isPositive: true }}
           description="En tratamiento o control"
-          colorClass="neo-card-yellow"
+          colorClass="clinical-card-teal"
         />
         <KPICard
           title="Citas Hoy"
           value={todayAppointments || 0}
           icon={Calendar}
           description="Pendientes y confirmadas"
-          colorClass="neo-card-purple"
+          colorClass="clinical-card-slate"
         />
         <KPICard
           title="Pagos Pendientes"
           value={`Bs ${totalPendingMoney.toFixed(2)}`}
           icon={Banknote}
           description={`${pendingPaymentsData?.length || 0} facturas por cobrar`}
-          colorClass="neo-card-green"
+          colorClass="clinical-card-teal"
         />
         <KPICard
           title="Próximas Cirugías"
           value="0"
           icon={Activity}
           description="Agendadas esta semana"
-          colorClass="neo-card-pink"
+          colorClass="clinical-card-slate"
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 neo-card p-6 min-h-[400px]">
-          <h2 className="text-xl font-black text-black uppercase mb-4">Actividad Reciente</h2>
+        <div className="lg:col-span-2 clinical-card bg-white p-6 min-h-[400px]">
+          <h2 className="text-xl font-semibold text-slate-900 mb-6">Actividad Reciente</h2>
           
           {auditLogs && auditLogs.length > 0 ? (
             <div className="space-y-4">
               {auditLogs.map((log) => (
-                <div key={log.id} className="flex items-start gap-4 p-4 rounded-xl border-3 border-transparent hover:border-black transition-colors hover:bg-neoYellow">
-                  <div className="w-10 h-10 rounded-xl bg-white border-2 border-black shadow-neo-sm flex items-center justify-center text-black flex-shrink-0 mt-0.5">
-                    <Clock className="w-5 h-5" strokeWidth={2.5} />
+                <div key={log.id} className="flex items-start gap-4 p-4 rounded-xl border border-transparent hover:border-slate-200 transition-colors hover:bg-slate-50 group">
+                  <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center flex-shrink-0 mt-0.5 group-hover:bg-teal-100 transition-colors">
+                    <Clock className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="font-bold text-black">{getActivityDescription(log.action, log.entity)}</p>
-                    <p className="text-xs text-black/70 mt-1 font-bold">
+                    <p className="font-medium text-slate-900">{getActivityDescription(log.action, log.entity)}</p>
+                    <p className="text-xs text-slate-500 mt-1">
                       {new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(log.createdAt))} 
                       {' '}• Referencia: {log.entityId.split('-')[0]}...
                     </p>
@@ -111,15 +111,15 @@ export default async function AdminDashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-[300px] text-black font-bold border-3 border-dashed border-black/20 rounded-2xl m-4">
+            <div className="flex items-center justify-center h-[300px] text-slate-500 border border-dashed border-slate-200 rounded-2xl m-4 bg-slate-50">
               Aún no hay actividad registrada en el sistema.
             </div>
           )}
         </div>
 
-        <div className="neo-card bg-neoPink p-6 min-h-[400px]">
-          <h2 className="text-xl font-black text-black uppercase mb-4">Recordatorios</h2>
-          <div className="flex items-center justify-center h-[300px] text-black font-bold border-3 border-dashed border-black/20 rounded-2xl m-4">
+        <div className="clinical-card bg-teal-50 border-teal-100 p-6 min-h-[400px]">
+          <h2 className="text-xl font-semibold text-teal-900 mb-6">Recordatorios</h2>
+          <div className="flex items-center justify-center h-[300px] text-teal-700/60 border border-dashed border-teal-200 rounded-2xl m-4">
             Todo al día.
           </div>
         </div>
