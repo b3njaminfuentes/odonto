@@ -35,19 +35,17 @@ export function Odontogram({ patientId, readOnly = false }: OdontogramProps) {
     setSelectedTooth(toothId)
   }
 
-  const updateTooth = (state: ToothState) => {
+  const updateTooth = async (state: ToothState) => {
     if (selectedTooth) {
-      setTeethData(prev => ({ ...prev, [selectedTooth]: state }))
+      const newData = { ...teethData, [selectedTooth]: state }
+      setTeethData(newData)
       setSelectedTooth(null)
-      setHasChanges(true)
+      
+      // Auto-guardado
+      setIsSaving(true)
+      await saveOdontogram(patientId, newData)
+      setIsSaving(false)
     }
-  }
-
-  const handleSave = async () => {
-    setIsSaving(true)
-    await saveOdontogram(patientId, teethData)
-    setHasChanges(false)
-    setIsSaving(false)
   }
 
   const getToothColor = (state?: ToothState) => {
@@ -94,15 +92,10 @@ export function Odontogram({ patientId, readOnly = false }: OdontogramProps) {
             <span className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-slate-800"></div> Extracción</span>
             <span className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-amber-500"></div> Corona</span>
           </div>
-          {!readOnly && (
-            <button 
-              onClick={handleSave}
-              disabled={!hasChanges || isSaving}
-              className="clinical-btn px-4 py-2 flex items-center gap-2"
-            >
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              Guardar
-            </button>
+          {isSaving && (
+            <span className="text-teal-600 flex items-center gap-2 text-sm font-medium animate-in fade-in">
+              <Loader2 className="w-4 h-4 animate-spin" /> Guardando...
+            </span>
           )}
         </div>
       </div>
@@ -142,7 +135,7 @@ export function Odontogram({ patientId, readOnly = false }: OdontogramProps) {
         <div className="mt-4 p-4 bg-teal-50 rounded-xl border border-teal-100 flex gap-3 text-teal-700">
           <Info className="w-5 h-5 flex-shrink-0" />
           <p className="text-sm">
-            Haz click en cualquier diente para marcar su estado y luego haz clic en "Guardar" para registrar los cambios en la ficha del paciente.
+            Haz click en cualquier diente para marcar su estado. Los cambios se guardarán automáticamente en la ficha del paciente.
           </p>
         </div>
       )}
