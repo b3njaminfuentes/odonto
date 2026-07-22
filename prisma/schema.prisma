@@ -56,8 +56,10 @@ model Patient {
   firstName        String
   lastName         String
   dob              DateTime      @db.Date
+  email            String?       @unique
   phone            String?
-  emergencyContact String?
+  emergencyContactName String?
+  emergencyContactPhone String?
   address          String?
   status           PatientStatus @default(ACTIVE)
   profilePhotoId   String?       @db.Uuid // Opcional, referencia a CaseMedia o un bucket ID
