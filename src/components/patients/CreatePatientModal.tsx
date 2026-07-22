@@ -122,15 +122,18 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
               </div>
             </div>
           ) : (
-            <form ref={formRef} onSubmit={handleSubmit} className="space-y-8" onChange={() => setIsTouched(true)}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-6" onChange={() => setIsTouched(true)}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {/* Información Personal */}
-                <div className="space-y-6 sm:col-span-2 border-b border-slate-100 pb-8">
-                  <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">Información Personal</h3>
+                <div className="sm:col-span-2 bg-slate-50/50 border border-slate-100 rounded-2xl p-6 space-y-5">
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs">1</span>
+                    Información Personal
+                  </h3>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Nombres *</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Nombres *</label>
                       <input 
                         name="firstName" 
                         required 
@@ -138,14 +141,14 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         data-invalid={isTouched && firstName.trim() === ''}
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm data-[invalid=true]:border-red-300 data-[invalid=true]:ring-red-500/10 disabled:bg-slate-50 disabled:text-slate-500" 
+                        className="clinical-input w-full px-4 py-2.5 data-[invalid=true]:border-red-300 data-[invalid=true]:ring-red-500/10" 
                       />
                       {isTouched && firstName.trim() === '' && (
                         <p className="text-xs text-red-600 mt-1 animate-in fade-in slide-in-from-top-1 duration-150">Este campo es obligatorio</p>
                       )}
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Apellidos *</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Apellidos *</label>
                       <input 
                         name="lastName" 
                         required 
@@ -153,7 +156,7 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         data-invalid={isTouched && lastName.trim() === ''}
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm data-[invalid=true]:border-red-300 data-[invalid=true]:ring-red-500/10 disabled:bg-slate-50 disabled:text-slate-500" 
+                        className="clinical-input w-full px-4 py-2.5 data-[invalid=true]:border-red-300 data-[invalid=true]:ring-red-500/10" 
                       />
                       {isTouched && lastName.trim() === '' && (
                         <p className="text-xs text-red-600 mt-1 animate-in fade-in slide-in-from-top-1 duration-150">Este campo es obligatorio</p>
@@ -161,54 +164,60 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Fecha de Nacimiento *</label>
-                      <input type="date" name="dob" required disabled={loading} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm disabled:bg-slate-50 disabled:text-slate-500" />
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Fecha de Nacimiento *</label>
+                      <input type="date" name="dob" required disabled={loading} className="clinical-input w-full px-4 py-2.5" />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">DNI o Cédula</label>
-                      <input name="dni" disabled={loading} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm disabled:bg-slate-50 disabled:text-slate-500" />
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">DNI o Cédula</label>
+                      <input name="dni" disabled={loading} className="clinical-input w-full px-4 py-2.5" />
                     </div>
                   </div>
                 </div>
 
                 {/* Contacto */}
-                <div className="space-y-6 sm:col-span-2 border-b border-slate-100 pb-8">
-                  <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">Contacto</h3>
+                <div className="sm:col-span-2 bg-slate-50/50 border border-slate-100 rounded-2xl p-6 space-y-5">
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs">2</span>
+                    Contacto
+                  </h3>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono</label>
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Teléfono</label>
                       <input 
                         type="tel" 
                         name="phone" 
                         disabled={loading}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm disabled:bg-slate-50 disabled:text-slate-500" 
+                        className="clinical-input w-full px-4 py-2.5" 
                         placeholder="+591..." 
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                      <input type="email" name="email" disabled={loading} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm disabled:bg-slate-50 disabled:text-slate-500" />
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+                      <input type="email" name="email" disabled={loading} className="clinical-input w-full px-4 py-2.5" />
                     </div>
                   </div>
                 </div>
 
                 {/* Emergencia */}
-                <div className="space-y-6 sm:col-span-2 pb-4">
-                  <h3 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">Emergencia</h3>
+                <div className="sm:col-span-2 bg-slate-50/50 border border-slate-100 rounded-2xl p-6 space-y-5">
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs">3</span>
+                    Emergencia (Opcional)
+                  </h3>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Nombre Contacto</label>
-                      <input name="emergencyContactName" disabled={loading} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm disabled:bg-slate-50 disabled:text-slate-500" />
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Nombre Contacto</label>
+                      <input name="emergencyContactName" disabled={loading} className="clinical-input w-full px-4 py-2.5" />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-slate-700 mb-1">Teléfono Contacto</label>
-                      <input type="tel" name="emergencyContactPhone" disabled={loading} className="w-full px-4 py-2.5 rounded-xl border border-slate-200 focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm disabled:bg-slate-50 disabled:text-slate-500" />
+                      <label className="block text-sm font-medium text-slate-700 mb-1.5">Teléfono Contacto</label>
+                      <input type="tel" name="emergencyContactPhone" disabled={loading} className="clinical-input w-full px-4 py-2.5" />
                     </div>
                   </div>
                 </div>
@@ -226,7 +235,7 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
                 <button
                   type="submit"
                   disabled={loading || (isTouched && (firstName.trim() === '' || lastName.trim() === ''))}
-                  className="bg-teal-600 hover:bg-teal-700 disabled:bg-teal-400 disabled:cursor-not-allowed text-white font-medium px-5 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-2"
+                  className="clinical-btn px-6 py-2.5 text-sm flex items-center gap-2"
                 >
                   {loading ? (
                     <>
