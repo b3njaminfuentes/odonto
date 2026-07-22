@@ -1,65 +1,170 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Upload, Image as ImageIcon, X } from 'lucide-react'
+import React, { useState, useEffect, useRef } from 'react'
+import { Upload, Image as ImageIcon, X, Loader2, File } from 'lucide-react'
+import { createClient } from '@/utils/supabase/client'
+import { getPatientMedia, saveMediaRecord, deleteMediaRecord } from '@/app/admin/pacientes/gallery-actions'
 
 interface GalleryViewerProps {
   patientId: string
 }
 
 export function GalleryViewer({ patientId }: GalleryViewerProps) {
-  // En la Fase de backend, esto leerá los buckets de 'radiographs' o 'cases-images'
-  const [images] = useState([
-    { id: 1, type: 'radiograph', url: 'https://images.unsplash.com/photo-1584820927498-cafe4c071726?auto=format&fit=crop&q=80&w=400', date: '10 Oct 2026', title: 'Panorámica Inicial' },
-    { id: 2, type: 'photo', url: 'https://images.unsplash.com/photo-1606811841689-23dfddce3e95?auto=format&fit=crop&q=80&w=400', date: '10 Oct 2026', title: 'Intraoral Frontal' },
-  ])
+  const [images, setImages] = useState<any[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const supabase = createClient()
+
+  const loadMedia = async () => {
+    setIsLoading(true)
+    const media = await getPatientMedia(patientId)
+    setImages(media)
+    setIsLoading(false)
+  }
+
+  useEffect(() => {
+    loadMedia()
+  }, [patientId])
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setIsUploading(true)
+    try {
+      // 1. Upload to storage
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${patientId}/${Math.random().toString(36).substring(2)}.${fileExt}`
+      
+      // Select bucket based on file type
+      let bucket = 'cases-images'
+      if (file.type.includes('pdf')) {
+        bucket = 'documents'
+      }
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, file)
+
+      if (uploadError) throw uploadError
+
+      // 2. Save DB record
+      const category = file.type.includes('pdf') ? 'document' : 'image'
+      await saveMediaRecord({
+        patientId,
+        bucket,
+        fileUrl: fileName,
+        category,
+        title: file.name,
+        mimeType: file.type,
+        size: file.size
+      })
+
+      // 3. Reload
+      await loadMedia()
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      alert('Error al subir el archivo')
+    } finally {
+      setIsUploading(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
+
+  const handleDelete = async (id: string, bucket: string, fileUrl: string) => {
+    if (!confirm('¿Estás seguro de eliminar este archivo?')) return
+    
+    setImages(images.filter(img => img.id !== id))
+    await deleteMediaRecord(id, bucket, fileUrl, patientId)
+  }
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-serif text-gray-900">Galería del Paciente</h2>
-        <button className="flex items-center gap-2 bg-primary/10 text-primary hover:bg-primary/20 px-4 py-2 rounded-xl font-medium transition-colors text-sm">
-          <Upload className="w-4 h-4" />
-          Subir Archivo
+        <input 
+          type="file" 
+          ref={fileInputRef} 
+          className="hidden" 
+          accept="image/*,application/pdf"
+          onChange={handleFileChange}
+        />
+        <button 
+          onClick={handleUploadClick}
+          disabled={isUploading}
+          className="flex items-center gap-2 bg-primary/10 text-primary hover:bg-primary/20 px-4 py-2 rounded-xl font-medium transition-colors text-sm disabled:opacity-50"
+        >
+          {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+          {isUploading ? 'Subiendo...' : 'Subir Archivo'}
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Subida rápida */}
-        <div className="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center justify-center p-6 text-gray-400 hover:border-primary hover:bg-primary/5 hover:text-primary transition-all cursor-pointer min-h-[200px]">
-          <Upload className="w-8 h-8 mb-2" />
-          <p className="text-sm font-medium">Arrastra radiografías aquí</p>
-          <p className="text-xs mt-1">o haz click para buscar</p>
+      {isLoading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
-
-        {/* Imágenes */}
-        {images.map((img) => (
-          <div key={img.id} className="group relative bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm card-hover">
-            <div className="aspect-[4/3] bg-gray-900 relative">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img 
-                src={img.url} 
-                alt={img.title}
-                className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-              />
-              <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-sm">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-            <div className="p-4">
-              <div className="flex justify-between items-start mb-1">
-                <h4 className="font-bold text-gray-900 text-sm truncate">{img.title}</h4>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                  {img.type === 'radiograph' ? 'RX' : 'Foto'}
-                </span>
-              </div>
-              <p className="text-xs text-gray-500">{img.date}</p>
-            </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Subida rápida */}
+          <div 
+            onClick={handleUploadClick}
+            className="border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center justify-center p-6 text-gray-400 hover:border-primary hover:bg-primary/5 hover:text-primary transition-all cursor-pointer min-h-[200px]"
+          >
+            <Upload className="w-8 h-8 mb-2" />
+            <p className="text-sm font-medium">Click aquí para subir</p>
+            <p className="text-xs mt-1">Imágenes, Radiografías o PDFs</p>
           </div>
-        ))}
-      </div>
+
+          {/* Imágenes y Archivos */}
+          {images.map((img) => (
+            <div key={img.id} className="group relative bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm card-hover">
+              <div className="aspect-[4/3] bg-gray-100 relative flex items-center justify-center">
+                {img.category === 'document' ? (
+                  <File className="w-16 h-16 text-gray-400" />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img 
+                    src={img.signedUrl} 
+                    alt={img.description}
+                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+                  />
+                )}
+                <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button 
+                    onClick={() => handleDelete(img.id, img.bucket, img.fileUrl)}
+                    className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-sm"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-1">
+                  <h4 className="font-bold text-gray-900 text-sm truncate" title={img.description}>{img.description}</h4>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                    {img.category === 'document' ? 'DOC' : 'IMG'}
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500">
+                  {new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(img.createdAt))}
+                </p>
+                {img.category === 'document' && (
+                  <a href={img.signedUrl} target="_blank" rel="noopener noreferrer" className="text-primary text-xs font-medium hover:underline mt-2 inline-block">
+                    Ver documento
+                  </a>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

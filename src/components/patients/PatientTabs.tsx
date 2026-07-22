@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { FileText, Smile, ImageIcon } from 'lucide-react'
 import { Odontogram } from './Odontogram'
 import { GalleryViewer } from './GalleryViewer'
+import { ClinicalHistoryForm } from './ClinicalHistoryForm'
 
 interface PatientTabsProps {
   patientId: string
@@ -56,9 +57,8 @@ export function PatientTabs({ patientId }: PatientTabsProps) {
       <div className="flex-1 overflow-y-auto p-6 bg-gray-50/50">
         
         {activeTab === 'historial' && (
-          <div className="flex flex-col items-center justify-center h-full text-gray-400">
-            <FileText className="w-12 h-12 mb-4 text-gray-300" />
-            <p>El historial clínico se implementará en la próxima actualización.</p>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8">
+            <ClinicalHistoryForm patientId={patientId} />
           </div>
         )}
 
