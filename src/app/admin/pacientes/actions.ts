@@ -9,6 +9,7 @@ const generatePatientCode = () => `PT-${Math.floor(100000 + Math.random() * 9000
 
 export async function createPatient(formData: FormData) {
   const supabase = createClient()
+  const adminSupabase = createAdminClient()
   
   const firstName = formData.get('firstName') as string
   const lastName = formData.get('lastName') as string
@@ -24,8 +25,8 @@ export async function createPatient(formData: FormData) {
     return { error: 'Nombre, Apellido y Fecha de Nacimiento son obligatorios.' }
   }
 
-  // Insertar en Supabase usando el cliente autenticado
-  const { data, error } = await supabase
+  // Insertar en Supabase usando el Admin Client para bypasear RLS si es necesario
+  const { data, error } = await adminSupabase
     .from('Patient')
     .insert({
       patientCode: generatePatientCode(),
@@ -47,7 +48,7 @@ export async function createPatient(formData: FormData) {
     if (error.code === '23505') {
       return { error: 'Ya existe un paciente con ese DNI o Email.' }
     }
-    return { error: 'Ocurrió un error inesperado al crear el paciente.' }
+    return { error: `Error de BD: ${error.message || JSON.stringify(error)}` }
   }
 
   // Get current user id to log action
