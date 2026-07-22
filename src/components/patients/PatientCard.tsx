@@ -37,7 +37,7 @@ export function PatientCard({ patient }: { patient: Patient }) {
   return (
     <Link 
       href={`/admin/pacientes/${patient.id}`}
-      className="block clinical-card group p-5 bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all"
+      className="block clinical-card group p-5 bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
     >
       <div className="flex items-start gap-4">
         {/* Avatar */}

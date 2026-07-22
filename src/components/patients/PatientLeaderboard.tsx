@@ -74,9 +74,8 @@ export function PatientLeaderboard({
   return (
     <div className="space-y-6">
       {/* Header & Controls */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-        
-        {/* Search */}
+      <div className="sticky top-0 z-30 -mx-4 px-4 py-4 sm:mx-0 sm:px-0 sm:py-0 sm:static mb-6">
+        <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/90 backdrop-blur-xl p-4 sm:rounded-2xl sm:border border-b sm:border-slate-200 shadow-sm sm:shadow-sm">
         <div className="relative flex-1 max-w-md">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             {isPending ? <Loader2 className="h-5 w-5 text-slate-400 animate-spin" /> : <Search className="h-5 w-5 text-slate-400" />}
@@ -121,6 +120,7 @@ export function PatientLeaderboard({
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Nuevo Paciente</span>
           </button>
+        </div>
         </div>
       </div>
 
