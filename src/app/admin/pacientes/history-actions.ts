@@ -50,7 +50,7 @@ export async function saveEvolutionNote(patientId: string, noteText: string, cur
   if (!existingHistory) {
     const { data: newHistory, error: createErr } = await supabase
       .from('ClinicalHistory')
-      .insert({ patientId, medicalHistory: currentMedicalHistory, observations: noteText })
+      .insert({ patientId, medicalHistory: currentMedicalHistory, observations: noteText, updatedAt: new Date().toISOString() })
       .select('id')
       .single()
       
@@ -104,7 +104,7 @@ export async function updateGeneralHistory(patientId: string, medicalHistory: an
   if (!existingHistory) {
     const { data: newHistory, error: createErr } = await supabase
       .from('ClinicalHistory')
-      .insert({ patientId, medicalHistory, dentalBackground })
+      .insert({ patientId, medicalHistory, dentalBackground, updatedAt: new Date().toISOString() })
       .select('id')
       .single()
     if (createErr || !newHistory) return { error: 'No se pudo guardar el historial.' }

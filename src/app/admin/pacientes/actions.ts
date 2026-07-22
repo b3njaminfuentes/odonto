@@ -39,6 +39,7 @@ export async function createPatient(formData: FormData) {
       emergencyContactName: emergencyContactName || null,
       emergencyContactPhone: emergencyContactPhone || null,
       status: 'ACTIVE',
+      updatedAt: new Date().toISOString(),
     })
     .select()
     .single()
