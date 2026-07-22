@@ -31,10 +31,14 @@ export async function createTreatment(formData: FormData) {
   const patientId = formData.get('patientId') as string
   const name = formData.get('name') as string
   const description = formData.get('description') as string
+  const toothNumber = formData.get('toothNumber') as string
   const budgetStr = formData.get('budget') as string
+  const finalCostStr = formData.get('finalCost') as string
+  const status = formData.get('status') as string || 'ACTIVO'
   const startDate = new Date().toISOString()
 
-  const budget = budgetStr ? parseFloat(budgetStr) : 0
+  const budget = budgetStr ? parseFloat(budgetStr) : null
+  const finalCost = finalCostStr ? parseFloat(finalCostStr) : null
 
   if (!patientId || !name) {
     return { error: 'Faltan campos obligatorios' }
@@ -45,10 +49,12 @@ export async function createTreatment(formData: FormData) {
     .insert({
       patientId,
       name,
-      description,
+      description: description || null,
+      toothNumber: toothNumber || null,
       budget,
+      finalCost,
       startDate,
-      status: 'ACTIVO'
+      status
     })
     .select()
     .single()
@@ -88,5 +94,57 @@ export async function updateTreatmentStatus(treatmentId: string, status: 'ACTIVO
   revalidatePath(`/admin/pacientes/${patientId}`)
   revalidatePath('/admin/tratamientos')
 
+  return { success: true }
+}
+
+export async function updateTreatment(treatmentId: string, formData: FormData) {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+
+  if (!session) {
+    return { error: 'No autorizado' }
+  }
+
+  const patientId = formData.get('patientId') as string
+  const name = formData.get('name') as string
+  const description = formData.get('description') as string
+  const toothNumber = formData.get('toothNumber') as string
+  const budgetStr = formData.get('budget') as string
+  const finalCostStr = formData.get('finalCost') as string
+  const status = formData.get('status') as string
+
+  const budget = budgetStr ? parseFloat(budgetStr) : null
+  const finalCost = finalCostStr ? parseFloat(finalCostStr) : null
+
+  if (!name) {
+    return { error: 'El nombre es obligatorio' }
+  }
+
+  const { error } = await supabase
+    .from('Treatment')
+    .update({
+      name,
+      description: description || null,
+      toothNumber: toothNumber || null,
+      budget,
+      finalCost,
+      status
+    })
+    .eq('id', treatmentId)
+
+  if (error) {
+    console.error('Error updating treatment:', error)
+    return { error: 'No se pudo actualizar el tratamiento' }
+  }
+
+  await logAuditAction({
+    userId: session.user.id,
+    action: 'UPDATE',
+    entity: 'Treatment',
+    entityId: treatmentId,
+    metadata: { patientId, name }
+  })
+
+  revalidatePath(`/admin/pacientes/${patientId}`)
   return { success: true }
 }
