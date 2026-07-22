@@ -56,9 +56,9 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
       <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
-        <div className="bg-white/80 backdrop-blur-md border-b border-gray-100 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900 font-serif">Agendar Cita</h2>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+        <div className="bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+          <h2 className="text-xl font-semibold text-teal-900 font-serif tracking-tight">Agendar Cita</h2>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -72,8 +72,8 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
 
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Paciente *</label>
-              <select name="patientId" required className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
+              <label className="block text-sm font-medium text-slate-700 mb-1">Paciente *</label>
+              <select name="patientId" required disabled={loading} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500 text-sm">
                 <option value="">Selecciona un paciente...</option>
                 {patients.map(p => (
                   <option key={p.id} value={p.id}>{p.name} ({p.code})</option>
@@ -83,18 +83,19 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Fecha y Hora *</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Fecha y Hora *</label>
                 <input 
                   type="datetime-local" 
                   name="startsAt" 
                   required 
                   min={nowISO}
-                  className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all" 
+                  disabled={loading}
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500 text-sm" 
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Duración (min) *</label>
-                <select name="duration" required defaultValue="30" className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
+                <label className="block text-sm font-medium text-slate-700 mb-1">Duración (min) *</label>
+                <select name="duration" required disabled={loading} defaultValue="30" className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500 text-sm">
                   <option value="15">15 min</option>
                   <option value="30">30 min</option>
                   <option value="45">45 min</option>
@@ -106,8 +107,8 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Cita *</label>
-              <select name="type" required className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
+              <label className="block text-sm font-medium text-slate-700 mb-1">Tipo de Cita *</label>
+              <select name="type" required disabled={loading} className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all disabled:bg-slate-50 disabled:text-slate-500 text-sm">
                 <option value="Consulta General">Consulta General</option>
                 <option value="Limpieza">Limpieza Profunda</option>
                 <option value="Extracción">Extracción</option>
@@ -118,22 +119,23 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Notas (Opcional)</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">Notas (Opcional)</label>
               <textarea 
                 name="notes" 
                 rows={3} 
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all resize-none"
+                disabled={loading}
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all resize-none disabled:bg-slate-50 disabled:text-slate-500 text-sm"
                 placeholder="Detalles adicionales..."
               ></textarea>
             </div>
 
             <div className="pt-4 flex justify-end gap-3">
-              <button type="button" onClick={onClose} disabled={loading} className="px-5 py-2.5 text-gray-700 font-medium hover:bg-gray-100 rounded-xl transition-colors disabled:opacity-50">
+              <button type="button" onClick={onClose} disabled={loading} className="px-5 py-2.5 text-slate-700 font-medium hover:bg-slate-100 rounded-xl transition-colors disabled:opacity-50 text-sm">
                 Cancelar
               </button>
-              <button type="submit" disabled={loading} className="px-6 py-2.5 bg-primary text-white font-medium hover:bg-primary/90 rounded-xl transition-colors shadow-sm disabled:opacity-70 flex items-center gap-2">
+              <button type="submit" disabled={loading} className="clinical-btn px-6 py-2.5 flex items-center gap-2">
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Agendar
+                {loading ? 'Agendando...' : 'Agendar Cita'}
               </button>
             </div>
           </form>

@@ -4,7 +4,11 @@ import { WeeklyCalendar } from '@/components/calendar/WeeklyCalendar'
 
 export const dynamic = 'force-dynamic'
 
-export default async function CalendarioPage() {
+export default async function CalendarioPage({
+  searchParams,
+}: {
+  searchParams?: { date?: string }
+}) {
   const supabase = createClient()
 
   // Traer pacientes para el select del Modal (id, nombre, código)
@@ -20,9 +24,18 @@ export default async function CalendarioPage() {
     code: p.patientCode
   }))
 
-  // Traer citas de las próximas semanas / mes (para el MVP traemos todas las no canceladas recientes o futuras)
-  // En producción se traería solo el rango visible.
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
+  // Recibimos la fecha actual de la vista, o usamos hoy por defecto
+  const queryDate = searchParams?.date ? new Date(searchParams.date as string) : new Date()
+  
+  // Calcular los límites del mes actual para la query
+  // Agregamos un buffer de 7 días antes y después para solapamientos de semanas
+  const startOfMonth = new Date(queryDate.getFullYear(), queryDate.getMonth(), 1)
+  startOfMonth.setDate(startOfMonth.getDate() - 7)
+  const endOfMonth = new Date(queryDate.getFullYear(), queryDate.getMonth() + 1, 0)
+  endOfMonth.setDate(endOfMonth.getDate() + 7)
+  
+  const startISO = startOfMonth.toISOString()
+  const endISO = endOfMonth.toISOString()
   
   const { data: rawAppointments } = await supabase
     .from('Appointment')
@@ -41,7 +54,8 @@ export default async function CalendarioPage() {
         phone
       )
     `)
-    .gte('startsAt', thirtyDaysAgo)
+    .gte('startsAt', startISO)
+    .lte('startsAt', endISO)
     .not('status', 'eq', 'CANCELADO')
     .order('startsAt', { ascending: true })
 
