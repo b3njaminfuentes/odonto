@@ -16,8 +16,6 @@ export async function createPatient(formData: FormData) {
     console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '[SET]' : '[MISSING]')
     console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '[SET]' : '[MISSING]')
     
-    const adminSupabase = createAdminClient()
-    
     const firstName = formData.get('firstName') as string
     const lastName = formData.get('lastName') as string
     const dob = formData.get('dob') as string
@@ -32,8 +30,8 @@ export async function createPatient(formData: FormData) {
       return { error: 'Nombre, Apellido y Fecha de Nacimiento son obligatorios.' }
     }
 
-    // Insertar en Supabase usando el Admin Client para bypasear RLS si es necesario
-    const { data, error } = await adminSupabase
+    // Insertar en Supabase usando el cliente autenticado normal
+    const { data, error } = await supabase
       .from('Patient')
       .insert({
         patientCode: generatePatientCode(),
