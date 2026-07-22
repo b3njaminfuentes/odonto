@@ -19,6 +19,13 @@ ON storage.objects FOR ALL USING (
   )
 );
 
--- Para el paciente, acceso limitado a sus cosas (requiere que la app guarde los archivos
--- en un folder con el formato patient_id/...).
--- Como el diseño completo es complejo, dejamos la validación básica o signed URLs.
+-- Para el paciente, acceso de lectura a sus propios archivos:
+-- Supabase Storage structure relies on the first path segment being the patientId.
+CREATE POLICY "Patient read access to own files"
+ON storage.objects FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM public."Patient" p
+    WHERE p.id::text = (string_to_array(storage.objects.name, '/'))[1]
+      AND p."profileId" = auth.uid()
+  )
+);
