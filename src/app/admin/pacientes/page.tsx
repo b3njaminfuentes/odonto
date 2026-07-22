@@ -5,12 +5,21 @@ import { Patient } from '@/components/patients/PatientCard'
 
 export const dynamic = 'force-dynamic'
 
-export default async function PacientesPage() {
+export default async function PacientesPage({
+  searchParams,
+}: {
+  searchParams?: { q?: string; page?: string; status?: string }
+}) {
   const supabase = createClient()
+  
+  const q = searchParams?.q || ''
+  const page = Number(searchParams?.page || '1')
+  const statusFilter = searchParams?.status || 'ALL'
+  const limit = 20
+  const offset = (page - 1) * limit
 
-  // Traer los pacientes de la tabla de Supabase, ordenados por los de creación más reciente
-  // Paginar para no traer todos de golpe (los primeros 20)
-  const { data: rawPatients, error } = await supabase
+  // Traer los pacientes de la tabla de Supabase, con paginación y búsqueda real
+  let query = supabase
     .from('Patient')
     .select(`
       id,
@@ -30,9 +39,19 @@ export default async function PacientesPage() {
         startsAt,
         status
       )
-    `)
+    `, { count: 'exact' })
+
+  if (q) {
+    query = query.or(`firstName.ilike.%${q}%,lastName.ilike.%${q}%,dni.ilike.%${q}%,phone.ilike.%${q}%,email.ilike.%${q}%`)
+  }
+
+  if (statusFilter !== 'ALL') {
+    query = query.eq('status', statusFilter)
+  }
+
+  const { data: rawPatients, count, error } = await query
     .order('createdAt', { ascending: false })
-    .range(0, 19)
+    .range(offset, offset + limit - 1)
 
   if (error) {
     console.error('Error fetching patients:', error)
@@ -100,7 +119,13 @@ export default async function PacientesPage() {
         </p>
       </div>
 
-      <PatientLeaderboard initialPatients={initialPatients} />
+      <PatientLeaderboard 
+        initialPatients={initialPatients} 
+        totalCount={count || 0}
+        currentPage={page}
+        currentSearch={q}
+        currentStatus={statusFilter}
+      />
     </div>
   )
 }

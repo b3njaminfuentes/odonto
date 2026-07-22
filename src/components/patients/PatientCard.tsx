@@ -37,11 +37,11 @@ export function PatientCard({ patient }: { patient: Patient }) {
   return (
     <Link 
       href={`/admin/pacientes/${patient.id}`}
-      className="block neo-card group bg-white"
+      className="block clinical-card group p-5 bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md hover:border-slate-300 transition-all"
     >
-      <div className="flex items-start gap-4 p-5">
+      <div className="flex items-start gap-4">
         {/* Avatar */}
-        <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-neoYellow flex-shrink-0 border-2 border-black shadow-neo-sm group-hover:-translate-y-1 transition-transform">
+        <div className="relative w-12 h-12 rounded-full overflow-hidden bg-teal-50 flex-shrink-0 flex items-center justify-center">
           {patient.avatarUrl ? (
             <Image 
               src={patient.avatarUrl} 
@@ -50,58 +50,48 @@ export function PatientCard({ patient }: { patient: Patient }) {
               className="object-cover"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center font-black text-2xl text-black">
+            <span className="font-semibold text-lg text-teal-700">
               {patient.firstName[0]}{patient.lastName[0]}
-            </div>
+            </span>
           )}
         </div>
 
         {/* Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex justify-between items-start">
-            <div>
-              <h3 className="font-black text-black truncate pr-4 text-xl uppercase tracking-tight">
-                {patient.firstName} {patient.lastName}
-              </h3>
-              <p className="text-sm text-black font-bold mb-2">{age} años</p>
-            </div>
+          <div className="flex justify-between items-start mb-1">
+            <h3 className="font-semibold text-slate-900 truncate pr-2 text-base">
+              {patient.firstName} {patient.lastName}
+            </h3>
             <StatusBadge 
               status={getStatusColor(patient.status)} 
               text={patient.status === 'ACTIVE' ? 'Activo' : patient.status === 'INACTIVE' ? 'Inactivo' : 'Archivado'} 
+              className="scale-90 origin-top-right"
             />
           </div>
+          <p className="text-sm text-slate-500 mb-3">{age} años</p>
 
-          <div className="grid grid-cols-2 gap-y-2 gap-x-4 mt-2">
-            <div className="flex items-center text-xs text-black font-bold">
-              <Phone className="w-3.5 h-3.5 mr-1.5" strokeWidth={2.5} />
-              <span className="truncate">{patient.phone || 'Sin teléfono'}</span>
+          {/* Highlight: Próxima Cita */}
+          <div className="bg-slate-50 rounded-lg p-2.5 mb-3 border border-slate-100 flex items-center gap-2 group-hover:bg-teal-50/50 transition-colors">
+            <Calendar className="w-4 h-4 text-teal-600 flex-shrink-0" />
+            <div className="flex flex-col min-w-0">
+              <span className="text-[10px] font-semibold uppercase text-slate-500 tracking-wider">Próxima Cita</span>
+              <span className="text-xs font-medium text-slate-900 truncate">{patient.nextAppointment || 'No agendada'}</span>
             </div>
-            {patient.email && (
-              <div className="flex items-center text-xs text-black font-bold">
-                <Mail className="w-3.5 h-3.5 mr-1.5" strokeWidth={2.5} />
-                <span className="truncate">{patient.email}</span>
-              </div>
-            )}
           </div>
 
-          <div className="mt-4 pt-4 border-t-3 border-black border-dashed flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-black text-black/60 tracking-wider">Última Visita</span>
-                <span className="text-xs font-bold text-black">{patient.lastVisit || 'N/A'}</span>
+          <div className="flex items-center gap-4 mt-2">
+            {patient.phone && (
+              <div className="flex items-center text-xs text-slate-400">
+                <Phone className="w-3.5 h-3.5 mr-1" />
+                <span className="truncate">{patient.phone}</span>
               </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-black text-black/60 tracking-wider">Próxima</span>
-                <span className="text-xs font-bold text-black flex items-center gap-1">
-                  <Calendar className="w-3 h-3 text-black" strokeWidth={2.5} />
-                  {patient.nextAppointment || 'N/A'}
-                </span>
+            )}
+            {patient.email && (
+              <div className="flex items-center text-xs text-slate-400">
+                <Mail className="w-3.5 h-3.5 mr-1" />
+                <span className="truncate" title={patient.email}>{patient.email}</span>
               </div>
-            </div>
-            
-            <div className="w-10 h-10 rounded-xl bg-neoPink border-2 border-black flex items-center justify-center group-hover:bg-neoYellow text-black shadow-neo-sm transition-colors">
-              <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
-            </div>
+            )}
           </div>
         </div>
       </div>
