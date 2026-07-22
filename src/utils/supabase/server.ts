@@ -27,3 +27,20 @@ export function createClient() {
     }
   )
 }
+
+export function createAdminClient() {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!, // Use service role for admin bypassing RLS
+    {
+      cookies: {
+        getAll() {
+          return cookies().getAll()
+        },
+        setAll() {
+          // Admin client doesn't need to manage session cookies
+        }
+      }
+    }
+  )
+}
