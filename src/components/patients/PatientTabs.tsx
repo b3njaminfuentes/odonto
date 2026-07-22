@@ -1,17 +1,18 @@
 'use client'
 
 import React, { useState } from 'react'
-import { FileText, Smile, ImageIcon } from 'lucide-react'
+import { FileText, Smile, ImageIcon, Stethoscope } from 'lucide-react'
 import { Odontogram } from './Odontogram'
 import { GalleryViewer } from './GalleryViewer'
 import { ClinicalHistoryForm } from './ClinicalHistoryForm'
+import { PatientTreatments } from './PatientTreatments'
 
 interface PatientTabsProps {
   patientId: string
 }
 
 export function PatientTabs({ patientId }: PatientTabsProps) {
-  const [activeTab, setActiveTab] = useState<'historial' | 'odontograma' | 'galeria'>('odontograma')
+  const [activeTab, setActiveTab] = useState<'historial' | 'odontograma' | 'tratamientos' | 'galeria'>('odontograma')
 
   return (
     <div className="bg-surface rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-[700px]">
@@ -41,6 +42,17 @@ export function PatientTabs({ patientId }: PatientTabsProps) {
           Odontograma
         </button>
         <button
+          onClick={() => setActiveTab('tratamientos')}
+          className={`flex-1 py-4 px-6 text-sm font-medium flex items-center justify-center gap-2 border-b-2 transition-colors ${
+            activeTab === 'tratamientos' 
+            ? 'border-primary text-primary bg-primary/5' 
+            : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+          }`}
+        >
+          <Stethoscope className="w-4 h-4" />
+          Tratamientos
+        </button>
+        <button
           onClick={() => setActiveTab('galeria')}
           className={`flex-1 py-4 px-6 text-sm font-medium flex items-center justify-center gap-2 border-b-2 transition-colors ${
             activeTab === 'galeria' 
@@ -64,6 +76,12 @@ export function PatientTabs({ patientId }: PatientTabsProps) {
 
         {activeTab === 'odontograma' && (
           <Odontogram patientId={patientId} />
+        )}
+
+        {activeTab === 'tratamientos' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 md:p-8">
+            <PatientTreatments patientId={patientId} />
+          </div>
         )}
 
         {activeTab === 'galeria' && (

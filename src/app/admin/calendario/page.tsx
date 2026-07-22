@@ -31,7 +31,7 @@ export default async function CalendarioPage() {
       startsAt,
       endsAt,
       status,
-      type,
+      treatmentType,
       notes,
       patientId,
       Patient:patientId (
@@ -51,7 +51,7 @@ export default async function CalendarioPage() {
     startsAt: app.startsAt,
     endsAt: app.endsAt,
     status: app.status,
-    type: app.type,
+    type: app.treatmentType || 'General',
     notes: app.notes,
     patient: {
       id: app.Patient?.id || app.patientId,
