@@ -17,12 +17,11 @@ const navigation = [
   { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
   { name: 'Pacientes', href: '/admin/pacientes', icon: Users },
   { name: 'Calendario', href: '/admin/calendario', icon: Calendar },
+  { name: 'Tratamientos', href: '/admin/tratamientos', icon: Stethoscope },
   { name: 'Pagos', href: '/admin/finanzas', icon: CreditCard },
-  // Ocultos para el MVP hasta que se programen las páginas completas:
-  // { name: 'Tratamientos', href: '/admin/tratamientos', icon: Stethoscope },
-  // { name: 'Documentos', href: '/admin/documentos', icon: FolderOpen },
-  // { name: 'Muelita AI', href: '/admin/muelita', icon: Bot },
-  // { name: 'Configuración', href: '/admin/configuracion', icon: Settings },
+  { name: 'Documentos', href: '/admin/documentos', icon: FolderOpen },
+  { name: 'Muelita AI', href: '/admin/muelita', icon: Bot },
+  { name: 'Configuración', href: '/admin/configuracion', icon: Settings },
 ]
 
 export default function AdminLayout({

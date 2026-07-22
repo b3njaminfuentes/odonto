@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Info } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { Info, Loader2, Save } from 'lucide-react'
+import { getOdontogram, saveOdontogram } from '@/app/admin/pacientes/odontogram-actions'
 
 interface OdontogramProps {
   patientId: string
@@ -11,9 +12,20 @@ interface OdontogramProps {
 type ToothState = 'normal' | 'caries' | 'extracción' | 'corona'
 
 export function Odontogram({ patientId, readOnly = false }: OdontogramProps) {
-  // Estado local para el estado de los dientes (se guardaría en Supabase en la fase de backend)
   const [teethData, setTeethData] = useState<Record<number, ToothState>>({})
   const [selectedTooth, setSelectedTooth] = useState<number | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [hasChanges, setHasChanges] = useState(false)
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await getOdontogram(patientId)
+      setTeethData(data || {})
+      setIsLoading(false)
+    }
+    loadData()
+  }, [patientId])
 
   const upperTeeth = [18,17,16,15,14,13,12,11, 21,22,23,24,25,26,27,28]
   const lowerTeeth = [48,47,46,45,44,43,42,41, 31,32,33,34,35,36,37,38]
@@ -27,7 +39,15 @@ export function Odontogram({ patientId, readOnly = false }: OdontogramProps) {
     if (selectedTooth) {
       setTeethData(prev => ({ ...prev, [selectedTooth]: state }))
       setSelectedTooth(null)
+      setHasChanges(true)
     }
+  }
+
+  const handleSave = async () => {
+    setIsSaving(true)
+    await saveOdontogram(patientId, teethData)
+    setHasChanges(false)
+    setIsSaving(false)
   }
 
   const getToothColor = (state?: ToothState) => {
@@ -68,14 +88,31 @@ export function Odontogram({ patientId, readOnly = false }: OdontogramProps) {
     <div className="flex flex-col h-full">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-serif text-gray-900">Odontograma Inicial</h2>
-        <div className="flex gap-4 text-sm text-gray-500">
-          <span className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-danger"></div> Caries</span>
-          <span className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-gray-800"></div> Extracción</span>
-          <span className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-accent"></div> Corona</span>
+        <div className="flex items-center gap-6">
+          <div className="flex gap-4 text-sm text-gray-500">
+            <span className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-danger"></div> Caries</span>
+            <span className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-gray-800"></div> Extracción</span>
+            <span className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-accent"></div> Corona</span>
+          </div>
+          {!readOnly && (
+            <button 
+              onClick={handleSave}
+              disabled={!hasChanges || isSaving}
+              className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-xl font-medium transition-colors shadow-sm disabled:opacity-50"
+            >
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              Guardar
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="flex-1 bg-white rounded-xl border border-gray-100 p-8 flex flex-col items-center justify-center shadow-inner relative">
+      <div className="flex-1 bg-white rounded-xl border border-gray-100 p-8 flex flex-col items-center justify-center shadow-inner relative min-h-[300px]">
+        {isLoading ? (
+          <div className="flex items-center justify-center absolute inset-0 bg-white/50 z-20">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          </div>
+        ) : null}
         
         {selectedTooth && (
           <div className="absolute top-4 right-4 bg-white p-4 rounded-xl shadow-lg border border-gray-200 z-10 animate-in zoom-in-95 w-64">
@@ -105,8 +142,7 @@ export function Odontogram({ patientId, readOnly = false }: OdontogramProps) {
         <div className="mt-4 p-4 bg-infoLight/30 rounded-xl border border-info/20 flex gap-3 text-info">
           <Info className="w-5 h-5 flex-shrink-0" />
           <p className="text-sm">
-            Este es un odontograma interactivo preliminar. Haz click en cualquier diente para marcar su estado. 
-            En la versión de backend los datos se guardarán automáticamente en la tabla <code>Odontogram</code>.
+            Haz click en cualquier diente para marcar su estado y luego haz clic en "Guardar" para registrar los cambios en la ficha del paciente.
           </p>
         </div>
       )}

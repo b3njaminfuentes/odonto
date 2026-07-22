@@ -9,10 +9,10 @@ export async function createAppointment(formData: FormData) {
   const patientId = formData.get('patientId') as string
   const startsAt = formData.get('startsAt') as string // ISO string o "YYYY-MM-DDTHH:mm"
   const duration = parseInt(formData.get('duration') as string) || 30
-  const type = formData.get('type') as string
+  const treatmentType = formData.get('type') as string
   const notes = formData.get('notes') as string
 
-  if (!patientId || !startsAt || !type) {
+  if (!patientId || !startsAt || !treatmentType) {
     return { error: 'Faltan campos obligatorios.' }
   }
 
@@ -48,7 +48,7 @@ export async function createAppointment(formData: FormData) {
       startsAt: startISO,
       endsAt: endISO,
       status: 'CONFIRMADO', // Para este MVP, asumimos que se confirma al agendar
-      type,
+      treatmentType,
       notes: notes || null
     })
     .select()
