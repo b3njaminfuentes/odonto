@@ -17,32 +17,17 @@
     @apply bg-white/70 backdrop-blur-md border-b border-white/20;
   }
   
-  /* Neo-Brutalism Utilities */
-  .neo-card {
-    @apply bg-white border-3 border-black rounded-2xl shadow-neo transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-lg;
-  }
-  .neo-card-yellow {
-    @apply bg-neoYellow border-3 border-black rounded-2xl shadow-neo transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-lg;
-  }
-  .neo-card-pink {
-    @apply bg-neoPink border-3 border-black rounded-2xl shadow-neo transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-lg;
-  }
-  .neo-card-green {
-    @apply bg-neoGreen border-3 border-black rounded-2xl shadow-neo transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-lg;
-  }
-  .neo-card-purple {
-    @apply bg-neoPurple border-3 border-black rounded-2xl shadow-neo transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-lg;
+  /* Clinical-Warm Utilities */
+  .clinical-card {
+    @apply bg-white border border-slate-200 rounded-2xl shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-slate-300;
   }
   
-  .neo-btn {
-    @apply bg-neoYellow border-3 border-black rounded-xl font-bold uppercase shadow-neo transition-all active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-neo-lg;
-  }
-  .neo-btn-dark {
-    @apply bg-black text-white border-3 border-black rounded-xl font-bold uppercase shadow-neo transition-all active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-neo-lg;
+  .clinical-btn {
+    @apply bg-teal-600 text-white border border-transparent rounded-xl font-medium shadow-sm transition-all active:scale-95 hover:-translate-y-0.5 hover:bg-teal-700 hover:shadow-md;
   }
   
-  .neo-input {
-    @apply border-3 border-black rounded-xl focus:shadow-neo focus:outline-none transition-all focus:-translate-y-0.5 focus:-translate-x-0.5;
+  .clinical-input {
+    @apply border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all;
   }
 
   /* Legacy utility kept just in case */

@@ -32,39 +32,39 @@ export default function AdminLayout({
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-neoBg border-r-3 border-black flex flex-col fixed inset-y-0 z-20">
-        <div className="h-20 flex items-center px-6 border-b-3 border-black bg-neoYellow">
-          <h1 className="text-xl font-black uppercase text-black">
-            Clínica<br/>Villarroel
+      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col fixed inset-y-0 z-20 shadow-sm">
+        <div className="h-20 flex items-center px-6 border-b border-slate-100 bg-white">
+          <h1 className="text-xl font-serif text-teal-800 tracking-tight leading-tight">
+            Clínica<br/><span className="font-semibold">Villarroel</span>
           </h1>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-3">
+        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-2">
           {navigation.map((item) => {
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold uppercase tracking-wider text-sm border-3 bg-white text-gray-700 border-transparent hover:border-black hover:shadow-neo hover:-translate-y-0.5 hover:-translate-x-0.5 hover:text-black hover:bg-neoYellow"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-medium text-sm text-slate-600 hover:text-teal-700 hover:bg-teal-50"
               >
-                <item.icon className="w-5 h-5" strokeWidth={2.5} />
+                <item.icon className="w-5 h-5" />
                 {item.name}
               </Link>
             )
           })}
         </nav>
 
-        <div className="p-4 border-t-3 border-black bg-neoGreen">
+        <div className="p-4 border-t border-slate-100 bg-slate-50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white border-2 border-black flex items-center justify-center font-bold text-black shadow-sm">
+            <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center font-semibold text-teal-700">
               MV
             </div>
             <div>
-              <p className="text-sm font-bold text-black uppercase">Dra. Villarroel</p>
-              <p className="text-xs text-black/80 font-medium">Administradora</p>
+              <p className="text-sm font-semibold text-slate-900">Dra. Villarroel</p>
+              <p className="text-xs text-slate-500">Administradora</p>
             </div>
             <form action={signOut} className="ml-auto">
-              <button type="submit" className="p-2 text-black hover:bg-black hover:text-neoGreen rounded-xl transition-colors border-2 border-transparent hover:border-black">
+              <button type="submit" className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
                 <LogOut className="w-5 h-5" />
               </button>
             </form>
