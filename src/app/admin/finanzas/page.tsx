@@ -37,7 +37,7 @@ export default async function FinanzasPage({
       amount,
       date,
       method,
-      concept,
+      notes,
       status,
       patientId,
       Patient:patientId (
@@ -54,7 +54,7 @@ export default async function FinanzasPage({
     amount: p.amount,
     date: p.date,
     method: p.method,
-    concept: p.concept,
+    concept: p.notes, // Map notes from DB to concept in UI
     status: p.status,
     patient: {
       firstName: p.Patient?.firstName || 'Paciente',

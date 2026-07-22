@@ -9,6 +9,7 @@ export default async function PacientesPage() {
   const supabase = createClient()
 
   // Traer los pacientes de la tabla de Supabase, ordenados por los de creación más reciente
+  // Paginar para no traer todos de golpe (los primeros 20)
   const { data: rawPatients, error } = await supabase
     .from('Patient')
     .select(`
@@ -19,25 +20,76 @@ export default async function PacientesPage() {
       phone,
       email,
       status,
-      avatarUrl
+      avatarUrl,
+      Treatment (
+        name,
+        status,
+        createdAt
+      ),
+      Appointment (
+        startsAt,
+        status
+      )
     `)
     .order('createdAt', { ascending: false })
+    .range(0, 19)
 
   if (error) {
     console.error('Error fetching patients:', error)
   }
 
-  // Mapear los datos de Supabase a la interfaz Patient
-  // Como aún no tenemos lógica pesada de "última cita", "tratamiento principal"
-  // pondremos valores por defecto que se rellenarán con SQL avanzado o vistas luego.
-  const initialPatients: Patient[] = (rawPatients || []).map((p: any) => ({
-    ...p,
-    // Por ahora simularemos estos datos para mantener la elegancia de la UI
-    // En la Fase 4 y 5 estos vendrán del join real.
-    mainTreatment: 'Consulta General', 
-    lastVisit: 'Hace 2 semanas',
-    nextAppointment: 'Próxima semana'
-  }))
+  const now = new Date()
+
+  // Mapear los datos reales para la UI
+  const initialPatients: Patient[] = (rawPatients || []).map((p: any) => {
+    // Tratamiento Principal (el ACTIVO más reciente, o el completado más reciente si no hay activo)
+    let mainTreatment = 'Consulta General'
+    if (p.Treatment && p.Treatment.length > 0) {
+      const activeTreatments = p.Treatment.filter((t: any) => t.status === 'ACTIVO')
+      if (activeTreatments.length > 0) {
+        // Sort by newest
+        activeTreatments.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        mainTreatment = activeTreatments[0].name
+      } else {
+        // If no active, just grab the most recently created
+        p.Treatment.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        mainTreatment = p.Treatment[0].name
+      }
+    }
+
+    // Última visita y próxima cita
+    let lastVisit = 'Sin visitas previas'
+    let nextAppointment = 'No agendada'
+
+    if (p.Appointment && p.Appointment.length > 0) {
+      const pastAppointments = p.Appointment.filter((a: any) => new Date(a.startsAt) < now && a.status === 'CONFIRMADO')
+      const futureAppointments = p.Appointment.filter((a: any) => new Date(a.startsAt) >= now && a.status !== 'CANCELADO')
+
+      if (pastAppointments.length > 0) {
+        pastAppointments.sort((a: any, b: any) => new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime()) // Descending
+        lastVisit = new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(pastAppointments[0].startsAt))
+      }
+
+      if (futureAppointments.length > 0) {
+        futureAppointments.sort((a: any, b: any) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()) // Ascending
+        nextAppointment = new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(futureAppointments[0].startsAt))
+      }
+    }
+
+    return {
+      id: p.id,
+      firstName: p.firstName,
+      lastName: p.lastName,
+      dob: p.dob,
+      phone: p.phone,
+      email: p.email,
+      status: p.status,
+      avatarUrl: p.avatarUrl,
+      mainTreatment, 
+      lastVisit,
+      nextAppointment
+    }
+  })
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">

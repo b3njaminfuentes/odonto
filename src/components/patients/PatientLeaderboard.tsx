@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { PatientCard, Patient } from './PatientCard'
-import { Search, Filter, Plus } from 'lucide-react'
+import { Search, Filter, Plus, Loader2 } from 'lucide-react'
 import { CreatePatientModal } from './CreatePatientModal'
+import { getMorePatients } from '@/app/admin/pacientes/actions'
 
 interface PatientLeaderboardProps {
   initialPatients: Patient[]
@@ -13,9 +14,18 @@ export function PatientLeaderboard({ initialPatients }: PatientLeaderboardProps)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [patients, setPatients] = useState<Patient[]>(initialPatients)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(initialPatients.length === 20)
+
+  // Actualizar pacientes si cambia prop initialPatients (ej. despues de crear uno nuevo)
+  useEffect(() => {
+    setPatients(initialPatients)
+    setHasMore(initialPatients.length === 20)
+  }, [initialPatients])
 
   const filteredPatients = useMemo(() => {
-    return initialPatients.filter((p) => {
+    return patients.filter((p) => {
       // Búsqueda por texto (nombre, dni, email, teléfono)
       const matchesSearch = 
         `${p.firstName} ${p.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -27,7 +37,24 @@ export function PatientLeaderboard({ initialPatients }: PatientLeaderboardProps)
 
       return matchesSearch && matchesStatus
     })
-  }, [initialPatients, searchTerm, statusFilter])
+  }, [patients, searchTerm, statusFilter])
+
+  const handleLoadMore = async () => {
+    setIsLoadingMore(true)
+    try {
+      const morePatients = await getMorePatients(patients.length)
+      if (morePatients.length > 0) {
+        setPatients(prev => [...prev, ...morePatients])
+      }
+      if (morePatients.length < 20) {
+        setHasMore(false)
+      }
+    } catch (error) {
+      console.error(error)
+    } finally {
+      setIsLoadingMore(false)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -90,6 +117,19 @@ export function PatientLeaderboard({ initialPatients }: PatientLeaderboardProps)
           </div>
           <h3 className="text-lg font-medium text-gray-900">No se encontraron pacientes</h3>
           <p className="mt-1 text-gray-500">Intenta ajustar tu búsqueda o agregar uno nuevo.</p>
+        </div>
+      )}
+
+      {/* Load More Button */}
+      {hasMore && filteredPatients.length > 0 && searchTerm === '' && statusFilter === 'ALL' && (
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={handleLoadMore}
+            disabled={isLoadingMore}
+            className="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            {isLoadingMore ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Cargar más pacientes'}
+          </button>
         </div>
       )}
 
