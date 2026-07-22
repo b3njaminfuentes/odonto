@@ -52,6 +52,7 @@ export async function saveMediaRecord({
   title: string
   mimeType: string
   size: number
+  visibleToPatient?: boolean
 }) {
   const supabase = createClient()
   const { data: { session } } = await supabase.auth.getSession()
@@ -70,6 +71,7 @@ export async function saveMediaRecord({
       description: title,
       mimeType,
       size,
+      visibleToPatient: visibleToPatient || false,
       uploadedBy: session.user.id
     })
     .select()
@@ -133,5 +135,33 @@ export async function deleteMediaRecord(mediaId: string, bucket: string, fileUrl
 
   revalidatePath(`/admin/pacientes/${patientId}`)
 
+  return { success: true }
+}
+
+export async function updateMediaRecord(mediaId: string, updates: { description?: string, visibleToPatient?: boolean }, patientId: string) {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+
+  if (!session) return { error: 'No autorizado' }
+
+  const { error } = await supabase
+    .from('CaseMedia')
+    .update(updates)
+    .eq('id', mediaId)
+
+  if (error) {
+    console.error('Error updating media:', error)
+    return { error: 'No se pudo actualizar' }
+  }
+
+  await logAuditAction({
+    userId: session.user.id,
+    action: 'UPDATE',
+    entity: 'CaseMedia',
+    entityId: mediaId,
+    metadata: { patientId, updates }
+  })
+
+  revalidatePath(`/admin/pacientes/${patientId}`)
   return { success: true }
 }
