@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { Upload, Image as ImageIcon, X, Loader2, File } from 'lucide-react'
+import { Upload, Image as ImageIcon, X, Loader2, File, Edit2, Eye, EyeOff, Save } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
-import { getPatientMedia, saveMediaRecord, deleteMediaRecord } from '@/app/admin/pacientes/gallery-actions'
+import { getPatientMedia, saveMediaRecord, deleteMediaRecord, updateMediaRecord } from '@/app/admin/pacientes/gallery-actions'
 
 interface GalleryViewerProps {
   patientId: string
@@ -14,6 +14,13 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingMedia, setEditingMedia] = useState<any | null>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [mediaForm, setMediaForm] = useState({ description: '', visibleToPatient: false })
+  
   const supabase = createClient()
 
   const loadMedia = async () => {
@@ -31,64 +38,108 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
     fileInputRef.current?.click()
   }
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-
-    setIsUploading(true)
-    try {
-      // 1. Upload to storage
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${patientId}/${Math.random().toString(36).substring(2)}.${fileExt}`
-      
-      // Select bucket based on file type
-      let bucket = 'cases-images'
-      if (file.type.includes('pdf')) {
-        bucket = 'documents'
-      }
-
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(fileName, file)
-
-      if (uploadError) throw uploadError
-
-      // 2. Save DB record
-      const category = file.type.includes('pdf') ? 'document' : 'image'
-      await saveMediaRecord({
-        patientId,
-        bucket,
-        fileUrl: fileName,
-        category,
-        title: file.name,
-        mimeType: file.type,
-        size: file.size
-      })
-
-      // 3. Reload
-      await loadMedia()
-    } catch (error) {
-      console.error('Error uploading file:', error)
-      alert('Error al subir el archivo')
-    } finally {
-      setIsUploading(false)
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+    
+    setPendingFile(file)
+    setMediaForm({ description: file.name, visibleToPatient: false })
+    setEditingMedia(null)
+    setIsModalOpen(true)
+    
+    // reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
     }
   }
 
-  const handleDelete = async (id: string, bucket: string, fileUrl: string) => {
+  const openEditModal = (img: any) => {
+    setEditingMedia(img)
+    setPendingFile(null)
+    setMediaForm({ description: img.description || '', visibleToPatient: img.visibleToPatient || false })
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setPendingFile(null)
+    setEditingMedia(null)
+  }
+
+  const handleSaveModal = async () => {
+    setIsUploading(true)
+    
+    try {
+      if (pendingFile) {
+        // Upload flow
+        const fileExt = pendingFile.name.split('.').pop()
+        const fileName = `${patientId}/${Math.random().toString(36).substring(2)}.${fileExt}`
+        
+        let bucket = 'cases-images'
+        if (pendingFile.type.includes('pdf')) {
+          bucket = 'documents'
+        }
+
+        const { error: uploadError } = await supabase.storage
+          .from(bucket)
+          .upload(fileName, pendingFile)
+
+        if (uploadError) throw uploadError
+
+        const category = pendingFile.type.includes('pdf') ? 'document' : 'image'
+        await saveMediaRecord({
+          patientId,
+          bucket,
+          fileUrl: fileName,
+          category,
+          title: mediaForm.description,
+          mimeType: pendingFile.type,
+          size: pendingFile.size,
+          visibleToPatient: mediaForm.visibleToPatient
+        })
+      } else if (editingMedia) {
+        // Edit flow
+        await updateMediaRecord(editingMedia.id, {
+          description: mediaForm.description,
+          visibleToPatient: mediaForm.visibleToPatient
+        }, patientId)
+      }
+      
+      await loadMedia()
+      closeModal()
+    } catch (error) {
+      console.error('Error in media modal:', error)
+      alert('Ocurrió un error. Intenta nuevamente.')
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleDelete = async (e: React.MouseEvent, id: string, bucket: string, fileUrl: string) => {
+    e.stopPropagation()
     if (!confirm('¿Estás seguro de eliminar este archivo?')) return
     
     setImages(images.filter(img => img.id !== id))
     await deleteMediaRecord(id, bucket, fileUrl, patientId)
   }
 
+  const toggleVisibilityDirect = async (e: React.MouseEvent, img: any) => {
+    e.stopPropagation()
+    const newVisibility = !img.visibleToPatient
+    
+    // Optimistic UI update
+    setImages(images.map(i => i.id === img.id ? { ...i, visibleToPatient: newVisibility } : i))
+    
+    await updateMediaRecord(img.id, { visibleToPatient: newVisibility }, patientId)
+  }
+
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-serif text-slate-900">Galería del Paciente</h2>
+    <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
+        <h2 className="text-xl font-serif text-slate-900 flex items-center gap-2">
+          <ImageIcon className="w-5 h-5 text-teal-600" />
+          Documentos y Fotos
+        </h2>
         <input 
           type="file" 
           ref={fileInputRef} 
@@ -99,10 +150,10 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
         <button 
           onClick={handleUploadClick}
           disabled={isUploading}
-          className="flex items-center gap-2 bg-teal-50 text-teal-700 hover:bg-teal-100 px-4 py-2 rounded-xl font-medium transition-colors text-sm disabled:opacity-50"
+          className="clinical-btn px-4 py-2 flex items-center gap-2 text-sm"
         >
-          {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-          {isUploading ? 'Subiendo...' : 'Subir Archivo'}
+          {isUploading && pendingFile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+          Subir Archivo
         </button>
       </div>
 
@@ -111,58 +162,167 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
           <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {/* Subida rápida */}
           <div 
             onClick={handleUploadClick}
-            className="border border-dashed border-slate-300 rounded-xl bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-400 hover:border-teal-400 hover:bg-teal-50 hover:text-teal-600 transition-all cursor-pointer min-h-[200px]"
+            className="border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-400 hover:border-teal-400 hover:bg-teal-50 hover:text-teal-600 transition-all cursor-pointer min-h-[220px]"
           >
-            <Upload className="w-8 h-8 mb-2" />
-            <p className="text-sm font-medium">Click aquí para subir</p>
-            <p className="text-xs mt-1">Imágenes, Radiografías o PDFs</p>
+            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
+              <Upload className="w-6 h-6" />
+            </div>
+            <p className="text-sm font-semibold">Click para subir</p>
+            <p className="text-xs font-medium mt-1">Fotos, Radiografías o PDF</p>
           </div>
 
-          {/* Imágenes y Archivos */}
+          {/* Galería */}
           {images.map((img) => (
-            <div key={img.id} className="group relative bg-white rounded-xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-              <div className="aspect-[4/3] bg-slate-100 relative flex items-center justify-center">
+            <div 
+              key={img.id} 
+              onClick={() => openEditModal(img)}
+              className="group relative bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col"
+            >
+              {/* Imagen/Preview */}
+              <div className="aspect-[4/3] bg-slate-100 relative flex items-center justify-center overflow-hidden">
                 {img.category === 'document' ? (
-                  <File className="w-16 h-16 text-slate-400" />
+                  <File className="w-16 h-16 text-slate-300" />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img 
                     src={img.signedUrl} 
                     alt={img.description}
-                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 )}
-                <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button 
-                    onClick={() => handleDelete(img.id, img.bucket, img.fileUrl)}
-                    className="p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors shadow-sm"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
+                
+                {/* Botón flotante para eliminar (solo visible en hover) */}
+                <button 
+                  onClick={(e) => handleDelete(e, img.id, img.bucket, img.fileUrl)}
+                  className="absolute top-3 right-3 p-1.5 bg-red-500/90 text-white rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all shadow-sm"
+                  title="Eliminar archivo"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                
+                {/* Badge flotante de visibilidad */}
+                <button
+                  onClick={(e) => toggleVisibilityDirect(e, img)}
+                  className={`absolute top-3 left-3 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm backdrop-blur-md transition-colors ${
+                    img.visibleToPatient 
+                    ? 'bg-teal-500/90 text-white hover:bg-teal-600' 
+                    : 'bg-slate-800/60 text-white hover:bg-slate-900/80'
+                  }`}
+                  title={img.visibleToPatient ? 'Visible en portal' : 'Oculto (Privado)'}
+                >
+                  {img.visibleToPatient ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                  {img.visibleToPatient ? 'Público' : 'Privado'}
+                </button>
               </div>
-              <div className="p-4">
-                <div className="flex justify-between items-start mb-1">
-                  <h4 className="font-bold text-slate-900 text-sm truncate" title={img.description}>{img.description}</h4>
-                  <span className="text-[10px] font-semibold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded-full">
-                    {img.category === 'document' ? 'DOC' : 'IMG'}
-                  </span>
+
+              {/* Info y Edición */}
+              <div className="p-4 flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-start mb-1.5 gap-2">
+                    <h4 className="font-bold text-slate-900 text-sm line-clamp-2 leading-snug group-hover:text-teal-700 transition-colors" title={img.description}>
+                      {img.description}
+                    </h4>
+                  </div>
+                  <p className="text-xs font-medium text-slate-500 flex items-center gap-1.5">
+                    {new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(img.createdAt))}
+                  </p>
                 </div>
-                <p className="text-xs text-slate-500">
-                  {new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(img.createdAt))}
-                </p>
+                
                 {img.category === 'document' && (
-                  <a href={img.signedUrl} target="_blank" rel="noopener noreferrer" className="text-teal-600 text-xs font-medium hover:underline mt-2 inline-block">
-                    Ver documento
+                  <a 
+                    href={img.signedUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-teal-600 text-xs font-semibold hover:underline mt-3 inline-block"
+                  >
+                    Abrir documento
                   </a>
                 )}
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modal Subir / Editar */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
+          <div className="absolute inset-0" onClick={closeModal} />
+          
+          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+              <h3 className="text-lg font-serif font-bold text-slate-900">
+                {pendingFile ? 'Detalles del Archivo' : 'Editar Documento'}
+              </h3>
+              <button onClick={closeModal} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-5">
+              {pendingFile && (
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center gap-3">
+                  <File className="w-8 h-8 text-teal-600 opacity-75" />
+                  <div className="overflow-hidden">
+                    <p className="text-sm font-semibold text-slate-900 truncate">{pendingFile.name}</p>
+                    <p className="text-xs text-slate-500">{(pendingFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">Descripción o Nombre</label>
+                <input 
+                  type="text" 
+                  value={mediaForm.description}
+                  onChange={(e) => setMediaForm({ ...mediaForm, description: e.target.value })}
+                  placeholder="Ej: Radiografía Panorámica Inicial"
+                  className="clinical-input w-full px-4 py-2.5"
+                />
+              </div>
+
+              {/* Toggle de Visibilidad Clínico */}
+              <label className="flex items-start gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                <div className="flex items-center h-5 mt-0.5">
+                  <input 
+                    type="checkbox"
+                    checked={mediaForm.visibleToPatient}
+                    onChange={(e) => setMediaForm({ ...mediaForm, visibleToPatient: e.target.checked })}
+                    className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 focus:ring-2 cursor-pointer"
+                  />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-slate-900">Visible para el paciente</p>
+                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                    Si activas esta opción, el paciente podrá ver este documento/foto al iniciar sesión en su portal personal. Útil para que vean su progreso.
+                  </p>
+                </div>
+              </label>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button 
+                  type="button" 
+                  onClick={closeModal}
+                  className="px-5 py-2.5 text-slate-600 hover:bg-slate-50 font-medium rounded-xl transition-colors text-sm"
+                >
+                  Cancelar
+                </button>
+                <button 
+                  onClick={handleSaveModal}
+                  disabled={isUploading || !mediaForm.description.trim()}
+                  className="clinical-btn px-6 py-2.5 flex items-center gap-2 text-sm disabled:opacity-50"
+                >
+                  {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : (pendingFile ? <Upload className="w-4 h-4" /> : <Save className="w-4 h-4" />)}
+                  {pendingFile ? 'Confirmar y Subir' : 'Guardar Cambios'}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
