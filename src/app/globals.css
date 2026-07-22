@@ -16,11 +16,41 @@
   .glass {
     @apply bg-white/70 backdrop-blur-md border-b border-white/20;
   }
+  
+  /* Neo-Brutalism Utilities */
+  .neo-card {
+    @apply bg-white border-3 border-black rounded-2xl shadow-neo transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-lg;
+  }
+  .neo-card-yellow {
+    @apply bg-neoYellow border-3 border-black rounded-2xl shadow-neo transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-lg;
+  }
+  .neo-card-pink {
+    @apply bg-neoPink border-3 border-black rounded-2xl shadow-neo transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-lg;
+  }
+  .neo-card-green {
+    @apply bg-neoGreen border-3 border-black rounded-2xl shadow-neo transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-lg;
+  }
+  .neo-card-purple {
+    @apply bg-neoPurple border-3 border-black rounded-2xl shadow-neo transition-all hover:-translate-y-1 hover:-translate-x-1 hover:shadow-neo-lg;
+  }
+  
+  .neo-btn {
+    @apply bg-neoYellow border-3 border-black rounded-xl font-bold uppercase shadow-neo transition-all active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-neo-lg;
+  }
+  .neo-btn-dark {
+    @apply bg-black text-white border-3 border-black rounded-xl font-bold uppercase shadow-neo transition-all active:translate-x-1 active:translate-y-1 active:shadow-none hover:-translate-y-0.5 hover:-translate-x-0.5 hover:shadow-neo-lg;
+  }
+  
+  .neo-input {
+    @apply border-3 border-black rounded-xl focus:shadow-neo focus:outline-none transition-all focus:-translate-y-0.5 focus:-translate-x-0.5;
+  }
+
+  /* Legacy utility kept just in case */
   .hover-scale {
     @apply transition-transform duration-300 hover:scale-[1.03];
   }
   .card-hover {
-    @apply transition-all duration-300 hover:-translate-y-3 hover:shadow-soft;
+    @apply transition-all duration-300 hover:-translate-y-3 hover:shadow-neo;
   }
 }
 

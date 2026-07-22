@@ -9,17 +9,17 @@ interface StatusBadgeProps {
 }
 
 const statusStyles: Record<StatusType, string> = {
-  success: 'bg-successLight text-success border border-success/20',
-  warning: 'bg-warningLight text-warning border border-warning/20',
-  danger: 'bg-dangerLight text-danger border border-danger/20',
-  info: 'bg-infoLight text-info border border-info/20',
-  default: 'bg-gray-100 text-gray-700 border border-gray-200',
+  success: 'bg-neoGreen text-black border-2 border-black',
+  warning: 'bg-neoYellow text-black border-2 border-black',
+  danger: 'bg-neoPink text-black border-2 border-black',
+  info: 'bg-neoBlue text-black border-2 border-black',
+  default: 'bg-white text-black border-2 border-black',
 }
 
 export function StatusBadge({ status, text, className = '' }: StatusBadgeProps) {
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider ${statusStyles[status]} ${className}`}
+      className={`inline-flex items-center px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider shadow-neo-sm ${statusStyles[status]} ${className}`}
     >
       {text}
     </span>

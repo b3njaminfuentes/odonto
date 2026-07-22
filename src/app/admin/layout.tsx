@@ -32,44 +32,48 @@ export default function AdminLayout({
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-surface border-r border-gray-100 flex-shrink-0 hidden md:flex flex-col">
-        <div className="h-16 flex items-center px-6 border-b border-gray-100">
-          <h1 className="text-xl font-bold tracking-tight text-primary">Clínica Odontológica Villarroel</h1>
+      <aside className="w-64 bg-neoBg border-r-3 border-black flex flex-col fixed inset-y-0 z-20">
+        <div className="h-20 flex items-center px-6 border-b-3 border-black bg-neoYellow">
+          <h1 className="text-xl font-black uppercase text-black">
+            Clínica<br/>Villarroel
+          </h1>
         </div>
-        
-        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 hover:text-primary hover:bg-primary/5 transition-colors font-medium text-sm group"
-            >
-              <item.icon className="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" />
-              {item.name}
-            </Link>
-          ))}
+
+        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-3">
+          {navigation.map((item) => {
+            return (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold uppercase tracking-wider text-sm border-3 bg-white text-gray-700 border-transparent hover:border-black hover:shadow-neo hover:-translate-y-0.5 hover:-translate-x-0.5 hover:text-black hover:bg-neoYellow"
+              >
+                <item.icon className="w-5 h-5" strokeWidth={2.5} />
+                {item.name}
+              </Link>
+            )
+          })}
         </nav>
-        
-        <div className="p-4 border-t border-gray-100 flex items-center justify-between">
+
+        <div className="p-4 border-t-3 border-black bg-neoGreen">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+            <div className="w-10 h-10 rounded-xl bg-white border-2 border-black flex items-center justify-center font-bold text-black shadow-sm">
               MV
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-900">Dra. Villarroel</p>
-              <p className="text-xs text-gray-500">Administradora</p>
+              <p className="text-sm font-bold text-black uppercase">Dra. Villarroel</p>
+              <p className="text-xs text-black/80 font-medium">Administradora</p>
             </div>
+            <form action={signOut} className="ml-auto">
+              <button type="submit" className="p-2 text-black hover:bg-black hover:text-neoGreen rounded-xl transition-colors border-2 border-transparent hover:border-black">
+                <LogOut className="w-5 h-5" />
+              </button>
+            </form>
           </div>
-          <form action={signOut}>
-            <button type="submit" className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Cerrar Sesión">
-              <LogOut className="w-5 h-5" />
-            </button>
-          </form>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 min-w-0 overflow-y-auto">
+      <main className="flex-1 min-w-0 overflow-y-auto ml-64">
         <div className="max-w-7xl mx-auto p-6 md:p-10">
           {children}
         </div>
