@@ -68,7 +68,7 @@ export function PatientLeaderboard({ initialPatients }: PatientLeaderboardProps)
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+            className="neo-input block w-full pl-10 pr-3 py-3 bg-white placeholder-black/50 text-black font-bold"
             placeholder="Buscar por nombre, teléfono o email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -81,7 +81,7 @@ export function PatientLeaderboard({ initialPatients }: PatientLeaderboardProps)
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="appearance-none bg-white border border-gray-200 text-gray-700 py-2.5 pl-4 pr-10 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all font-medium text-sm"
+              className="neo-input appearance-none bg-white text-black py-3 pl-4 pr-10 font-bold uppercase text-sm tracking-wider cursor-pointer"
             >
               <option value="ALL">Todos los estados</option>
               <option value="ACTIVE">Activos</option>
@@ -95,9 +95,9 @@ export function PatientLeaderboard({ initialPatients }: PatientLeaderboardProps)
 
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-4 py-2.5 rounded-xl font-medium transition-colors shadow-sm"
+            className="neo-btn flex items-center gap-2 px-6 py-3"
           >
-            <Plus className="w-5 h-5" />
+            <Plus className="w-5 h-5" strokeWidth={2.5} />
             <span className="hidden sm:inline">Nuevo Paciente</span>
           </button>
         </div>
@@ -111,12 +111,12 @@ export function PatientLeaderboard({ initialPatients }: PatientLeaderboardProps)
           ))}
         </div>
       ) : (
-        <div className="text-center py-16 bg-white border border-gray-100 rounded-xl shadow-sm">
-          <div className="mx-auto w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-            <Search className="w-8 h-8 text-gray-300" />
+        <div className="text-center py-16 neo-card bg-neoBg border-dashed">
+          <div className="mx-auto w-16 h-16 bg-neoYellow border-2 border-black rounded-xl shadow-neo-sm flex items-center justify-center mb-6">
+            <Search className="w-8 h-8 text-black" strokeWidth={2.5} />
           </div>
-          <h3 className="text-lg font-medium text-gray-900">No se encontraron pacientes</h3>
-          <p className="mt-1 text-gray-500">Intenta ajustar tu búsqueda o agregar uno nuevo.</p>
+          <h3 className="text-xl font-black uppercase text-black">No se encontraron pacientes</h3>
+          <p className="mt-2 text-black font-bold">Intenta ajustar tu búsqueda o agregar uno nuevo.</p>
         </div>
       )}
 
@@ -126,7 +126,7 @@ export function PatientLeaderboard({ initialPatients }: PatientLeaderboardProps)
           <button
             onClick={handleLoadMore}
             disabled={isLoadingMore}
-            className="flex items-center gap-2 px-6 py-2.5 bg-white border border-gray-200 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-50"
+            className="neo-btn bg-white px-8 py-3 flex items-center gap-2 disabled:opacity-50"
           >
             {isLoadingMore ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Cargar más pacientes'}
           </button>
