@@ -10,6 +10,12 @@ const generatePatientCode = () => `PT-${Math.floor(100000 + Math.random() * 9000
 export async function createPatient(formData: FormData) {
   try {
     const supabase = createClient()
+    
+    console.log('--- ENV DEBUG in createPatient ---')
+    console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+    console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '[SET]' : '[MISSING]')
+    console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '[SET]' : '[MISSING]')
+    
     const adminSupabase = createAdminClient()
     
     const firstName = formData.get('firstName') as string
