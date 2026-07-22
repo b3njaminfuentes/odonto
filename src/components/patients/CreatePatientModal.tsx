@@ -41,18 +41,25 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
     setError(null)
     
     const formData = new FormData(e.currentTarget)
-    const result = await createPatient(formData)
     
-    if (result.error) {
-      setError(result.error)
+    try {
+      const result = await createPatient(formData)
+      
+      if (result.error) {
+        setError(result.error)
+        setLoading(false)
+      } else {
+        setLoading(false)
+        formRef.current?.reset()
+        setSuccessData({
+          patientCode: result.patient.patientCode,
+          name: `${result.patient.firstName} ${result.patient.lastName}`
+        })
+      }
+    } catch (err) {
+      console.error(err)
+      setError("Error de conexión con el servidor. Intenta nuevamente.")
       setLoading(false)
-    } else {
-      setLoading(false)
-      formRef.current?.reset()
-      setSuccessData({
-        patientCode: result.patient.patientCode,
-        name: `${result.patient.firstName} ${result.patient.lastName}`
-      })
     }
   }
 

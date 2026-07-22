@@ -9,7 +9,6 @@ const generatePatientCode = () => `PT-${Math.floor(100000 + Math.random() * 9000
 
 export async function createPatient(formData: FormData) {
   const supabase = createClient()
-  const adminSupabase = createAdminClient()
   
   const firstName = formData.get('firstName') as string
   const lastName = formData.get('lastName') as string
@@ -25,8 +24,8 @@ export async function createPatient(formData: FormData) {
     return { error: 'Nombre, Apellido y Fecha de Nacimiento son obligatorios.' }
   }
 
-  // Insertar en Supabase usando el Admin Client para bypasear RLS si es necesario
-  const { data, error } = await adminSupabase
+  // Insertar en Supabase usando el cliente autenticado
+  const { data, error } = await supabase
     .from('Patient')
     .insert({
       patientCode: generatePatientCode(),
