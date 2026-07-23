@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { DollarSign, Plus, Loader2, FileText, CheckCircle, XCircle } from 'lucide-react'
-import { getPatientPayments, getPatientActiveTreatments, createPayment, updatePaymentStatus } from '@/app/admin/pacientes/payment-actions'
+import { getPatientPayments, getPatientActiveTreatments, createPayment, updatePaymentStatus, getAccountStatement, type AccountStatement as Statement } from '@/app/admin/pacientes/payment-actions'
+import { AccountStatement } from './AccountStatement'
 
 interface PatientPaymentsProps {
   patientId: string
@@ -11,6 +12,7 @@ interface PatientPaymentsProps {
 export function PatientPayments({ patientId }: PatientPaymentsProps) {
   const [payments, setPayments] = useState<any[]>([])
   const [activeTreatments, setActiveTreatments] = useState<any[]>([])
+  const [statement, setStatement] = useState<Statement | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isAdding, setIsAdding] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -18,12 +20,14 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
 
   const loadData = async () => {
     setIsLoading(true)
-    const [pData, tData] = await Promise.all([
+    const [pData, tData, sData] = await Promise.all([
       getPatientPayments(patientId),
-      getPatientActiveTreatments(patientId)
+      getPatientActiveTreatments(patientId),
+      getAccountStatement(patientId),
     ])
     setPayments(pData || [])
     setActiveTreatments(tData || [])
+    setStatement(sData)
     setIsLoading(false)
   }
 
@@ -67,6 +71,14 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
           </button>
         )}
       </div>
+
+      {/* Estado de cuenta: saldo por tratamiento + totales */}
+      {!isLoading && statement && (
+        <div>
+          <h3 className="text-sm font-bold text-muted uppercase tracking-wider mb-3">Estado de cuenta</h3>
+          <AccountStatement data={statement} />
+        </div>
+      )}
 
       {isAdding && (
         <div className="bg-elevated border border-border rounded-2xl p-6 mb-8 animate-in fade-in slide-in-from-top-4">
