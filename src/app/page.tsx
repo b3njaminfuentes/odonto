@@ -230,9 +230,17 @@ export default function Home() {
               </div>
               <h2 className="text-3xl md:text-5xl font-serif text-primary mb-4">Dra. Villarroel</h2>
               <h3 className="text-xl text-accent mb-6">Especialista en Ortopedia y Ortodoncia</h3>
-              <p className="text-textMain/70 text-lg leading-relaxed mb-6">
-                La Dra. Villarroel formó su base profesional en la Universidad Mayor de San Simón, en Cochabamba, la facultad de odontología de mayor prestigio de Bolivia. Se especializó en Ortodoncia en Perú, y continuó su formación con sub-especialidades en Buenos Aires, Argentina. Sumó experiencia clínica en Washington D.C., Estados Unidos, y cursos de perfeccionamiento en Brasil. Hoy combina más de 20 años de trayectoria con un enfoque en implantología y estética dental de alta precisión, siempre actualizada con los estándares clínicos internacionales.
-              </p>
+              <div className="text-textMain/75 text-lg leading-relaxed space-y-4 mb-8">
+                <p>
+                  La Dra. Marisol Villarroel es una referente en odontología especializada con más de 20 años de trayectoria internacional. Formó su sólida base profesional en la Universidad Mayor de San Simón (UMSS) en Cochabamba, la facultad de odontología de mayor prestigio en Bolivia.
+                </p>
+                <p>
+                  Movida por la excelencia, se especializó en Ortodoncia en el prestigioso IPENO, y continuó su formación académica con subespecialidades en Buenos Aires, Argentina. Su visión clínica global se enriqueció con experiencia directa en Washington D.C., Estados Unidos, y programas de perfeccionamiento avanzado en Brasil.
+                </p>
+                <p>
+                  Hoy en día, combina su vasto recorrido académico con un enfoque vanguardista en implantología y estética dental de alta precisión, garantizando tratamientos que cumplen con los más rigurosos estándares clínicos internacionales.
+                </p>
+              </div>
               <a href="https://wa.me/59172212402" className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full hover-scale">
                 Hablar con la doctora
               </a>
