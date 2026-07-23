@@ -235,7 +235,7 @@ export default function Home() {
                   La Dra. Marisol Villarroel es una referente en odontología especializada con más de 20 años de trayectoria internacional. Formó su sólida base profesional en la Universidad Mayor de San Simón (UMSS) en Cochabamba, la facultad de odontología de mayor prestigio en Bolivia.
                 </p>
                 <p>
-                  Movida por la excelencia, se especializó en Ortodoncia en el prestigioso IPENO, y continuó su formación académica con subespecialidades en Buenos Aires, Argentina. Su visión clínica global se enriqueció con experiencia directa en Washington D.C., Estados Unidos, y programas de perfeccionamiento avanzado en Brasil.
+                  Movida por la excelencia, se especializó en Ortodoncia en el IPENO, y continuó su formación académica con subespecialidades en Buenos Aires, Argentina. Su visión clínica global se enriqueció con experiencia directa en Washington D.C., Estados Unidos, y programas de perfeccionamiento avanzado en Brasil.
                 </p>
                 <p>
                   Hoy en día, combina su vasto recorrido académico con un enfoque vanguardista en implantología y estética dental de alta precisión, garantizando tratamientos que cumplen con los más rigurosos estándares clínicos internacionales.
