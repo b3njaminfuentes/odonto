@@ -81,6 +81,66 @@ export async function createPayment(formData: FormData) {
   return { success: true }
 }
 
+export interface AccountStatement {
+  treatments: {
+    id: string
+    name: string
+    toothNumber: string | null
+    status: string
+    cost: number
+    paid: number
+    balance: number
+    percent: number
+  }[]
+  totalCost: number
+  totalPaid: number
+  balance: number
+  generalPaid: number // pagos no vinculados a un tratamiento
+}
+
+/**
+ * Estado de cuenta del paciente: por cada tratamiento (no cancelado) calcula
+ * costo (finalCost o presupuesto), pagado (suma de pagos COMPLETADOS vinculados)
+ * y saldo. Devuelve también los totales del paciente.
+ */
+export async function getAccountStatement(patientId: string): Promise<AccountStatement> {
+  const supabase = createClient()
+  const [{ data: treatments }, { data: payments }] = await Promise.all([
+    supabase.from('Treatment').select('id, name, toothNumber, budget, finalCost, status').eq('patientId', patientId).neq('status', 'CANCELADO'),
+    supabase.from('Payment').select('amount, status, treatmentId').eq('patientId', patientId).eq('status', 'COMPLETADO'),
+  ])
+
+  const paidByTreatment: Record<string, number> = {}
+  let generalPaid = 0
+  for (const p of payments || []) {
+    const amt = Number(p.amount) || 0
+    if (p.treatmentId) paidByTreatment[p.treatmentId] = (paidByTreatment[p.treatmentId] || 0) + amt
+    else generalPaid += amt
+  }
+
+  const rows = (treatments || []).map((t: any) => {
+    const cost = Number(t.finalCost ?? t.budget ?? 0)
+    const paid = paidByTreatment[t.id] || 0
+    const balance = Math.max(cost - paid, 0)
+    return {
+      id: t.id,
+      name: t.name,
+      toothNumber: t.toothNumber ?? null,
+      status: t.status,
+      cost,
+      paid,
+      balance,
+      percent: cost > 0 ? Math.min(Math.round((paid / cost) * 100), 100) : 0,
+    }
+  })
+
+  const totalCost = rows.reduce((s, r) => s + r.cost, 0)
+  const totalPaid = (payments || []).reduce((s, p) => s + (Number(p.amount) || 0), 0)
+  const balance = Math.max(totalCost - totalPaid, 0)
+
+  return { treatments: rows, totalCost, totalPaid, balance, generalPaid }
+}
+
 export async function updatePaymentStatus(paymentId: string, status: string, patientId: string) {
   const supabase = createClient()
   const { data: { session } } = await supabase.auth.getSession()

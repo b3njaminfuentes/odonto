@@ -1,6 +1,8 @@
 import React from 'react'
 import { createClient } from '@/utils/supabase/server'
-import { DollarSign, CheckCircle2, MessageCircle, AlertCircle } from 'lucide-react'
+import { DollarSign, MessageCircle, AlertCircle } from 'lucide-react'
+import { getAccountStatement } from '@/app/admin/pacientes/payment-actions'
+import { AccountStatement } from '@/components/patients/AccountStatement'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,61 +39,18 @@ export default async function PagosPage() {
     .eq('patientId', patient.id)
     .order('date', { ascending: false })
 
-  // Buscar todos los tratamientos para sumar costos (budget o finalCost)
-  const { data: treatments } = await supabase
-    .from('Treatment')
-    .select('id, budget, finalCost')
-    .eq('patientId', patient.id)
-
-  let totalCost = 0
-  if (treatments) {
-    treatments.forEach(t => {
-      // Priorizar finalCost, si no budget
-      const cost = Number(t.finalCost) || Number(t.budget) || 0
-      totalCost += cost
-    })
-  }
-
-  let totalPaid = 0
-  if (payments) {
-    payments.forEach(p => {
-      if (p.status === 'COMPLETADO') {
-        totalPaid += Number(p.amount)
-      }
-    })
-  }
-
-  const balances = {
-    total: totalCost,
-    paid: totalPaid,
-    due: Math.max(0, totalCost - totalPaid)
-  }
+  // Estado de cuenta (mismo cálculo que ve la doctora)
+  const statement = await getAccountStatement(patient.id)
 
   const wppMessage = encodeURIComponent(`Hola Dra. Villarroel, soy ${patient.firstName}. Quisiera hacer un pago por mi tratamiento, ¿me podría compartir los métodos de pago?`)
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      
-      {/* Resumen de Cuenta */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-surface p-6 rounded-2xl border border-border shadow-sm">
-          <p className="text-sm font-bold text-muted mb-1">Costo Total (Estimado)</p>
-          <p className="text-2xl font-black text-text">Bs {balances.total.toFixed(2)}</p>
-        </div>
-        <div className="bg-surface p-6 rounded-2xl border border-border shadow-sm">
-          <p className="text-sm font-bold text-muted mb-1">Pagado hasta la fecha</p>
-          <p className="text-2xl font-black text-brand flex items-center gap-2">
-            Bs {balances.paid.toFixed(2)}
-            <CheckCircle2 className="w-5 h-5 text-brand" />
-          </p>
-        </div>
-        <div className="bg-surface p-6 rounded-2xl border border-danger shadow-sm relative overflow-hidden group">
-          <div className="absolute inset-0 bg-danger-soft/50 group-hover:bg-danger-soft transition-colors"></div>
-          <div className="relative z-10">
-            <p className="text-sm font-bold text-danger/80 mb-1">Saldo Pendiente</p>
-            <p className="text-2xl font-black text-danger">Bs {balances.due.toFixed(2)}</p>
-          </div>
-        </div>
+
+      <div>
+        <h2 className="text-xl font-serif font-bold text-text mb-1">Mi cuenta</h2>
+        <p className="text-muted text-sm mb-5">El detalle de tus tratamientos, lo que llevas pagado y tu saldo pendiente.</p>
+        <AccountStatement data={statement} forPatient />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -156,7 +115,7 @@ export default async function PagosPage() {
             </p>
 
             <a 
-              href={`https://wa.me/59112345678?text=${wppMessage}`}
+              href={`https://wa.me/59172212402?text=${wppMessage}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#20bd5a] text-white font-medium rounded-xl transition-colors shadow-sm"
