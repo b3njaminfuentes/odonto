@@ -35,8 +35,8 @@ export default async function CitasPage() {
     .eq('patientId', patient.id)
     .order('startsAt', { ascending: false })
 
-  const futureAppointments = appointments?.filter(a => new Date(a.startsAt) >= new Date() && a.status !== 'CANCELADA') || []
-  const pastAppointments = appointments?.filter(a => new Date(a.startsAt) < new Date() || a.status === 'CANCELADA') || []
+  const futureAppointments = appointments?.filter(a => new Date(a.startsAt) >= new Date() && a.status !== 'CANCELADO') || []
+  const pastAppointments = appointments?.filter(a => new Date(a.startsAt) < new Date() || a.status === 'CANCELADO') || []
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -117,12 +117,12 @@ export default async function CitasPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md ring-1 ring-inset ${
-                        a.status === 'COMPLETADA' ? 'bg-teal-50 text-teal-700 ring-teal-600/20' : 
-                        a.status === 'CANCELADA' ? 'bg-red-50 text-red-700 ring-red-600/20' : 
-                        a.status === 'NO_ASISTIO' ? 'bg-orange-50 text-orange-700 ring-orange-600/20' :
+                        a.status === 'CONFIRMADO' ? 'bg-teal-50 text-teal-700 ring-teal-600/20' :
+                        a.status === 'CANCELADO' ? 'bg-red-50 text-red-700 ring-red-600/20' :
+                        a.status === 'OCUPADO' ? 'bg-orange-50 text-orange-700 ring-orange-600/20' :
                         'bg-slate-100 text-slate-700 ring-slate-500/20'
                       }`}>
-                        {a.status === 'NO_ASISTIO' ? 'Falta' : a.status}
+                        {a.status}
                       </span>
                     </td>
                   </tr>

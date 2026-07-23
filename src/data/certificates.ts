@@ -27,7 +27,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-2",
@@ -36,7 +36,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "-rotate-90"
   },
   {
     "id": "cert-3",
@@ -45,7 +45,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-4",
@@ -54,7 +54,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-5",
@@ -63,7 +63,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-6",
@@ -72,7 +72,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-7",
@@ -81,7 +81,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-8",
@@ -90,7 +90,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "-rotate-90"
   },
   {
     "id": "cert-9",
@@ -99,7 +99,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "-rotate-90"
   },
   {
     "id": "cert-10",
@@ -108,7 +108,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-11",
@@ -117,7 +117,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "-rotate-90"
   },
   {
     "id": "cert-12",
@@ -126,7 +126,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-13",
@@ -135,7 +135,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "-rotate-90"
   },
   {
     "id": "cert-14",
@@ -144,7 +144,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-15",
@@ -153,7 +153,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-16",
@@ -162,7 +162,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "-rotate-90"
   },
   {
     "id": "cert-17",
@@ -171,7 +171,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-18",
@@ -180,7 +180,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "-rotate-90"
   },
   {
     "id": "cert-19",
@@ -189,7 +189,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-20",
@@ -198,7 +198,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-21",
@@ -216,7 +216,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "-rotate-90"
   },
   {
     "id": "cert-23",
@@ -225,7 +225,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-24",
@@ -234,7 +234,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-25",
@@ -243,7 +243,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-26",
@@ -252,7 +252,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "-rotate-90"
   },
   {
     "id": "cert-27",
@@ -261,7 +261,7 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   },
   {
     "id": "cert-28",
@@ -270,6 +270,6 @@ export const certificatesData: Certificate[] = [
     "category": "Certificado",
     "institution": "",
     "year": "",
-    "rotationClass": ""
+    "rotationClass": "rotate-180"
   }
 ];

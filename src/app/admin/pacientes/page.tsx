@@ -102,8 +102,9 @@ export default async function PacientesPage({
       phone: p.phone,
       email: p.email,
       status: p.status,
-      avatarUrl: p.profilePhotoId || null,
-      mainTreatment, 
+      // profilePhotoId es un UUID del bucket privado, no una URL: caemos a iniciales.
+      avatarUrl: null,
+      mainTreatment,
       lastVisit,
       nextAppointment
     }

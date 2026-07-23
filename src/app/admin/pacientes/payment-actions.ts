@@ -29,7 +29,7 @@ export async function getPatientActiveTreatments(patientId: string) {
     .from('Treatment')
     .select('id, name, toothNumber, budget, finalCost')
     .eq('patientId', patientId)
-    .in('status', ['ACTIVO', 'PLANIFICADO'])
+    .in('status', ['ACTIVO', 'PAUSADO'])
     .order('createdAt', { ascending: false })
 
   if (error) return []

@@ -10,12 +10,7 @@ const generatePatientCode = () => `PT-${Math.floor(100000 + Math.random() * 9000
 export async function createPatient(formData: FormData) {
   try {
     const supabase = createClient()
-    
-    console.log('--- ENV DEBUG in createPatient ---')
-    console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
-    console.log('SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? '[SET]' : '[MISSING]')
-    console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '[SET]' : '[MISSING]')
-    
+
     const firstName = formData.get('firstName') as string
     const lastName = formData.get('lastName') as string
     const dob = formData.get('dob') as string
@@ -153,8 +148,10 @@ export async function getMorePatients(offset: number) {
       phone: p.phone,
       email: p.email,
       status: p.status,
-      avatarUrl: p.profilePhotoId || null,
-      mainTreatment, 
+      // profilePhotoId es un UUID (objeto en el bucket privado patients-profile),
+      // no una URL. Hasta que exista el flujo de subida+signed URL, caemos a iniciales.
+      avatarUrl: null,
+      mainTreatment,
       lastVisit,
       nextAppointment
     }

@@ -23,10 +23,10 @@ export function PatientAppointments({ patientId }: PatientAppointmentsProps) {
   }, [patientId])
 
   const getStatusColor = (status: string) => {
-    if (status === 'AGENDADA') return 'bg-teal-50 text-teal-700 ring-teal-600/20'
-    if (status === 'COMPLETADA') return 'bg-slate-100 text-slate-700 ring-slate-500/20'
-    if (status === 'CANCELADA') return 'bg-red-50 text-red-700 ring-red-600/20'
-    if (status === 'NO_ASISTIO') return 'bg-orange-50 text-orange-700 ring-orange-600/20'
+    if (status === 'CONFIRMADO') return 'bg-teal-50 text-teal-700 ring-teal-600/20'
+    if (status === 'CANCELADO') return 'bg-red-50 text-red-700 ring-red-600/20'
+    if (status === 'OCUPADO') return 'bg-orange-50 text-orange-700 ring-orange-600/20'
+    if (status === 'DISPONIBLE') return 'bg-slate-100 text-slate-700 ring-slate-500/20'
     return 'bg-blue-50 text-blue-700 ring-blue-600/20'
   }
 
