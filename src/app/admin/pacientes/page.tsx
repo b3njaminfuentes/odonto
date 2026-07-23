@@ -113,8 +113,8 @@ export default async function PacientesPage({
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="flex flex-col gap-1 mb-8">
-        <h1 className="text-3xl font-serif text-gray-900 tracking-tight">Pacientes</h1>
-        <p className="text-gray-500">
+        <h1 className="text-3xl font-serif text-text tracking-tight">Pacientes</h1>
+        <p className="text-muted">
           Gestiona tu lista de pacientes y accede a sus historiales clínicos.
         </p>
       </div>

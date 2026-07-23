@@ -125,13 +125,13 @@ export default function BookingCalendar() {
           </div>
 
           {time && (
-            <div className="bg-green-50 rounded-xl p-4 border border-green-100 mb-6 animate-in slide-in-from-bottom-2 fade-in">
+            <div className="bg-success-soft rounded-xl p-4 border border-success mb-6 animate-in slide-in-from-bottom-2 fade-in">
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="text-green-600 shrink-0 mt-0.5" size={18} />
+                <CheckCircle2 className="text-success shrink-0 mt-0.5" size={18} />
                 <div className="text-sm">
-                  <p className="font-medium text-green-900">Resumen de tu cita</p>
-                  <p className="text-green-700 mt-1">{selectedService}</p>
-                  <p className="text-green-700 capitalize">
+                  <p className="font-medium text-success">Resumen de tu cita</p>
+                  <p className="text-success mt-1">{selectedService}</p>
+                  <p className="text-success capitalize">
                     {date && format(date, "EEEE d 'de' MMMM", { locale: es })} a las {time}
                   </p>
                 </div>

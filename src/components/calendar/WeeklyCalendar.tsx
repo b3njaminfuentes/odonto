@@ -79,28 +79,28 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
     <div className="space-y-6">
       
       {/* Controles del Calendario */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-surface p-4 rounded-2xl border border-border shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-1 border border-slate-100">
-            <button onClick={prevDay} className="p-2 hover:bg-white rounded-md hover:shadow-sm transition-all text-slate-500">
+          <div className="flex items-center gap-1 bg-elevated rounded-lg p-1 border border-border">
+            <button onClick={prevDay} className="p-2 hover:bg-surface rounded-md hover:shadow-sm transition-all text-muted">
               <ChevronLeft className="w-5 h-5" />
             </button>
-            <button onClick={goToday} className="px-4 py-2 text-sm font-medium text-slate-700 hover:bg-white rounded-md hover:shadow-sm transition-all">
+            <button onClick={goToday} className="px-4 py-2 text-sm font-medium text-muted hover:bg-surface rounded-md hover:shadow-sm transition-all">
               Hoy
             </button>
-            <button onClick={nextDay} className="p-2 hover:bg-white rounded-md hover:shadow-sm transition-all text-slate-500">
+            <button onClick={nextDay} className="p-2 hover:bg-surface rounded-md hover:shadow-sm transition-all text-muted">
               <ChevronRight className="w-5 h-5" />
             </button>
           </div>
-          <h2 className="text-xl font-bold text-slate-900 capitalize">
+          <h2 className="text-xl font-bold text-text capitalize">
             {format(currentDate, "EEEE, d 'de' MMMM", { locale: es })}
           </h2>
-          {isPending && <Loader2 className="w-5 h-5 animate-spin text-teal-600 ml-2" />}
+          {isPending && <Loader2 className="w-5 h-5 animate-spin text-brand ml-2" />}
         </div>
 
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="clinical-btn w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5"
+          className="btn-primary w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5"
         >
           <Plus className="w-5 h-5" />
           Agendar Cita
@@ -108,23 +108,23 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
       </div>
 
       {/* Agenda Diaria */}
-      <div className={`clinical-card bg-white min-h-[500px] transition-opacity duration-200 ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>
+      <div className={`card bg-surface min-h-[500px] transition-opacity duration-200 ${isPending ? 'opacity-50 pointer-events-none' : ''}`}>
         {todayAppointments.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-[400px] text-slate-400">
-            <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-              <Clock className="w-8 h-8 text-slate-300" />
+          <div className="flex flex-col items-center justify-center h-[400px] text-faint">
+            <div className="w-16 h-16 bg-elevated rounded-full flex items-center justify-center mb-4">
+              <Clock className="w-8 h-8 text-faint" />
             </div>
-            <p className="text-lg font-semibold text-slate-900 mb-1">No hay citas para este día</p>
-            <p className="text-slate-500">Disfruta tu tiempo libre o agenda un nuevo paciente.</p>
+            <p className="text-lg font-semibold text-text mb-1">No hay citas para este día</p>
+            <p className="text-muted">Disfruta tu tiempo libre o agenda un nuevo paciente.</p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-border">
             {todayAppointments.map((app) => (
-              <div key={app.id} className="p-6 flex flex-col sm:flex-row gap-6 hover:bg-slate-50/50 transition-colors group">
+              <div key={app.id} className="p-6 flex flex-col sm:flex-row gap-6 hover:bg-elevated/50 transition-colors group">
                 {/* Timeline Box */}
-                <div className="flex-shrink-0 w-32 flex flex-col items-start sm:items-end sm:border-r sm:border-slate-100 sm:pr-6">
-                  <span className="text-xl font-bold text-slate-900">{formatTime(app.startsAt)}</span>
-                  <span className="text-sm text-slate-500">{formatTime(app.endsAt)}</span>
+                <div className="flex-shrink-0 w-32 flex flex-col items-start sm:items-end sm:border-r sm:border-border sm:pr-6">
+                  <span className="text-xl font-bold text-text">{formatTime(app.startsAt)}</span>
+                  <span className="text-sm text-muted">{formatTime(app.endsAt)}</span>
                 </div>
                 
                 {/* Content */}
@@ -133,32 +133,32 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
                     <div>
                       <div className="flex items-center gap-3 mb-2">
                         <StatusBadge status={getStatusType(app.status)} text={app.status} />
-                        <span className="text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-100 px-2 py-0.5 rounded-md">
+                        <span className="text-xs font-semibold text-brand bg-brand-soft border border-brand-soft px-2 py-0.5 rounded-md">
                           {app.type}
                         </span>
                       </div>
                       
-                      <div className="flex items-center gap-2 text-lg font-semibold text-slate-900 mb-2">
-                        <User className="w-5 h-5 text-slate-400" />
+                      <div className="flex items-center gap-2 text-lg font-semibold text-text mb-2">
+                        <User className="w-5 h-5 text-faint" />
                         {app.patient.firstName} {app.patient.lastName}
                       </div>
                       
                       {app.patient.phone && (
-                        <div className="flex items-center gap-2 text-sm text-slate-500 mb-3">
-                          <Phone className="w-4 h-4 text-slate-400" />
+                        <div className="flex items-center gap-2 text-sm text-muted mb-3">
+                          <Phone className="w-4 h-4 text-faint" />
                           {app.patient.phone}
                         </div>
                       )}
 
                       {app.notes && (
-                        <p className="text-sm text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100 shadow-sm mt-2">
+                        <p className="text-sm text-muted bg-elevated p-3 rounded-xl border border-border shadow-sm mt-2">
                           {app.notes}
                         </p>
                       )}
                     </div>
 
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                      <button className="text-sm font-medium text-teal-600 hover:text-teal-700 hover:underline">Ver ficha</button>
+                      <button className="text-sm font-medium text-brand hover:text-brand hover:underline">Ver ficha</button>
                     </div>
                   </div>
                 </div>

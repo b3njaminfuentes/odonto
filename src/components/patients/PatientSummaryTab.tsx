@@ -41,17 +41,17 @@ export function PatientSummaryTab({ summaryData }: PatientSummaryTabProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Próxima Cita Card */}
-        <div className="clinical-card p-6 flex flex-col justify-center">
+        <div className="card p-6 flex flex-col justify-center">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-teal-50 rounded-lg text-teal-600">
+            <div className="p-2 bg-brand-soft rounded-lg text-brand">
               <Calendar className="w-5 h-5" />
             </div>
-            <h3 className="font-semibold text-slate-900">Próxima Cita</h3>
+            <h3 className="font-semibold text-text">Próxima Cita</h3>
           </div>
           
           {nextAppointment ? (
             <div>
-              <p className="text-xl font-bold text-slate-900 mb-1 capitalize">
+              <p className="text-xl font-bold text-text mb-1 capitalize">
                 {new Intl.DateTimeFormat('es-BO', { 
                   weekday: 'long', 
                   day: 'numeric', 
@@ -60,45 +60,45 @@ export function PatientSummaryTab({ summaryData }: PatientSummaryTabProps) {
                   minute: '2-digit'
                 }).format(new Date(nextAppointment.startsAt))}
               </p>
-              <p className="text-sm text-slate-500 font-medium capitalize">
+              <p className="text-sm text-muted font-medium capitalize">
                 {nextAppointment.treatmentType || 'Consulta General'} • {nextAppointment.status}
               </p>
             </div>
           ) : (
-            <p className="text-slate-500 text-sm">No hay citas programadas próximamente.</p>
+            <p className="text-muted text-sm">No hay citas programadas próximamente.</p>
           )}
         </div>
 
         {/* Accesos Rápidos & Stats */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="clinical-card p-4 flex flex-col justify-center items-center text-center">
-            <div className="p-3 bg-teal-50 rounded-full text-teal-600 mb-3">
+          <div className="card p-4 flex flex-col justify-center items-center text-center">
+            <div className="p-3 bg-brand-soft rounded-full text-brand mb-3">
               <Activity className="w-6 h-6" />
             </div>
-            <p className="text-2xl font-bold text-slate-900">{treatmentsCount}</p>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Tratamientos Activos</p>
+            <p className="text-2xl font-bold text-text">{treatmentsCount}</p>
+            <p className="text-xs font-medium text-muted uppercase tracking-wider">Tratamientos Activos</p>
           </div>
-          <div className="clinical-card p-4 flex flex-col justify-center items-center text-center">
-            <div className="p-3 bg-slate-50 rounded-full text-slate-600 mb-3">
+          <div className="card p-4 flex flex-col justify-center items-center text-center">
+            <div className="p-3 bg-elevated rounded-full text-muted mb-3">
               <FileText className="w-6 h-6" />
             </div>
-            <p className="text-2xl font-bold text-slate-900">{mediaCount}</p>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Documentos y Fotos</p>
+            <p className="text-2xl font-bold text-text">{mediaCount}</p>
+            <p className="text-xs font-medium text-muted uppercase tracking-wider">Documentos y Fotos</p>
           </div>
         </div>
       </div>
 
       {/* Alertas Médicas (Solo si existen) */}
       {alerts.length > 0 && (
-        <div className="bg-orange-50 border border-orange-200 rounded-xl p-5 shadow-sm">
-          <div className="flex items-center gap-2 mb-3 text-orange-800">
+        <div className="bg-warning-soft border border-warning rounded-xl p-5 shadow-sm">
+          <div className="flex items-center gap-2 mb-3 text-warning">
             <AlertCircle className="w-5 h-5" />
             <h3 className="font-semibold">Alertas Médicas Importantes</h3>
           </div>
           <ul className="space-y-2">
             {alerts.map((alert, idx) => (
-              <li key={idx} className="text-sm font-medium text-orange-900 flex items-start gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-1.5 flex-shrink-0" />
+              <li key={idx} className="text-sm font-medium text-warning flex items-start gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-warning mt-1.5 flex-shrink-0" />
                 {alert}
               </li>
             ))}

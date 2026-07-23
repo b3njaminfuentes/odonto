@@ -21,10 +21,10 @@ export default async function PortalDashboardPage() {
 
   if (!patient) {
     return (
-      <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
-        <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Ficha no vinculada</h2>
-        <p className="text-gray-500">
+      <div className="bg-surface rounded-2xl p-8 shadow-sm border border-border text-center">
+        <AlertCircle className="w-12 h-12 text-warning mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-text mb-2">Ficha no vinculada</h2>
+        <p className="text-muted">
           Tu cuenta aún no ha sido vinculada a una ficha clínica. Por favor, comunícate con la clínica.
         </p>
       </div>
@@ -51,11 +51,11 @@ export default async function PortalDashboardPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-teal-100 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
+      <div className="bg-surface rounded-2xl p-6 sm:p-8 shadow-sm border border-brand-soft relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-brand/5 rounded-full -translate-y-1/2 translate-x-1/3"></div>
         <div className="relative z-10">
-          <h2 className="text-2xl font-serif font-bold text-slate-900 mb-2">Bienvenido, {patient.firstName}</h2>
-          <p className="text-slate-500 max-w-lg">
+          <h2 className="text-2xl font-serif font-bold text-text mb-2">Bienvenido, {patient.firstName}</h2>
+          <p className="text-muted max-w-lg">
             Aquí puedes revisar tu historial de tratamientos, tus próximas citas y el estado de tu cuenta de manera segura.
           </p>
         </div>
@@ -63,31 +63,31 @@ export default async function PortalDashboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Citas */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-full">
-          <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-teal-600" />
+        <div className="bg-surface rounded-2xl p-6 shadow-sm border border-border flex flex-col h-full">
+          <h3 className="text-lg font-bold text-text mb-4 flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-brand" />
             Próximas Citas
           </h3>
           
           {(!appointments || appointments.length === 0) ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center py-6">
-              <Calendar className="w-10 h-10 text-slate-200 mb-2" />
-              <p className="text-slate-500 text-sm">No tienes citas programadas actualmente.</p>
+              <Calendar className="w-10 h-10 text-muted mb-2" />
+              <p className="text-muted text-sm">No tienes citas programadas actualmente.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {appointments.map(app => (
-                <div key={app.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-teal-50/50 rounded-xl border border-teal-100">
+                <div key={app.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-brand-soft/50 rounded-xl border border-brand-soft">
                   <div>
-                    <p className="font-bold text-teal-900 capitalize">
+                    <p className="font-bold text-brand capitalize">
                       {format(new Date(app.startsAt), "EEEE, d 'de' MMMM", { locale: es })}
                     </p>
-                    <p className="text-sm font-medium text-teal-700">
+                    <p className="text-sm font-medium text-brand">
                       {format(new Date(app.startsAt), "HH:mm")} - {app.treatmentType || 'Consulta General'}
                     </p>
                   </div>
                   <div className="mt-2 sm:mt-0">
-                    <span className="inline-block px-2.5 py-1 bg-teal-100 text-teal-800 text-[10px] font-bold uppercase tracking-wide rounded-md">
+                    <span className="inline-block px-2.5 py-1 bg-brand-soft text-brand text-[10px] font-bold uppercase tracking-wide rounded-md">
                       {app.status}
                     </span>
                   </div>
@@ -98,34 +98,34 @@ export default async function PortalDashboardPage() {
         </div>
 
         {/* Tratamientos */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col h-full">
-          <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-teal-600" />
+        <div className="bg-surface rounded-2xl p-6 shadow-sm border border-border flex flex-col h-full">
+          <h3 className="text-lg font-bold text-text mb-4 flex items-center gap-2">
+            <Activity className="w-5 h-5 text-brand" />
             Tratamientos Actuales
           </h3>
           
           {(!activeTreatments || activeTreatments.length === 0) ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center py-6">
-              <Activity className="w-10 h-10 text-slate-200 mb-2" />
-              <p className="text-slate-500 text-sm">No tienes tratamientos activos en este momento.</p>
+              <Activity className="w-10 h-10 text-muted mb-2" />
+              <p className="text-muted text-sm">No tienes tratamientos activos en este momento.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {activeTreatments.map(t => (
-                <div key={t.id} className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <div key={t.id} className="p-4 bg-elevated rounded-xl border border-border">
                   <div className="flex justify-between items-start mb-1">
-                    <h4 className="font-bold text-slate-900">{t.name}</h4>
+                    <h4 className="font-bold text-text">{t.name}</h4>
                     <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ${
-                      t.status === 'ACTIVO' ? 'bg-teal-100 text-teal-800' : 'bg-blue-100 text-blue-800'
+                      t.status === 'ACTIVO' ? 'bg-brand-soft text-brand' : 'bg-info-soft text-info'
                     }`}>
                       {t.status}
                     </span>
                   </div>
                   {t.toothNumber && (
-                    <p className="text-xs text-slate-500 font-medium">Pieza Dental: {t.toothNumber}</p>
+                    <p className="text-xs text-muted font-medium">Pieza Dental: {t.toothNumber}</p>
                   )}
                   {t.description && (
-                    <p className="text-sm text-slate-600 mt-2 line-clamp-2">{t.description}</p>
+                    <p className="text-sm text-muted mt-2 line-clamp-2">{t.description}</p>
                   )}
                 </div>
               ))}

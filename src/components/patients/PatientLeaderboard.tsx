@@ -75,14 +75,14 @@ export function PatientLeaderboard({
     <div className="space-y-6">
       {/* Header & Controls */}
       <div className="sticky top-0 z-30 -mx-4 px-4 py-4 sm:mx-0 sm:px-0 sm:py-0 sm:static mb-6">
-        <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center bg-white/90 backdrop-blur-xl p-4 sm:rounded-2xl sm:border border-b sm:border-slate-200 shadow-sm sm:shadow-sm">
+        <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center bg-surface/90 backdrop-blur-xl p-4 sm:rounded-2xl sm:border border-b sm:border-border shadow-sm sm:shadow-sm">
         <div className="relative flex-1 max-w-md">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            {isPending ? <Loader2 className="h-5 w-5 text-slate-400 animate-spin" /> : <Search className="h-5 w-5 text-slate-400" />}
+            {isPending ? <Loader2 className="h-5 w-5 text-faint animate-spin" /> : <Search className="h-5 w-5 text-faint" />}
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl leading-5 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all sm:text-sm"
+            className="block w-full pl-10 pr-3 py-2.5 bg-elevated border border-border rounded-xl leading-5 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all sm:text-sm"
             placeholder="Buscar por nombre, teléfono o email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -102,8 +102,8 @@ export function PatientLeaderboard({
                 onClick={() => handleStatusChange(status.id)}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
                   (currentStatus || 'ALL') === status.id 
-                    ? 'bg-teal-50 text-teal-700 ring-1 ring-teal-600/20' 
-                    : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+                    ? 'bg-brand-soft text-brand ring-1 ring-brand/20' 
+                    : 'bg-surface text-muted hover:bg-elevated border border-border'
                 }`}
               >
                 {status.label}
@@ -111,11 +111,11 @@ export function PatientLeaderboard({
             ))}
           </div>
 
-          <div className="w-px h-6 bg-slate-200 hidden md:block"></div>
+          <div className="w-px h-6 bg-border hidden md:block"></div>
 
           <button 
             onClick={() => setIsModalOpen(true)}
-            className="clinical-btn px-4 py-2 flex items-center gap-2 whitespace-nowrap shrink-0"
+            className="btn-primary px-4 py-2 flex items-center gap-2 whitespace-nowrap shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span className="hidden sm:inline">Nuevo Paciente</span>
@@ -129,13 +129,13 @@ export function PatientLeaderboard({
         {isPending ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((n) => (
-              <div key={n} className="bg-white rounded-2xl border border-slate-200 p-5 animate-pulse">
+              <div key={n} className="bg-surface rounded-2xl border border-border p-5 animate-pulse">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-full bg-slate-200" />
+                  <div className="w-12 h-12 rounded-full bg-border" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-slate-200 rounded w-2/3" />
-                    <div className="h-3 bg-slate-100 rounded w-1/3" />
-                    <div className="h-8 bg-slate-100 rounded-lg w-full mt-3" />
+                    <div className="h-4 bg-border rounded w-2/3" />
+                    <div className="h-3 bg-elevated rounded w-1/3" />
+                    <div className="h-8 bg-elevated rounded-lg w-full mt-3" />
                   </div>
                 </div>
               </div>
@@ -148,22 +148,22 @@ export function PatientLeaderboard({
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 clinical-card bg-white">
-            <div className="mx-auto w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-              <Search className="w-8 h-8 text-slate-300" />
+          <div className="text-center py-16 card bg-surface">
+            <div className="mx-auto w-16 h-16 bg-elevated rounded-full flex items-center justify-center mb-4">
+              <Search className="w-8 h-8 text-faint" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900">No se encontraron pacientes</h3>
-            <p className="mt-1 text-slate-500">Intenta ajustar tu búsqueda o agregar uno nuevo.</p>
+            <h3 className="text-lg font-semibold text-text">No se encontraron pacientes</h3>
+            <p className="mt-1 text-muted">Intenta ajustar tu búsqueda o agregar uno nuevo.</p>
           </div>
         )}
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-slate-200 bg-white px-4 py-3 sm:px-6 rounded-2xl shadow-sm">
+        <div className="flex items-center justify-between border-t border-border bg-surface px-4 py-3 sm:px-6 rounded-2xl shadow-sm">
           <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm text-slate-700">
+              <p className="text-sm text-muted">
                 Mostrando <span className="font-semibold">{((currentPage - 1) * 20) + 1}</span> a <span className="font-semibold">{Math.min(currentPage * 20, totalCount)}</span> de <span className="font-semibold">{totalCount}</span> resultados
               </p>
             </div>
@@ -172,18 +172,18 @@ export function PatientLeaderboard({
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="relative inline-flex items-center rounded-l-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center rounded-l-md px-2 py-2 text-faint ring-1 ring-inset ring-border hover:bg-elevated focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Anterior</span>
                   <ChevronLeft className="h-5 w-5" aria-hidden="true" />
                 </button>
-                <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-slate-900 ring-1 ring-inset ring-slate-300 focus:z-20 focus:outline-offset-0">
+                <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-text ring-1 ring-inset ring-border focus:z-20 focus:outline-offset-0">
                   Página {currentPage} de {totalPages}
                 </span>
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage >= totalPages}
-                  className="relative inline-flex items-center rounded-r-md px-2 py-2 text-slate-400 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center rounded-r-md px-2 py-2 text-faint ring-1 ring-inset ring-border hover:bg-elevated focus:z-20 focus:outline-offset-0 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Siguiente</span>
                   <ChevronRight className="h-5 w-5" aria-hidden="true" />
@@ -206,8 +206,8 @@ export function PatientLeaderboard({
       
       {/* Toast */}
       {showToast && (
-        <div className="fixed bottom-6 right-6 bg-slate-900 text-white text-sm px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-in slide-in-from-bottom-4 fade-in duration-300 z-50">
-          <CheckCircle2 className="w-4 h-4 text-teal-400" />
+        <div className="fixed bottom-6 right-6 bg-bg text-white text-sm px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-in slide-in-from-bottom-4 fade-in duration-300 z-50">
+          <CheckCircle2 className="w-4 h-4 text-brand" />
           Paciente agregado correctamente
         </div>
       )}

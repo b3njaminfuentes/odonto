@@ -135,9 +135,9 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
 
   return (
     <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-6">
-        <h2 className="text-xl font-serif text-slate-900 flex items-center gap-2">
-          <ImageIcon className="w-5 h-5 text-teal-600" />
+      <div className="flex justify-between items-center border-b border-border pb-4 mb-6">
+        <h2 className="text-xl font-serif text-text flex items-center gap-2">
+          <ImageIcon className="w-5 h-5 text-brand" />
           Documentos y Fotos
         </h2>
         <input 
@@ -150,7 +150,7 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
         <button 
           onClick={handleUploadClick}
           disabled={isUploading}
-          className="clinical-btn px-4 py-2 flex items-center gap-2 text-sm"
+          className="btn-primary px-4 py-2 flex items-center gap-2 text-sm"
         >
           {isUploading && pendingFile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
           Subir Archivo
@@ -159,16 +159,16 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-brand" />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {/* Subida rápida */}
           <div 
             onClick={handleUploadClick}
-            className="border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-400 hover:border-teal-400 hover:bg-teal-50 hover:text-teal-600 transition-all cursor-pointer min-h-[220px]"
+            className="border-2 border-dashed border-border rounded-2xl bg-elevated flex flex-col items-center justify-center p-6 text-muted hover:border-brand hover:bg-brand-soft hover:text-brand transition-all cursor-pointer min-h-[220px]"
           >
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm mb-3">
+            <div className="w-12 h-12 bg-surface rounded-full flex items-center justify-center shadow-sm mb-3">
               <Upload className="w-6 h-6" />
             </div>
             <p className="text-sm font-semibold">Click para subir</p>
@@ -180,12 +180,12 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
             <div 
               key={img.id} 
               onClick={() => openEditModal(img)}
-              className="group relative bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col"
+              className="group relative bg-surface rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col"
             >
               {/* Imagen/Preview */}
-              <div className="aspect-[4/3] bg-slate-100 relative flex items-center justify-center overflow-hidden">
+              <div className="aspect-[4/3] bg-elevated relative flex items-center justify-center overflow-hidden">
                 {img.category === 'document' ? (
-                  <File className="w-16 h-16 text-slate-300" />
+                  <File className="w-16 h-16 text-muted" />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img 
@@ -198,7 +198,7 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
                 {/* Botón flotante para eliminar (solo visible en hover) */}
                 <button 
                   onClick={(e) => handleDelete(e, img.id, img.bucket, img.fileUrl)}
-                  className="absolute top-3 right-3 p-1.5 bg-red-500/90 text-white rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all shadow-sm"
+                  className="absolute top-3 right-3 p-1.5 bg-danger/90 text-white rounded-lg opacity-0 group-hover:opacity-100 hover:bg-danger transition-all shadow-sm"
                   title="Eliminar archivo"
                 >
                   <X className="w-4 h-4" />
@@ -209,8 +209,8 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
                   onClick={(e) => toggleVisibilityDirect(e, img)}
                   className={`absolute top-3 left-3 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm backdrop-blur-md transition-colors ${
                     img.visibleToPatient 
-                    ? 'bg-teal-500/90 text-white hover:bg-teal-600' 
-                    : 'bg-slate-800/60 text-white hover:bg-slate-900/80'
+                    ? 'bg-brand/90 text-white hover:bg-brand' 
+                    : 'bg-elevated/60 text-white hover:bg-bg/80'
                   }`}
                   title={img.visibleToPatient ? 'Visible en portal' : 'Oculto (Privado)'}
                 >
@@ -223,11 +223,11 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
               <div className="p-4 flex-1 flex flex-col justify-between">
                 <div>
                   <div className="flex justify-between items-start mb-1.5 gap-2">
-                    <h4 className="font-bold text-slate-900 text-sm line-clamp-2 leading-snug group-hover:text-teal-700 transition-colors" title={img.description}>
+                    <h4 className="font-bold text-text text-sm line-clamp-2 leading-snug group-hover:text-brand transition-colors" title={img.description}>
                       {img.description}
                     </h4>
                   </div>
-                  <p className="text-xs font-medium text-slate-500 flex items-center gap-1.5">
+                  <p className="text-xs font-medium text-muted flex items-center gap-1.5">
                     {new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(img.createdAt))}
                   </p>
                 </div>
@@ -238,7 +238,7 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
                     target="_blank" 
                     rel="noopener noreferrer" 
                     onClick={(e) => e.stopPropagation()}
-                    className="text-teal-600 text-xs font-semibold hover:underline mt-3 inline-block"
+                    className="text-brand text-xs font-semibold hover:underline mt-3 inline-block"
                   >
                     Abrir documento
                   </a>
@@ -251,71 +251,71 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
 
       {/* Modal Subir / Editar */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-bg/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="absolute inset-0" onClick={closeModal} />
           
-          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 animate-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-              <h3 className="text-lg font-serif font-bold text-slate-900">
+          <div className="relative bg-surface rounded-2xl shadow-xl w-full max-w-md mx-4 animate-in zoom-in-95">
+            <div className="flex items-center justify-between border-b border-border px-6 py-4">
+              <h3 className="text-lg font-serif font-bold text-text">
                 {pendingFile ? 'Detalles del Archivo' : 'Editar Documento'}
               </h3>
-              <button onClick={closeModal} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg">
+              <button onClick={closeModal} className="p-2 text-muted hover:text-muted hover:bg-elevated rounded-lg">
                 <X className="w-5 h-5" />
               </button>
             </div>
             
             <div className="p-6 space-y-5">
               {pendingFile && (
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center gap-3">
-                  <File className="w-8 h-8 text-teal-600 opacity-75" />
+                <div className="bg-elevated p-4 rounded-xl border border-border flex items-center gap-3">
+                  <File className="w-8 h-8 text-brand opacity-75" />
                   <div className="overflow-hidden">
-                    <p className="text-sm font-semibold text-slate-900 truncate">{pendingFile.name}</p>
-                    <p className="text-xs text-slate-500">{(pendingFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                    <p className="text-sm font-semibold text-text truncate">{pendingFile.name}</p>
+                    <p className="text-xs text-muted">{(pendingFile.size / 1024 / 1024).toFixed(2)} MB</p>
                   </div>
                 </div>
               )}
 
               <div className="space-y-1.5">
-                <label className="text-sm font-medium text-slate-700">Descripción o Nombre</label>
+                <label className="text-sm font-medium text-muted">Descripción o Nombre</label>
                 <input 
                   type="text" 
                   value={mediaForm.description}
                   onChange={(e) => setMediaForm({ ...mediaForm, description: e.target.value })}
                   placeholder="Ej: Radiografía Panorámica Inicial"
-                  className="clinical-input w-full px-4 py-2.5"
+                  className="input w-full px-4 py-2.5"
                 />
               </div>
 
               {/* Toggle de Visibilidad Clínico */}
-              <label className="flex items-start gap-3 p-4 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+              <label className="flex items-start gap-3 p-4 border border-border rounded-xl cursor-pointer hover:bg-elevated transition-colors">
                 <div className="flex items-center h-5 mt-0.5">
                   <input 
                     type="checkbox"
                     checked={mediaForm.visibleToPatient}
                     onChange={(e) => setMediaForm({ ...mediaForm, visibleToPatient: e.target.checked })}
-                    className="w-4 h-4 text-teal-600 bg-gray-100 border-gray-300 rounded focus:ring-teal-500 focus:ring-2 cursor-pointer"
+                    className="w-4 h-4 text-brand bg-elevated border-border rounded focus:ring-brand focus:ring-2 cursor-pointer"
                   />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-bold text-slate-900">Visible para el paciente</p>
-                  <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                  <p className="text-sm font-bold text-text">Visible para el paciente</p>
+                  <p className="text-xs text-muted mt-0.5 leading-relaxed">
                     Si activas esta opción, el paciente podrá ver este documento/foto al iniciar sesión en su portal personal. Útil para que vean su progreso.
                   </p>
                 </div>
               </label>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
                 <button 
                   type="button" 
                   onClick={closeModal}
-                  className="px-5 py-2.5 text-slate-600 hover:bg-slate-50 font-medium rounded-xl transition-colors text-sm"
+                  className="px-5 py-2.5 text-muted hover:bg-elevated font-medium rounded-xl transition-colors text-sm"
                 >
                   Cancelar
                 </button>
                 <button 
                   onClick={handleSaveModal}
                   disabled={isUploading || !mediaForm.description.trim()}
-                  className="clinical-btn px-6 py-2.5 flex items-center gap-2 text-sm disabled:opacity-50"
+                  className="btn-primary px-6 py-2.5 flex items-center gap-2 text-sm disabled:opacity-50"
                 >
                   {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : (pendingFile ? <Upload className="w-4 h-4" /> : <Save className="w-4 h-4" />)}
                   {pendingFile ? 'Confirmar y Subir' : 'Guardar Cambios'}

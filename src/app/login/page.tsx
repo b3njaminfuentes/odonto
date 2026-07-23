@@ -24,11 +24,11 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+    <div className="flex min-h-screen items-center justify-center bg-elevated p-4">
+      <div className="w-full max-w-md bg-surface p-8 rounded-xl shadow-lg border border-border">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Clínica Odontológica Villarroel</h1>
-          <p className="text-gray-500 mt-2 text-sm">Portal de acceso</p>
+          <h1 className="text-3xl font-bold text-text tracking-tight">Clínica Odontológica Villarroel</h1>
+          <p className="text-muted mt-2 text-sm">Portal de acceso</p>
         </div>
         <LoginForm />
       </div>

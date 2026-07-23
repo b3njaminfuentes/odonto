@@ -45,7 +45,7 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleLogin} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-muted mb-1">
           Correo Electrónico
         </label>
         <input
@@ -53,13 +53,13 @@ export default function LoginForm() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+          className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-all"
           placeholder="tu@email.com"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-muted mb-1">
           Contraseña
         </label>
         <input
@@ -67,13 +67,13 @@ export default function LoginForm() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all"
+          className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-all"
           placeholder="••••••••"
         />
       </div>
 
       {error && (
-        <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg border border-red-100">
+        <div className="p-3 text-sm text-danger bg-danger-soft rounded-lg border border-danger">
           {error}
         </div>
       )}
@@ -81,7 +81,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-2.5 px-4 bg-primary hover:bg-primary/90 text-white font-medium rounded-lg transition-colors focus:ring-4 focus:ring-primary/20 disabled:opacity-70 disabled:cursor-not-allowed"
+        className="w-full py-2.5 px-4 bg-brand hover:bg-brand/90 text-white font-medium rounded-lg transition-colors focus:ring-4 focus:ring-brand/20 disabled:opacity-70 disabled:cursor-not-allowed"
       >
         {loading ? 'Iniciando sesión...' : 'Ingresar'}
       </button>
