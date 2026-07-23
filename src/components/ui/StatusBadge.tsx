@@ -9,11 +9,11 @@ interface StatusBadgeProps {
 }
 
 const statusStyles: Record<StatusType, string> = {
-  success: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20',
-  warning: 'bg-amber-50 text-amber-700 ring-1 ring-amber-600/20',
-  danger: 'bg-red-50 text-red-700 ring-1 ring-red-600/10',
-  info: 'bg-blue-50 text-blue-700 ring-1 ring-blue-700/10',
-  default: 'bg-slate-50 text-slate-600 ring-1 ring-slate-500/10',
+  success: 'bg-success-soft text-success ring-1 ring-success/20',
+  warning: 'bg-warning-soft text-warning ring-1 ring-warning/20',
+  danger: 'bg-danger-soft text-danger ring-1 ring-danger/20',
+  info: 'bg-info-soft text-info ring-1 ring-info/20',
+  default: 'bg-elevated text-muted ring-1 ring-border',
 }
 
 export function StatusBadge({ status, text, className = '' }: StatusBadgeProps) {

@@ -13,32 +13,32 @@ interface KPICardProps {
   colorClass?: string
 }
 
-export function KPICard({ title, value, icon: Icon, description, trend, colorClass = "clinical-card bg-white" }: KPICardProps) {
+export function KPICard({ title, value, icon: Icon, description, trend, colorClass = "" }: KPICardProps) {
   return (
-    <div className={`${colorClass} p-6 flex flex-col group border border-slate-100`}>
+    <div className={`card-interactive p-6 flex flex-col group ${colorClass}`}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-slate-500 text-sm font-medium tracking-wide">{title}</h3>
-        <div className="p-2 bg-slate-50 border border-slate-100 rounded-lg text-slate-400 group-hover:bg-teal-50 group-hover:text-teal-600 transition-colors">
+        <h3 className="text-muted text-sm font-medium tracking-wide">{title}</h3>
+        <div className="p-2 bg-elevated border border-border rounded-lg text-faint group-hover:bg-brand-soft group-hover:text-brand transition-colors">
           <Icon className="w-5 h-5" />
         </div>
       </div>
-      
+
       <div className="flex items-baseline gap-2">
-        <span className="text-3xl font-bold text-slate-900 tracking-tight">{value}</span>
-        
+        <span className="text-3xl font-bold text-text tracking-tight">{value}</span>
+
         {trend && (
           <span
             className={`text-sm font-semibold px-2 py-0.5 rounded-md ${
-              trend.isPositive ? 'bg-teal-50 text-teal-700' : 'bg-red-50 text-red-700'
+              trend.isPositive ? 'bg-success-soft text-success' : 'bg-danger-soft text-danger'
             }`}
           >
             {trend.isPositive ? '+' : '-'}{Math.abs(trend.value)}%
           </span>
         )}
       </div>
-      
+
       {description && (
-        <p className="mt-3 text-sm text-slate-500">{description}</p>
+        <p className="mt-3 text-sm text-muted">{description}</p>
       )}
     </div>
   )

@@ -76,51 +76,51 @@ export default async function FinanzasPage({
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
       
       <div className="flex flex-col gap-1 mb-2">
-        <h1 className="text-3xl font-serif text-gray-900 tracking-tight">Finanzas</h1>
-        <p className="text-gray-500">
+        <h1 className="text-3xl font-serif text-text tracking-tight">Finanzas</h1>
+        <p className="text-muted">
           Control de ingresos, pagos recientes y saldos de pacientes.
         </p>
       </div>
 
       {/* KPIs */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+        <div className="bg-surface p-6 rounded-2xl border border-border shadow-sm relative overflow-hidden">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-success/5 rounded-full" />
           <div className="flex items-center gap-4 relative z-10">
             <div className="w-12 h-12 bg-success/10 text-success rounded-xl flex items-center justify-center">
               <DollarSign className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Ingresos Totales</p>
-              <h3 className="text-2xl font-bold text-gray-900">${totalIngresos.toFixed(2)}</h3>
+              <p className="text-sm font-medium text-muted">Ingresos Totales</p>
+              <h3 className="text-2xl font-bold text-text">${totalIngresos.toFixed(2)}</h3>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-primary/5 rounded-full" />
+        <div className="bg-surface p-6 rounded-2xl border border-border shadow-sm relative overflow-hidden">
+          <div className="absolute -right-6 -top-6 w-24 h-24 bg-brand/5 rounded-full" />
           <div className="flex items-center gap-4 relative z-10">
-            <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+            <div className="w-12 h-12 bg-brand/10 text-brand rounded-xl flex items-center justify-center">
               <TrendingUp className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Ticket Promedio</p>
-              <h3 className="text-2xl font-bold text-gray-900">
+              <p className="text-sm font-medium text-muted">Ticket Promedio</p>
+              <h3 className="text-2xl font-bold text-text">
                 ${payments.length > 0 ? (totalIngresos / payments.length).toFixed(2) : '0.00'}
               </h3>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+        <div className="bg-surface p-6 rounded-2xl border border-border shadow-sm relative overflow-hidden">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-warning/5 rounded-full" />
           <div className="flex items-center gap-4 relative z-10">
             <div className="w-12 h-12 bg-warning/10 text-warning rounded-xl flex items-center justify-center">
               <Users className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-500">Pacientes con Pagos</p>
-              <h3 className="text-2xl font-bold text-gray-900">
+              <p className="text-sm font-medium text-muted">Pacientes con Pagos</p>
+              <h3 className="text-2xl font-bold text-text">
                 {new Set(payments.map(p => p.patient.firstName + p.patient.lastName)).size}
               </h3>
             </div>

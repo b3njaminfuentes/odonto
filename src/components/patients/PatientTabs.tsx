@@ -19,16 +19,16 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
   const [activeTab, setActiveTab] = useState<'resumen' | 'historial' | 'odontograma' | 'tratamientos' | 'galeria' | 'pagos' | 'citas'>('resumen')
 
   return (
-    <div className="bg-surface rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col h-[700px]">
+    <div className="bg-surface rounded-2xl shadow-sm border border-border overflow-hidden flex flex-col h-[700px]">
       
       {/* Tab Navigation */}
-      <div className="flex items-center border-b border-slate-100 overflow-x-auto scrollbar-hide">
+      <div className="flex items-center border-b border-border overflow-x-auto scrollbar-hide">
         <button
           onClick={() => setActiveTab('resumen')}
           className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
             activeTab === 'resumen' 
-            ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
-            : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+            ? 'border-brand text-brand bg-brand-soft/50' 
+            : 'border-transparent text-muted hover:text-muted hover:bg-elevated'
           }`}
         >
           <Activity className="w-4 h-4" />
@@ -38,8 +38,8 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
           onClick={() => setActiveTab('historial')}
           className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
             activeTab === 'historial' 
-            ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
-            : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+            ? 'border-brand text-brand bg-brand-soft/50' 
+            : 'border-transparent text-muted hover:text-muted hover:bg-elevated'
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -49,8 +49,8 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
           onClick={() => setActiveTab('odontograma')}
           className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
             activeTab === 'odontograma' 
-            ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
-            : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+            ? 'border-brand text-brand bg-brand-soft/50' 
+            : 'border-transparent text-muted hover:text-muted hover:bg-elevated'
           }`}
         >
           <Smile className="w-4 h-4" />
@@ -60,8 +60,8 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
           onClick={() => setActiveTab('tratamientos')}
           className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
             activeTab === 'tratamientos' 
-            ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
-            : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+            ? 'border-brand text-brand bg-brand-soft/50' 
+            : 'border-transparent text-muted hover:text-muted hover:bg-elevated'
           }`}
         >
           <Stethoscope className="w-4 h-4" />
@@ -71,8 +71,8 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
           onClick={() => setActiveTab('galeria')}
           className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
             activeTab === 'galeria' 
-            ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
-            : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+            ? 'border-brand text-brand bg-brand-soft/50' 
+            : 'border-transparent text-muted hover:text-muted hover:bg-elevated'
           }`}
         >
           <ImageIcon className="w-4 h-4" />
@@ -83,8 +83,8 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
           onClick={() => setActiveTab('pagos')}
           className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
             activeTab === 'pagos' 
-            ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
-            : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+            ? 'border-brand text-brand bg-brand-soft/50' 
+            : 'border-transparent text-muted hover:text-muted hover:bg-elevated'
           }`}
         >
           Pagos
@@ -93,8 +93,8 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
           onClick={() => setActiveTab('citas')}
           className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
             activeTab === 'citas' 
-            ? 'border-teal-600 text-teal-700 bg-teal-50/50' 
-            : 'border-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+            ? 'border-brand text-brand bg-brand-soft/50' 
+            : 'border-transparent text-muted hover:text-muted hover:bg-elevated'
           }`}
         >
           Citas
@@ -102,14 +102,14 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
       </div>
 
       {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50 relative">
+      <div className="flex-1 overflow-y-auto p-6 bg-elevated/50 relative">
         
         {activeTab === 'resumen' && (
           <PatientSummaryTab summaryData={summaryData} />
         )}
 
         {activeTab === 'historial' && (
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8">
+          <div className="bg-surface rounded-xl shadow-sm border border-border p-6 md:p-8">
             <ClinicalHistoryForm patientId={patientId} />
           </div>
         )}
@@ -119,7 +119,7 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
         )}
 
         {activeTab === 'tratamientos' && (
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 md:p-8">
+          <div className="bg-surface rounded-xl shadow-sm border border-border p-6 md:p-8">
             <PatientTreatments patientId={patientId} />
           </div>
         )}
@@ -129,13 +129,13 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
         )}
 
         {activeTab === 'pagos' && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+          <div className="bg-surface rounded-2xl shadow-sm border border-border p-6 md:p-8">
             <PatientPayments patientId={patientId} />
           </div>
         )}
 
         {activeTab === 'citas' && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 md:p-8">
+          <div className="bg-surface rounded-2xl shadow-sm border border-border p-6 md:p-8">
             <PatientAppointments patientId={patientId} />
           </div>
         )}

@@ -19,10 +19,10 @@ export default async function PagosPage() {
 
   if (!patient) {
     return (
-      <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
-        <AlertCircle className="w-12 h-12 text-amber-500 mx-auto mb-4" />
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Ficha no vinculada</h2>
-        <p className="text-gray-500">Tu cuenta aún no ha sido vinculada a una ficha clínica.</p>
+      <div className="bg-surface rounded-2xl p-8 shadow-sm border border-border text-center">
+        <AlertCircle className="w-12 h-12 text-warning mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-text mb-2">Ficha no vinculada</h2>
+        <p className="text-muted">Tu cuenta aún no ha sido vinculada a una ficha clínica.</p>
       </div>
     )
   }
@@ -74,22 +74,22 @@ export default async function PagosPage() {
       
       {/* Resumen de Cuenta */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-          <p className="text-sm font-bold text-slate-500 mb-1">Costo Total (Estimado)</p>
-          <p className="text-2xl font-black text-slate-900">Bs {balances.total.toFixed(2)}</p>
+        <div className="bg-surface p-6 rounded-2xl border border-border shadow-sm">
+          <p className="text-sm font-bold text-muted mb-1">Costo Total (Estimado)</p>
+          <p className="text-2xl font-black text-text">Bs {balances.total.toFixed(2)}</p>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-          <p className="text-sm font-bold text-slate-500 mb-1">Pagado hasta la fecha</p>
-          <p className="text-2xl font-black text-teal-600 flex items-center gap-2">
+        <div className="bg-surface p-6 rounded-2xl border border-border shadow-sm">
+          <p className="text-sm font-bold text-muted mb-1">Pagado hasta la fecha</p>
+          <p className="text-2xl font-black text-brand flex items-center gap-2">
             Bs {balances.paid.toFixed(2)}
-            <CheckCircle2 className="w-5 h-5 text-teal-500" />
+            <CheckCircle2 className="w-5 h-5 text-brand" />
           </p>
         </div>
-        <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm relative overflow-hidden group">
-          <div className="absolute inset-0 bg-red-50/50 group-hover:bg-red-50 transition-colors"></div>
+        <div className="bg-surface p-6 rounded-2xl border border-danger shadow-sm relative overflow-hidden group">
+          <div className="absolute inset-0 bg-danger-soft/50 group-hover:bg-danger-soft transition-colors"></div>
           <div className="relative z-10">
-            <p className="text-sm font-bold text-red-700/80 mb-1">Saldo Pendiente</p>
-            <p className="text-2xl font-black text-red-600">Bs {balances.due.toFixed(2)}</p>
+            <p className="text-sm font-bold text-danger/80 mb-1">Saldo Pendiente</p>
+            <p className="text-2xl font-black text-danger">Bs {balances.due.toFixed(2)}</p>
           </div>
         </div>
       </div>
@@ -98,43 +98,43 @@ export default async function PagosPage() {
         
         {/* Historial de Pagos */}
         <div className="lg:col-span-2 space-y-4">
-          <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-teal-600" />
+          <h3 className="text-lg font-bold text-text mb-4 flex items-center gap-2">
+            <DollarSign className="w-5 h-5 text-brand" />
             Historial de Pagos
           </h3>
 
           {(!payments || payments.length === 0) ? (
-            <div className="bg-white rounded-2xl border border-dashed border-slate-200 flex flex-col items-center justify-center py-12 text-slate-400">
-              <DollarSign className="w-10 h-10 mb-2 text-slate-300" />
+            <div className="bg-surface rounded-2xl border border-dashed border-border flex flex-col items-center justify-center py-12 text-muted">
+              <DollarSign className="w-10 h-10 mb-2 text-muted" />
               <p className="text-sm">Aún no hay pagos registrados.</p>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+            <div className="bg-surface rounded-2xl border border-border overflow-hidden shadow-sm">
               <table className="w-full text-sm text-left">
-                <thead className="bg-slate-50 text-slate-500 font-medium">
+                <thead className="bg-elevated text-muted font-medium">
                   <tr>
                     <th className="px-6 py-4">Fecha</th>
                     <th className="px-6 py-4">Monto</th>
                     <th className="px-6 py-4">Detalle</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-border text-muted">
                   {payments.map(p => (
-                    <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="px-6 py-4 font-medium text-slate-900">
+                    <tr key={p.id} className="hover:bg-elevated/50 transition-colors">
+                      <td className="px-6 py-4 font-medium text-text">
                         {new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(p.date))}
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`font-bold ${p.status === 'CANCELADO' ? 'text-slate-400 line-through' : 'text-teal-700'}`}>
+                        <span className={`font-bold ${p.status === 'CANCELADO' ? 'text-muted line-through' : 'text-brand'}`}>
                           Bs {Number(p.amount).toFixed(2)}
                         </span>
                         {p.status === 'CANCELADO' && (
-                          <span className="block text-[10px] text-red-500 font-bold uppercase mt-1">Anulado</span>
+                          <span className="block text-[10px] text-danger font-bold uppercase mt-1">Anulado</span>
                         )}
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-slate-900 font-medium">{p.method || 'Efectivo'}</p>
-                        {p.treatment?.name && <p className="text-xs text-slate-500 mt-1">Tratamiento: {p.treatment.name}</p>}
+                        <p className="text-text font-medium">{p.method || 'Efectivo'}</p>
+                        {p.treatment?.name && <p className="text-xs text-muted mt-1">Tratamiento: {p.treatment.name}</p>}
                       </td>
                     </tr>
                   ))}
@@ -146,12 +146,12 @@ export default async function PagosPage() {
 
         {/* Acciones de Pago */}
         <div className="lg:col-span-1">
-          <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm text-center sticky top-24">
-            <div className="w-14 h-14 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-teal-100">
+          <div className="bg-surface p-6 rounded-2xl border border-border shadow-sm text-center sticky top-24">
+            <div className="w-14 h-14 bg-brand-soft text-brand rounded-full flex items-center justify-center mx-auto mb-4 border border-brand-soft">
               <DollarSign className="w-7 h-7" />
             </div>
-            <h2 className="text-lg font-bold text-slate-900 mb-2">Realizar un abono</h2>
-            <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+            <h2 className="text-lg font-bold text-text mb-2">Realizar un abono</h2>
+            <p className="text-muted text-sm mb-6 leading-relaxed">
               Para realizar el pago de tu saldo pendiente o hacer un abono a tu cuenta, comunícate directamente con la clínica por WhatsApp para recibir las instrucciones y QR bancario.
             </p>
 
