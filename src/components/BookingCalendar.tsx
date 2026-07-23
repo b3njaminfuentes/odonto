@@ -40,13 +40,13 @@ export default function BookingCalendar() {
   };
 
   return (
-    <div className="bg-white rounded-[2rem] p-6 shadow-lg border border-neutral/10 relative overflow-hidden">
+    <div className="bg-surface rounded-3xl p-6 shadow-lift border border-border relative overflow-hidden">
       {/* Decorative top bar */}
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary"></div>
-      
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand via-accent to-brand"></div>
+
       <div className="mb-6 flex items-center justify-between">
-        <h3 className="text-xl font-serif text-primary">Reserva tu Cita</h3>
-        <span className="text-xs font-medium bg-secondary text-primary px-2 py-1 rounded-md">
+        <h3 className="text-xl font-serif text-text">Reserva tu cita</h3>
+        <span className="text-xs font-medium bg-brand-soft text-brand px-2 py-1 rounded-md">
           Paso {step} de 3
         </span>
       </div>
@@ -54,7 +54,7 @@ export default function BookingCalendar() {
       <div className="space-y-6">
         {/* Step 1: Service */}
         <div className={`transition-all duration-300 ${step === 1 ? 'block opacity-100' : 'hidden opacity-0'}`}>
-          <p className="text-sm text-textMain/70 mb-4">¿Qué tratamiento necesitas?</p>
+          <p className="text-sm text-muted mb-4">¿Qué tratamiento necesitas?</p>
           <div className="grid grid-cols-1 gap-2">
             {SERVICES.map((s) => (
               <button
@@ -63,10 +63,10 @@ export default function BookingCalendar() {
                   setSelectedService(s);
                   setStep(2);
                 }}
-                className="text-left px-4 py-3 rounded-xl border border-neutral/20 hover:border-primary hover:bg-primary/5 transition-colors text-sm font-medium text-textMain flex items-center justify-between group"
+                className="text-left px-4 py-3 rounded-xl border border-border hover:border-brand hover:bg-brand-soft transition-colors text-sm font-medium text-text flex items-center justify-between group"
               >
                 {s}
-                <ChevronRight size={16} className="text-neutral/30 group-hover:text-primary transition-colors" />
+                <ChevronRight size={16} className="text-faint group-hover:text-brand transition-colors" />
               </button>
             ))}
           </div>
@@ -75,13 +75,13 @@ export default function BookingCalendar() {
         {/* Step 2: Date */}
         <div className={`transition-all duration-300 ${step === 2 ? 'block opacity-100' : 'hidden opacity-0'}`}>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-textMain/70">Selecciona el día</p>
-            <button onClick={() => setStep(1)} className="text-xs text-primary underline">Cambiar servicio</button>
+            <p className="text-sm text-muted">Selecciona el día</p>
+            <button onClick={() => setStep(1)} className="text-xs text-brand underline">Cambiar servicio</button>
           </div>
-          
-          <div className="flex justify-center bg-primary/5 rounded-2xl p-4 border border-primary/10">
+
+          <div className="flex justify-center bg-brand-soft/50 rounded-2xl p-4 border border-brand/10">
             <style>{`
-              .rdp { --rdp-cell-size: 40px; --rdp-accent-color: #064E3B; --rdp-background-color: #d1fae5; margin: 0; }
+              .rdp { --rdp-cell-size: 40px; --rdp-accent-color: hsl(150 26% 40%); --rdp-background-color: hsl(150 32% 90%); margin: 0; }
               .rdp-day_selected { background-color: var(--rdp-accent-color); font-weight: bold; }
               .rdp-button:hover:not([disabled]):not(.rdp-day_selected) { background-color: var(--rdp-background-color); }
             `}</style>
@@ -104,19 +104,19 @@ export default function BookingCalendar() {
         {/* Step 3: Time & Confirm */}
         <div className={`transition-all duration-300 ${step === 3 ? 'block opacity-100' : 'hidden opacity-0'}`}>
           <div className="flex items-center justify-between mb-4">
-            <p className="text-sm text-textMain/70">Horarios disponibles</p>
-            <button onClick={() => setStep(2)} className="text-xs text-primary underline">Cambiar fecha</button>
+            <p className="text-sm text-muted">Horarios disponibles</p>
+            <button onClick={() => setStep(2)} className="text-xs text-brand underline">Cambiar fecha</button>
           </div>
-          
+
           <div className="grid grid-cols-3 gap-2 mb-6">
             {TIME_SLOTS.map((t) => (
               <button
                 key={t}
                 onClick={() => setTime(t)}
                 className={`py-2 rounded-lg text-sm font-medium border transition-colors ${
-                  time === t 
-                    ? 'bg-primary border-primary text-white shadow-md' 
-                    : 'bg-white border-neutral/20 text-textMain hover:border-primary'
+                  time === t
+                    ? 'bg-brand border-brand text-brand-fg shadow-soft'
+                    : 'bg-surface border-border text-text hover:border-brand'
                 }`}
               >
                 {t}
@@ -143,9 +143,9 @@ export default function BookingCalendar() {
             onClick={handleBooking}
             disabled={!time}
             className={`w-full py-4 rounded-xl font-medium flex items-center justify-center gap-2 transition-all ${
-              time 
-                ? 'bg-primary text-white hover-scale shadow-xl shadow-primary/20' 
-                : 'bg-neutral/10 text-textMain/40 cursor-not-allowed'
+              time
+                ? 'bg-accent text-accent-fg hover:bg-accent-hover shadow-lift'
+                : 'bg-border text-faint cursor-not-allowed'
             }`}
           >
             <MessageCircle size={20} />

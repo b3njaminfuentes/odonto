@@ -41,7 +41,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es" className={`${inter.variable} ${fraunces.variable}`}>
-      <body className="min-h-screen bg-secondary">
+      <body className="min-h-screen bg-bg">
         <SmoothScroll>
           {children}
           <MuelitaChat />

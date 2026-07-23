@@ -26,7 +26,7 @@ const reviews = [
   { "name": "María Elena Villarroel", "text": "Excelente atención. Profesional de alto nivel y experiencia.", "time": "hace 1 año" }
 ];
 
-const colors = ["bg-primary", "bg-accent", "bg-neutral"];
+const colors = ["bg-brand", "bg-accent", "bg-brand-hover"];
 
 export default function ReviewsSlider() {
   const [emblaRef] = useEmblaCarousel(
@@ -53,26 +53,26 @@ export default function ReviewsSlider() {
               key={i} 
               className="flex-[0_0_85%] sm:flex-[0_0_350px] min-w-0 pl-6 relative"
             >
-              <div className="bg-white p-6 rounded-2xl border border-neutral/10 h-full flex flex-col hover:shadow-soft transition-shadow duration-300">
+              <div className="card p-6 h-full flex flex-col hover:shadow-lift transition-shadow duration-300">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-serif font-bold ${colorClass}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-brand-fg font-serif font-bold ${colorClass}`}>
                     {initial}
                   </div>
                   <div>
-                    <h4 className="font-medium text-primary text-sm line-clamp-1">{review.name}</h4>
-                    <p className="text-[11px] text-textMain/50">{review.time}</p>
+                    <h4 className="font-medium text-text text-sm line-clamp-1">{review.name}</h4>
+                    <p className="text-[11px] text-faint">{review.time}</p>
                   </div>
                 </div>
-                
+
                 <div className="flex text-accent mb-3">
                   {[1, 2, 3, 4, 5].map((star) => <Star key={star} size={12} fill="currentColor" />)}
                 </div>
-                
-                <p className="text-textMain/80 text-sm leading-relaxed line-clamp-3 mb-6">
+
+                <p className="text-muted text-sm leading-relaxed line-clamp-3 mb-6">
                   {review.text}
                 </p>
-                
-                <div className="mt-auto flex items-center gap-1 text-[11px] text-textMain/50 pt-3 border-t border-neutral/10">
+
+                <div className="mt-auto flex items-center gap-1 text-[11px] text-faint pt-3 border-t border-border">
                   <CheckCircle size={10} className="text-accent" />
                   <span>Reseña verificada de Google</span>
                 </div>
@@ -87,13 +87,13 @@ export default function ReviewsSlider() {
             href="https://maps.app.goo.gl/s56cVLy2Rd7aGTG87" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="bg-primary/5 p-6 rounded-2xl border border-primary/10 h-full flex flex-col items-center justify-center hover:bg-primary/10 transition-colors text-center group cursor-pointer"
+            className="bg-brand-soft/50 p-6 rounded-2xl border border-brand/10 h-full flex flex-col items-center justify-center hover:bg-brand-soft transition-colors text-center group cursor-pointer"
           >
-            <div className="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-sm mb-4 text-primary group-hover:scale-110 transition-transform">
+            <div className="w-14 h-14 rounded-full bg-surface flex items-center justify-center shadow-soft mb-4 text-brand group-hover:scale-110 transition-transform">
               <ExternalLink size={24} />
             </div>
-            <h3 className="font-serif text-primary text-lg mb-2">Ver todas las reseñas en Google</h3>
-            <p className="text-textMain/60 text-sm">Lee más experiencias de nuestros pacientes</p>
+            <h3 className="font-serif text-text text-lg mb-2">Ver todas las reseñas en Google</h3>
+            <p className="text-muted text-sm">Lee más experiencias de nuestros pacientes</p>
           </a>
         </div>
       </div>

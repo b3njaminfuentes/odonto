@@ -34,7 +34,7 @@ export default function CertificatesGallery() {
               className="flex-[0_0_80%] sm:flex-[0_0_300px] min-w-0 pl-4 sm:pl-6 relative cursor-pointer"
               onClick={() => setSelectedCert(cert)}
             >
-              <div className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-secondary border border-neutral/10 hover:shadow-md transition-shadow">
+              <div className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-elevated border border-border hover:shadow-lift transition-shadow">
                 
                 {/* Imagen Real */}
                 <Image

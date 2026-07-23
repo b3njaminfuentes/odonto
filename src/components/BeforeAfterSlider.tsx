@@ -28,7 +28,7 @@ export default function BeforeAfterSlider({ beforeImage, afterImage }: { beforeI
   return (
     <div 
       ref={containerRef}
-      className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] rounded-3xl overflow-hidden cursor-ew-resize select-none border border-neutral/10 shadow-soft"
+      className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] rounded-3xl overflow-hidden cursor-ew-resize select-none ring-1 ring-border shadow-lift"
       onMouseMove={onMouseMove}
       onTouchMove={onTouchMove}
       onMouseUp={() => setIsDragging(false)}
@@ -57,7 +57,7 @@ export default function BeforeAfterSlider({ beforeImage, afterImage }: { beforeI
         className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize"
         style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
       >
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg text-primary pointer-events-none">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-surface rounded-full flex items-center justify-center shadow-lift text-brand pointer-events-none">
           <ArrowLeftRight size={20} />
         </div>
       </div>
