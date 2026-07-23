@@ -20,10 +20,15 @@ export interface Patient {
 }
 
 export function PatientCard({ patient }: { patient: Patient }) {
-  // Calculamos la edad a partir de la fecha de nacimiento
-  const calculateAge = (dob: string) => {
-    const diff = Date.now() - new Date(dob).getTime()
-    return Math.abs(new Date(diff).getUTCFullYear() - 1970)
+  // Edad real (defensivo ante fechas inválidas o futuras)
+  const calculateAge = (dob: string): number | null => {
+    const b = new Date(dob)
+    if (isNaN(b.getTime())) return null
+    const now = new Date()
+    let a = now.getFullYear() - b.getFullYear()
+    const m = now.getMonth() - b.getMonth()
+    if (m < 0 || (m === 0 && now.getDate() < b.getDate())) a--
+    return a >= 0 && a <= 130 ? a : null
   }
 
   const age = calculateAge(patient.dob)
@@ -68,7 +73,7 @@ export function PatientCard({ patient }: { patient: Patient }) {
               className="scale-90 origin-top-right"
             />
           </div>
-          <p className="text-sm text-muted mb-3">{age} años</p>
+          <p className="text-sm text-muted mb-3">{age !== null ? `${age} años` : 'Edad —'}</p>
 
           {/* Highlight: Próxima Cita */}
           <div className="bg-elevated rounded-lg p-2.5 mb-3 border border-border flex items-center gap-2 group-hover:bg-brand-soft/50 transition-colors">

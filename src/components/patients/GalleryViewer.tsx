@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { Upload, Image as ImageIcon, X, Loader2, File, Edit2, Eye, EyeOff, Save } from 'lucide-react'
-import { createClient } from '@/utils/supabase/client'
-import { getPatientMedia, saveMediaRecord, deleteMediaRecord, updateMediaRecord } from '@/app/admin/pacientes/gallery-actions'
+import { getPatientMedia, uploadPatientMedia, deleteMediaRecord, updateMediaRecord } from '@/app/admin/pacientes/gallery-actions'
 
 interface GalleryViewerProps {
   patientId: string
@@ -20,8 +19,7 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
   const [editingMedia, setEditingMedia] = useState<any | null>(null)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [mediaForm, setMediaForm] = useState({ description: '', visibleToPatient: false })
-  
-  const supabase = createClient()
+  const [error, setError] = useState<string | null>(null)
 
   const loadMedia = async () => {
     setIsLoading(true)
@@ -68,48 +66,29 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
 
   const handleSaveModal = async () => {
     setIsUploading(true)
-    
+    setError(null)
     try {
       if (pendingFile) {
-        // Upload flow
-        const fileExt = pendingFile.name.split('.').pop()
-        const fileName = `${patientId}/${Math.random().toString(36).substring(2)}.${fileExt}`
-        
-        let bucket = 'cases-images'
-        if (pendingFile.type.includes('pdf')) {
-          bucket = 'documents'
-        }
-
-        const { error: uploadError } = await supabase.storage
-          .from(bucket)
-          .upload(fileName, pendingFile)
-
-        if (uploadError) throw uploadError
-
-        const category = pendingFile.type.includes('pdf') ? 'document' : 'image'
-        await saveMediaRecord({
-          patientId,
-          bucket,
-          fileUrl: fileName,
-          category,
-          title: mediaForm.description,
-          mimeType: pendingFile.type,
-          size: pendingFile.size,
-          visibleToPatient: mediaForm.visibleToPatient
-        })
+        // Subida vía server action (service-role), robusta ante RLS de Storage.
+        const fd = new FormData()
+        fd.append('file', pendingFile)
+        fd.append('patientId', patientId)
+        fd.append('description', mediaForm.description)
+        fd.append('visibleToPatient', String(mediaForm.visibleToPatient))
+        const res = await uploadPatientMedia(fd)
+        if ('error' in res) { setError(res.error); setIsUploading(false); return }
       } else if (editingMedia) {
-        // Edit flow
-        await updateMediaRecord(editingMedia.id, {
+        const res = await updateMediaRecord(editingMedia.id, {
           description: mediaForm.description,
           visibleToPatient: mediaForm.visibleToPatient
         }, patientId)
+        if (res && 'error' in res) { setError(res.error); setIsUploading(false); return }
       }
-      
       await loadMedia()
       closeModal()
-    } catch (error) {
-      console.error('Error in media modal:', error)
-      alert('Ocurrió un error. Intenta nuevamente.')
+    } catch (err) {
+      console.error('Error in media modal:', err)
+      setError('Ocurrió un error inesperado. Intenta nuevamente.')
     } finally {
       setIsUploading(false)
     }
@@ -265,6 +244,9 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
             </div>
             
             <div className="p-6 space-y-5">
+              {error && (
+                <div className="p-3 bg-danger-soft border border-danger/30 rounded-xl text-danger text-sm">{error}</div>
+              )}
               {pendingFile && (
                 <div className="bg-elevated p-4 rounded-xl border border-border flex items-center gap-3">
                   <File className="w-8 h-8 text-brand opacity-75" />

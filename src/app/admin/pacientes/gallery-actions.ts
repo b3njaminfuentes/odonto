@@ -1,8 +1,70 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { logAuditAction } from '@/utils/audit'
+
+function serviceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
+
+/**
+ * Sube un archivo (foto/PDF) al Storage y crea el registro CaseMedia.
+ * Corre server-side con service-role para evitar la fragilidad de RLS de Storage;
+ * la seguridad se garantiza verificando que quien llama sea admin.
+ */
+export async function uploadPatientMedia(formData: FormData): Promise<{ success: true } | { error: string }> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autorizado.' }
+  const { data: caller } = await supabase.from('Profile').select('role').eq('id', user.id).single()
+  if (caller?.role !== 'admin') return { error: 'Solo la administradora puede subir archivos.' }
+
+  const file = formData.get('file') as File | null
+  const patientId = formData.get('patientId') as string
+  const description = ((formData.get('description') as string) || '').trim()
+  const visibleToPatient = formData.get('visibleToPatient') === 'true'
+  if (!file || !patientId) return { error: 'Archivo o paciente faltante.' }
+  if (file.size > 25 * 1024 * 1024) return { error: 'El archivo supera los 25 MB.' }
+
+  const isPdf = file.type.includes('pdf')
+  const bucket = isPdf ? 'documents' : 'cases-images'
+  const ext = (file.name.split('.').pop() || 'bin').toLowerCase()
+  const path = `${patientId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+
+  const svc = serviceClient()
+  const buffer = Buffer.from(await file.arrayBuffer())
+  const { error: upErr } = await svc.storage.from(bucket).upload(path, buffer, {
+    contentType: file.type || 'application/octet-stream',
+    upsert: false,
+  })
+  if (upErr) return { error: `No se pudo subir el archivo: ${upErr.message}` }
+
+  const { data, error } = await svc.from('CaseMedia').insert({
+    patientId,
+    bucket,
+    fileUrl: path,
+    category: isPdf ? 'document' : 'image',
+    description: description || file.name,
+    mimeType: file.type,
+    size: file.size,
+    visibleToPatient,
+    uploadedBy: user.id,
+  }).select().single()
+  if (error) {
+    await svc.storage.from(bucket).remove([path]).catch(() => {})
+    return { error: `No se pudo guardar el registro: ${error.message}` }
+  }
+
+  await logAuditAction({ userId: user.id, action: 'UPLOAD_MEDIA', entity: 'CaseMedia', entityId: data.id, metadata: { patientId } }).catch(() => {})
+  revalidatePath(`/admin/pacientes/${patientId}`)
+  return { success: true }
+}
 
 export async function getPatientMedia(patientId: string) {
   const supabase = createClient()
@@ -18,19 +80,14 @@ export async function getPatientMedia(patientId: string) {
     return []
   }
 
-  // Generate public URLs for images
-  // For radiographs bucket which is private, we'd need signed URLs or download logic.
-  // We'll generate signed URLs for 1 hour.
+  // Firmamos con service-role para no depender de la RLS de Storage (privado).
+  const svc = serviceClient()
   const mediaWithUrls = await Promise.all(data.map(async (media) => {
-    const { data: urlData, error: urlError } = await supabase
+    const { data: urlData } = await svc
       .storage
       .from(media.bucket)
-      .createSignedUrl(media.fileUrl, 3600) // 1 hour
-
-    return {
-      ...media,
-      signedUrl: urlData?.signedUrl || ''
-    }
+      .createSignedUrl(media.fileUrl, 3600) // 1 hora
+    return { ...media, signedUrl: urlData?.signedUrl || '' }
   }))
 
   return mediaWithUrls

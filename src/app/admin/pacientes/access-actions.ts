@@ -48,12 +48,22 @@ export async function generatePatientAccess(patientId: string): Promise<
     .single()
   if (pErr || !patient) return { error: 'Paciente no encontrado.' }
 
-  // 3. Email de acceso: el del paciente, o uno sintético estable por código.
-  const email = (patient.email && patient.email.trim())
-    ? patient.email.trim().toLowerCase()
-    : `${patient.patientCode.toLowerCase()}@pacientes.clinicavillarroel.com`
+  // 3. Email de acceso: SIEMPRE sintético y estable por código de paciente.
+  //    Evita colisiones con emails reales ya registrados (causa común de fallo).
+  const email = `${patient.patientCode.toLowerCase().replace(/[^a-z0-9]/g, '')}@pacientes.clinicavillarroel.com`
   const password = generateTempPassword()
   const regenerated = !!patient.profileId
+
+  // Busca un usuario de Auth existente por email (para enlazar si ya existía).
+  const findUserByEmail = async (mail: string): Promise<string | null> => {
+    for (let page = 1; page <= 20; page++) {
+      const { data } = await admin.auth.admin.listUsers({ page, perPage: 200 })
+      const u = data?.users?.find((x: any) => (x.email || '').toLowerCase() === mail)
+      if (u) return u.id
+      if (!data || data.users.length < 200) break
+    }
+    return null
+  }
 
   try {
     if (patient.profileId) {
@@ -62,17 +72,22 @@ export async function generatePatientAccess(patientId: string): Promise<
       if (error) return { error: `No se pudo restablecer la contraseña: ${error.message}` }
     } else {
       // Crear usuario de Auth (email ya confirmado, sin verificación).
+      let uid: string
       const { data: created, error: cErr } = await admin.auth.admin.createUser({
         email,
         password,
         email_confirm: true,
         user_metadata: { role: 'patient', patientCode: patient.patientCode },
       })
-      if (cErr || !created.user) {
-        // Si el email ya existe, intentamos enlazar ese usuario.
-        return { error: `No se pudo crear el acceso: ${cErr?.message || 'desconocido'}` }
+      if (cErr || !created?.user) {
+        // Probablemente ya existía: lo buscamos y le reseteamos la contraseña.
+        const existingId = await findUserByEmail(email)
+        if (!existingId) return { error: `No se pudo crear el acceso: ${cErr?.message || 'desconocido'}` }
+        await admin.auth.admin.updateUserById(existingId, { password })
+        uid = existingId
+      } else {
+        uid = created.user.id
       }
-      const uid = created.user.id
 
       // Profile con role=patient (idempotente).
       const { error: prErr } = await admin
