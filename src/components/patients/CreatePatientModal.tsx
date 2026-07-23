@@ -13,7 +13,7 @@ interface CreatePatientModalProps {
 export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePatientModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [successData, setSuccessData] = useState<{ patientCode: string, name: string } | null>(null)
+  const [successData, setSuccessData] = useState<{ patientCode: string, name: string, id: string } | null>(null)
   
   // Live validation states
   const [firstName, setFirstName] = useState('')
@@ -53,7 +53,8 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
         formRef.current?.reset()
         setSuccessData({
           patientCode: result.patient.patientCode,
-          name: `${result.patient.firstName} ${result.patient.lastName}`
+          name: `${result.patient.firstName} ${result.patient.lastName}`,
+          id: result.patient.id
         })
       }
     } catch (err) {
@@ -110,15 +111,23 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
                   <span className="text-3xl font-mono font-semibold text-teal-700 tracking-wider">{successData.patientCode}</span>
                 </div>
 
-                <button
-                  onClick={() => {
-                    if (onSuccessClose) onSuccessClose()
-                    else handleClose()
-                  }}
-                  className="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm transition-colors"
-                >
-                  Cerrar y Volver
-                </button>
+                <div className="flex flex-col gap-3">
+                  <a
+                    href={`/admin/pacientes/${successData.id}`}
+                    className="w-full text-center bg-teal-600 hover:bg-teal-700 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm transition-colors block"
+                  >
+                    Ir al perfil del paciente
+                  </a>
+                  <button
+                    onClick={() => {
+                      if (onSuccessClose) onSuccessClose()
+                      else handleClose()
+                    }}
+                    className="w-full text-slate-600 hover:text-slate-800 font-medium px-5 py-2.5 rounded-xl transition-colors"
+                  >
+                    Cerrar y Volver a la lista
+                  </button>
+                </div>
               </div>
             </div>
           ) : (
