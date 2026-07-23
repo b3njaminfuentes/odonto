@@ -1,82 +1,72 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
+import useEmblaCarousel from 'embla-carousel-react'
+import AutoScroll from 'embla-carousel-auto-scroll'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Award } from 'lucide-react'
-import { certificatesData, Certificate, CertificateCategory } from '@/data/certificates'
+import { certificatesData, Certificate } from '@/data/certificates'
 
 export default function CertificatesGallery() {
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null)
-  const [activeCategory, setActiveCategory] = useState<CertificateCategory | 'Todos'>('Todos')
-
-  const categories: (CertificateCategory | 'Todos')[] = [
-    'Todos',
-    ...Array.from(new Set(certificatesData.map(c => c.category)))
-  ]
-
-  const filteredCerts = activeCategory === 'Todos' 
-    ? certificatesData 
-    : certificatesData.filter(c => c.category === activeCategory)
+  
+  const [emblaRef] = useEmblaCarousel(
+    { loop: true, dragFree: true },
+    [
+      AutoScroll({
+        playOnInit: true,
+        speed: 1,
+        stopOnInteraction: false,
+        stopOnMouseEnter: true,
+      })
+    ]
+  )
 
   return (
     <div className="w-full">
-      {/* Filtros */}
-      <div className="flex flex-wrap items-center justify-center gap-2 mb-10">
-        {categories.map(category => (
-          <button
-            key={category}
-            onClick={() => setActiveCategory(category)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              activeCategory === category
-                ? 'bg-primary text-white shadow-md'
-                : 'bg-white text-textMain/70 hover:bg-secondary border border-neutral/10'
-            }`}
-          >
-            {category}
-          </button>
-        ))}
-      </div>
-
-      {/* Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        <AnimatePresence>
-          {filteredCerts.map((cert) => (
-            <motion.div
-              key={cert.id}
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.2 }}
-              className="group relative aspect-square rounded-2xl overflow-hidden bg-secondary border border-neutral/10 cursor-pointer hover:shadow-lg"
+      {/* Carrusel */}
+      <div className="overflow-hidden w-full py-8" ref={emblaRef}>
+        <div className="flex touch-pan-y" style={{ backfaceVisibility: "hidden" }}>
+          {certificatesData.map((cert) => (
+            <div 
+              key={cert.id} 
+              className="flex-[0_0_80%] sm:flex-[0_0_300px] min-w-0 pl-4 sm:pl-6 relative cursor-pointer"
               onClick={() => setSelectedCert(cert)}
             >
-              <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-white">
-                <Award className="text-accent/30 mb-2" size={32} />
-                <p className="text-xs text-textMain/50 truncate w-full">{cert.filename}</p>
+              <div className="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-secondary border border-neutral/10 hover:shadow-md transition-shadow">
+                
+                {/* Fallback si no hay imagen */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center bg-white">
+                  <Award className="text-accent/30 mb-2" size={32} />
+                  <p className="text-xs text-textMain/50 truncate w-full">{cert.filename}</p>
+                </div>
+                
+                {/* Imagen Real */}
+                <Image
+                  src={`/certificates/${cert.filename}`}
+                  alt={cert.title}
+                  fill
+                  className={`object-cover z-10 transition-transform duration-500 group-hover:scale-110 ${cert.rotationClass || ''}`}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.opacity = '0';
+                  }}
+                />
+                
+                {/* Overlay inferior con título */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-100 z-20 flex flex-col justify-end p-4">
+                  <div className="inline-flex self-start items-center gap-1.5 bg-accent/90 text-white px-2 py-0.5 rounded-md text-[10px] font-semibold mb-1.5">
+                    {cert.category}
+                  </div>
+                  <h4 className="text-white font-medium text-sm line-clamp-2 leading-tight">{cert.title}</h4>
+                </div>
               </div>
-              
-              <Image
-                src={`/certificates/${cert.filename}`}
-                alt={cert.title}
-                fill
-                className={`object-cover z-10 transition-transform duration-500 group-hover:scale-110 ${cert.rotationClass || ''}`}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.opacity = '0';
-                }}
-              />
-              
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-20 flex flex-col justify-end p-4">
-                <h4 className="text-white font-medium text-sm line-clamp-2 leading-tight mb-1">{cert.title}</h4>
-                <p className="text-white/70 text-xs truncate">{cert.institution}</p>
-              </div>
-            </motion.div>
+            </div>
           ))}
-        </AnimatePresence>
+        </div>
       </div>
 
-      {/* Lightbox */}
+      {/* Lightbox / Modal */}
       <AnimatePresence>
         {selectedCert && (
           <motion.div
@@ -111,8 +101,8 @@ export default function CertificatesGallery() {
                 />
               </div>
 
-              <div className="w-full max-w-2xl bg-white/10 backdrop-blur-md rounded-2xl p-4 sm:p-6 mt-6 border border-white/10">
-                <div className="inline-flex items-center gap-1.5 bg-accent/20 text-accent px-2.5 py-1 rounded-md text-xs font-semibold mb-2">
+              <div className="w-full max-w-2xl bg-white/10 backdrop-blur-md rounded-2xl p-4 sm:p-6 mt-6 border border-white/10 text-center md:text-left">
+                <div className="inline-flex items-center gap-1.5 bg-accent/20 text-accent-light px-2.5 py-1 rounded-md text-xs font-semibold mb-2">
                   {selectedCert.category}
                 </div>
                 <h3 className="text-xl sm:text-2xl font-serif text-white mb-1">{selectedCert.title}</h3>
