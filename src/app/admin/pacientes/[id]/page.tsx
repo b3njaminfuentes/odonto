@@ -2,7 +2,7 @@ import React from 'react'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, FileText } from 'lucide-react'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { PatientTabs } from '@/components/patients/PatientTabs'
 import { PatientAccessButton } from '@/components/patients/PatientAccessButton'
@@ -61,6 +61,13 @@ export default async function PatientProfilePage({ params }: { params: { id: str
           Volver a pacientes
         </Link>
         <div className="flex gap-2">
+          <Link
+            href={`/admin/pacientes/${patient.id}/cotizacion`}
+            className="px-4 py-2 bg-surface border border-border text-muted font-medium rounded-xl hover:border-brand hover:text-brand transition-colors flex items-center gap-2 shadow-sm text-sm"
+          >
+            <FileText className="w-4 h-4" />
+            Cotización
+          </Link>
           <PatientAccessButton patientId={patient.id} hasAccess={!!patient.profileId} />
         </div>
       </div>
