@@ -47,9 +47,10 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
     }
   }
 
-  // Pre-calcular la fecha/hora mínima (ahora mismo) para el input
+  // Fecha mínima = hoy (no se pueden agendar días pasados)
   const now = new Date()
-  const nowISO = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16)
+  const todayISO = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10)
+  const TIME_SLOTS = ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','15:00','15:30','16:00','16:30','17:00','17:30','18:00']
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
@@ -81,21 +82,29 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
               </select>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium text-muted mb-1">Fecha y Hora *</label>
-                <input 
-                  type="datetime-local" 
-                  name="startsAt" 
-                  required 
-                  min={nowISO}
+                <label className="block text-sm font-medium text-muted mb-1">Fecha *</label>
+                <input
+                  type="date"
+                  name="date"
+                  required
+                  min={todayISO}
+                  defaultValue={todayISO}
                   disabled={loading}
-                  className="w-full px-4 py-2.5 border border-border rounded-xl focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all disabled:bg-elevated disabled:text-muted text-sm" 
+                  className="input w-full text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-muted mb-1">Duración (min) *</label>
-                <select name="duration" required disabled={loading} defaultValue="30" className="w-full px-4 py-2.5 bg-surface border border-border rounded-xl focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all disabled:bg-elevated disabled:text-muted text-sm">
+                <label className="block text-sm font-medium text-muted mb-1">Hora *</label>
+                <select name="time" required disabled={loading} defaultValue="" className="input w-full text-sm">
+                  <option value="" disabled>Elegir…</option>
+                  {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-muted mb-1">Duración *</label>
+                <select name="duration" required disabled={loading} defaultValue="30" className="input w-full text-sm">
                   <option value="15">15 min</option>
                   <option value="30">30 min</option>
                   <option value="45">45 min</option>

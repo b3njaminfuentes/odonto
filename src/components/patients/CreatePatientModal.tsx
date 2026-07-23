@@ -176,7 +176,7 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-sm font-medium text-muted mb-1.5">Fecha de Nacimiento *</label>
-                      <input type="date" name="dob" required disabled={loading} className="input w-full px-4 py-2.5" />
+                      <input type="date" name="dob" required disabled={loading} max={new Date().toISOString().slice(0, 10)} className="input w-full px-4 py-2.5" />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-muted mb-1.5">DNI o Cédula</label>

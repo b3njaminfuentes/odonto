@@ -30,10 +30,15 @@ export default async function PatientProfilePage({ params }: { params: { id: str
     return notFound()
   }
 
-  // Calculamos la edad a partir de la fecha de nacimiento
-  const calculateAge = (dob: string) => {
-    const diff = Date.now() - new Date(dob).getTime()
-    return Math.abs(new Date(diff).getUTCFullYear() - 1970)
+  // Edad real a partir de la fecha de nacimiento (defensivo ante fechas inválidas o futuras)
+  const calculateAge = (dob: string): number | null => {
+    const b = new Date(dob)
+    if (isNaN(b.getTime())) return null
+    const now = new Date()
+    let age = now.getFullYear() - b.getFullYear()
+    const m = now.getMonth() - b.getMonth()
+    if (m < 0 || (m === 0 && now.getDate() < b.getDate())) age--
+    return age >= 0 && age <= 130 ? age : null
   }
   const age = calculateAge(patient.dob)
 
@@ -81,7 +86,7 @@ export default async function PatientProfilePage({ params }: { params: { id: str
           </div>
           
           <div className="flex flex-wrap gap-x-6 gap-y-2 mt-3 text-sm text-muted">
-            <p><strong className="text-text font-medium">Edad:</strong> {age} años</p>
+            <p><strong className="text-text font-medium">Edad:</strong> {age !== null ? `${age} años` : '—'}</p>
             <p><strong className="text-text font-medium">DNI:</strong> {patient.dni || 'N/A'}</p>
             <p><strong className="text-text font-medium">Email:</strong> {patient.email || 'N/A'}</p>
             <p><strong className="text-text font-medium">Tel:</strong> {patient.phone || 'N/A'}</p>

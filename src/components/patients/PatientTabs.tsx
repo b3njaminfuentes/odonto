@@ -19,10 +19,10 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
   const [activeTab, setActiveTab] = useState<'resumen' | 'historial' | 'odontograma' | 'tratamientos' | 'galeria' | 'pagos' | 'citas'>('resumen')
 
   return (
-    <div className="bg-surface rounded-2xl shadow-sm border border-border overflow-hidden flex flex-col h-[700px]">
-      
+    <div className="bg-surface rounded-2xl shadow-sm border border-border overflow-hidden flex flex-col min-h-[500px]">
+
       {/* Tab Navigation */}
-      <div className="flex items-center border-b border-border overflow-x-auto scrollbar-hide">
+      <div className="flex items-center border-b border-border overflow-x-auto scrollbar-hide sticky top-0 bg-surface z-10">
         <button
           onClick={() => setActiveTab('resumen')}
           className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
@@ -101,8 +101,8 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
         </button>
       </div>
 
-      {/* Tab Content */}
-      <div className="flex-1 overflow-y-auto p-6 bg-elevated/50 relative">
+      {/* Tab Content — fluye con la página (sin scroll interno atrapado) */}
+      <div className="flex-1 p-6 bg-elevated/50 relative">
         
         {activeTab === 'resumen' && (
           <PatientSummaryTab summaryData={summaryData} />

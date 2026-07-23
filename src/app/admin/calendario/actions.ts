@@ -7,7 +7,11 @@ export async function createAppointment(formData: FormData) {
   const supabase = createClient()
   
   const patientId = formData.get('patientId') as string
-  const startsAt = formData.get('startsAt') as string // ISO string o "YYYY-MM-DDTHH:mm"
+  // Aceptamos startsAt directo, o date + time por separado (UI más simple).
+  const rawStarts = formData.get('startsAt') as string
+  const date = formData.get('date') as string
+  const time = formData.get('time') as string
+  const startsAt = rawStarts || (date && time ? `${date}T${time}` : '')
   const duration = parseInt(formData.get('duration') as string) || 30
   const treatmentType = formData.get('type') as string
   const notes = formData.get('notes') as string
@@ -17,6 +21,11 @@ export async function createAppointment(formData: FormData) {
   }
 
   const startObj = new Date(startsAt)
+  if (isNaN(startObj.getTime())) return { error: 'Fecha u hora inválida.' }
+  // No permitir agendar en el pasado (con 1 min de tolerancia).
+  if (startObj.getTime() < Date.now() - 60000) {
+    return { error: 'No se puede agendar en una fecha u hora que ya pasó.' }
+  }
   const endsAtObj = new Date(startObj.getTime() + duration * 60000)
   
   const startISO = startObj.toISOString()

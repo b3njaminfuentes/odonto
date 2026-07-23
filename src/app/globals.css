@@ -92,6 +92,22 @@
     background: hsl(var(--brand) / 0.18);
   }
 
+  /* Los controles nativos (date, select, textarea) heredan el tema:
+     color-scheme dark hace que el picker de fecha/hora se muestre oscuro. */
+  :root { color-scheme: light; }
+  .dark { color-scheme: dark; }
+
+  /* Base para TODOS los controles de formulario, para que nunca salgan blancos
+     en el panel admin oscuro aunque no usen la clase .input explícitamente. */
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+  textarea,
+  select {
+    background-color: hsl(var(--surface));
+    color: hsl(var(--text));
+    border-color: hsl(var(--border));
+  }
+  input::placeholder, textarea::placeholder { color: hsl(var(--faint)); }
+
   /* Autofill acorde al sistema */
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
