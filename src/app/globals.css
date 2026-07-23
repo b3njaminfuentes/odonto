@@ -2,62 +2,157 @@
 @tailwind components;
 @tailwind utilities;
 
+/**
+ * Sistema "Salvia & Coral". Tokens como variables CSS en HSL (H S% L%).
+ * :root = tema claro (landing + portal). .dark = tema oscuro (panel admin).
+ * Cambiar un token aquí re-tematiza todo el sitio.
+ */
 @layer base {
-  body {
-    @apply bg-secondary text-textMain font-sans antialiased;
+  :root {
+    /* Superficies */
+    --bg: 80 24% 97%;          /* crema cálida */
+    --surface: 0 0% 100%;
+    --elevated: 90 20% 99%;
+    --border: 150 14% 88%;
+    --border-soft: 150 16% 93%;
+
+    /* Texto */
+    --text: 156 22% 15%;       /* verde carbón */
+    --muted: 150 10% 40%;
+    --faint: 150 8% 58%;
+
+    /* Marca — verde salvia */
+    --brand: 150 26% 40%;
+    --brand-hover: 152 30% 32%;
+    --brand-fg: 0 0% 100%;
+    --brand-soft: 150 32% 93%;
+
+    /* Acento — coral suave */
+    --accent: 8 72% 67%;
+    --accent-hover: 8 62% 58%;
+    --accent-fg: 0 0% 100%;
+    --accent-soft: 10 78% 95%;
+
+    /* Estados */
+    --success: 150 44% 40%;
+    --success-soft: 150 45% 93%;
+    --warning: 36 90% 48%;
+    --warning-soft: 40 90% 93%;
+    --danger: 4 72% 56%;
+    --danger-soft: 6 78% 95%;
+    --info: 202 68% 48%;
+    --info-soft: 202 70% 94%;
   }
-  
+
+  .dark {
+    /* Panel admin en modo oscuro (verde-noche) */
+    --bg: 156 20% 9%;
+    --surface: 156 16% 12%;
+    --elevated: 156 15% 16%;
+    --border: 156 12% 23%;
+    --border-soft: 156 12% 18%;
+
+    --text: 150 14% 90%;
+    --muted: 150 10% 64%;
+    --faint: 150 9% 48%;
+
+    --brand: 150 34% 54%;
+    --brand-hover: 150 38% 62%;
+    --brand-fg: 156 20% 9%;
+    --brand-soft: 152 22% 20%;
+
+    --accent: 8 76% 70%;
+    --accent-hover: 8 78% 77%;
+    --accent-fg: 156 20% 9%;
+    --accent-soft: 8 36% 24%;
+
+    --success: 150 42% 52%;
+    --success-soft: 152 26% 20%;
+    --warning: 38 88% 58%;
+    --warning-soft: 40 40% 22%;
+    --danger: 4 74% 64%;
+    --danger-soft: 6 40% 24%;
+    --info: 202 66% 60%;
+    --info-soft: 202 40% 22%;
+  }
+
+  * {
+    border-color: hsl(var(--border));
+  }
+
+  body {
+    @apply bg-bg text-text font-sans antialiased;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif;
   }
 
-  /* Chrome Autofill Fix for Minimalist Design */
+  ::selection {
+    background: hsl(var(--brand) / 0.18);
+  }
+
+  /* Autofill acorde al sistema */
   input:-webkit-autofill,
-  input:-webkit-autofill:hover, 
-  input:-webkit-autofill:focus, 
-  input:-webkit-autofill:active{
-    -webkit-box-shadow: 0 0 0 30px white inset !important;
-    -webkit-text-fill-color: #0F172A !important;
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 30px hsl(var(--surface)) inset !important;
+    -webkit-text-fill-color: hsl(var(--text)) !important;
   }
 }
 
-@layer utilities {
+@layer components {
+  /* Tarjeta base del sistema */
+  .card {
+    @apply bg-surface border border-border rounded-2xl shadow-soft;
+  }
+  .card-interactive {
+    @apply card transition-all duration-300 hover:-translate-y-1 hover:shadow-lift;
+  }
+
+  /* Botones */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl font-medium
+           px-5 py-2.5 text-sm transition-all duration-200 active:scale-[0.98]
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40;
+  }
+  .btn-primary {
+    @apply btn bg-brand text-brand-fg shadow-soft hover:bg-brand-hover hover:shadow-lift;
+  }
+  .btn-accent {
+    @apply btn bg-accent text-accent-fg shadow-soft hover:bg-accent-hover hover:shadow-lift;
+  }
+  .btn-ghost {
+    @apply btn bg-transparent text-text hover:bg-brand-soft;
+  }
+  .btn-outline {
+    @apply btn border border-border bg-surface text-text hover:border-brand hover:text-brand;
+  }
+
+  /* Inputs */
+  .input {
+    @apply w-full bg-surface border border-border rounded-xl px-4 py-2.5 text-sm text-text
+           placeholder:text-faint outline-none transition-all
+           focus:border-brand focus:ring-2 focus:ring-brand/20;
+  }
+
+  /* Chips / etiquetas */
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold;
+  }
+
+  /* Eyebrow: pequeño rótulo superior de sección */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-brand;
+  }
+
   .glass {
-    @apply bg-white/70 backdrop-blur-md border-b border-white/20;
-  }
-  
-  /* Clinical-Warm Utilities */
-  .clinical-card {
-    @apply bg-white border border-slate-200 rounded-2xl shadow-sm transition-all hover:-translate-y-1 hover:shadow-md hover:border-slate-300;
-  }
-  
-  .clinical-btn {
-    @apply bg-teal-600 text-white border border-transparent rounded-xl font-medium shadow-sm transition-all active:scale-95 hover:-translate-y-0.5 hover:bg-teal-700 hover:shadow-md;
-  }
-  
-  .clinical-input {
-    @apply border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all;
-  }
-
-  /* Legacy utility kept just in case */
-  .hover-scale {
-    @apply transition-transform duration-300 hover:scale-[1.03];
-  }
-  .card-hover {
-    @apply transition-all duration-300 hover:-translate-y-3 hover:shadow-md;
+    @apply bg-surface/70 backdrop-blur-md border-b border-border-soft;
   }
 }
 
-/* Lenis smooth scrolling specific styles */
-html.lenis {
-  height: auto;
-}
-.lenis.lenis-smooth {
-  scroll-behavior: auto;
-}
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
+/* Lenis smooth scroll */
+html.lenis { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import ReviewsSlider from "@/components/ReviewsSlider";
@@ -6,109 +7,108 @@ import BookingCalendar from "@/components/BookingCalendar";
 import CertificatesGallery from "@/components/CertificatesGallery";
 import { Star, CheckCircle, Clock, MapPin, Phone, Award, ArrowRight, ShieldCheck, Smile, Stethoscope, Sparkles } from "lucide-react";
 
+const services = [
+  { title: "Implantes Dentales", desc: "Recuperá la funcionalidad y estética con implantes de titanio de primera línea.", image: "/images/implantes.jpg", icon: <ShieldCheck size={22} /> },
+  { title: "Diseño de Sonrisa y Carillas", desc: "Resultados naturales y duraderos. El cambio estético que siempre soñaste.", image: "/images/carillas.jpg", icon: <Smile size={22} /> },
+  { title: "Ortopedia y Ortodoncia", desc: "Alineación dental para una mordida perfecta. Tu cambio empieza hoy.", image: "/images/ortodoncia.jpg", icon: <CheckCircle size={22} /> },
+  { title: "Rehabilitación Oral", desc: "Coronas, puentes y placas con materiales de alta estética.", image: "/images/rehabilitacion.jpg", icon: <Star size={22} /> },
+  { title: "Blanqueamiento Dental", desc: "Aclará varios tonos en una sola sesión de forma segura y sin dolor.", image: "/images/blanqueamiento.jpg", icon: <Sparkles size={22} /> },
+  { title: "Endodoncia", desc: "Tratamiento de conductos especializado para salvar tus piezas dentales.", image: "/images/endodoncia.jpg", icon: <Stethoscope size={22} /> },
+  { title: "Gingivoplastia", desc: "Contorneado de encías para armonizar el tamaño de tus dientes y tu sonrisa.", image: "/images/gingivoplastia.jpg", icon: <Smile size={22} /> },
+  { title: "Cirugía (Terceros Molares)", desc: "Extracciones seguras y planificadas. Agenda tu valoración hoy mismo.", image: "/images/molares.jpg", icon: <Stethoscope size={22} /> },
+  { title: "Higiene y Prevención", desc: "Limpieza profunda con ultrasonido para mantener tus encías sanas.", image: "/images/limpieza.jpg", icon: <ShieldCheck size={22} /> },
+];
+
+const steps = [
+  { step: "1", title: "Reserva", desc: "Agendá tu turno online o por WhatsApp." },
+  { step: "2", title: "Evaluación", desc: "Escaneo digital y diagnóstico preciso." },
+  { step: "3", title: "Tratamiento", desc: "Procedimiento cómodo y sin dolor." },
+  { step: "4", title: "Sonrisa Nueva", desc: "Recuperación rápida y seguimiento." },
+];
+
+const values = [
+  { title: "Precisión clínica", desc: "Cada diagnóstico y procedimiento respaldado por tecnología digital." },
+  { title: "Calidez humana", desc: "La paciente y su tranquilidad están primero." },
+  { title: "Actualización constante", desc: "Formación continua a nivel internacional." },
+  { title: "Transparencia", desc: "El paciente sabe en todo momento qué tratamiento tiene, qué debe y qué sigue." },
+];
+
+const wa = "https://wa.me/59172212402?text=Hola%2C%20quiero%20reservar%20una%20consulta.";
+
 export default function Home() {
   return (
-    <main className="min-h-screen bg-secondary">
+    <main className="min-h-screen bg-bg">
       <Navbar />
-      
       <Hero />
-      
-      {/* 3.3 Barra de confianza (Inmediata, sin scroll) */}
-      <section className="border-b border-neutral/10 bg-white">
-        <div className="max-w-7xl mx-auto px-6 py-6 flex flex-wrap items-center justify-between gap-4 text-sm font-medium text-textMain/70">
-          <div className="flex items-center gap-2 text-primary">
-            <Star className="text-accent" fill="currentColor" size={18}/> 
-            4.9 en Google (19+ reseñas reales)
+
+      {/* Barra de confianza */}
+      <section className="border-y border-border bg-surface">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex flex-wrap items-center justify-center md:justify-between gap-x-6 gap-y-3 text-sm font-medium text-muted">
+          <div className="flex items-center gap-2 text-text">
+            <Star className="text-accent" fill="currentColor" size={18} /> 4.9 en Google (19+ reseñas reales)
           </div>
-          <div className="hidden md:block w-1 h-1 rounded-full bg-neutral/30"></div>
-          <div>500+ implantes realizados</div>
-          <div className="hidden md:block w-1 h-1 rounded-full bg-neutral/30"></div>
-          <div>20+ años de experiencia clínica</div>
-          <div className="hidden md:block w-1 h-1 rounded-full bg-neutral/30"></div>
-          <div>98% satisfacción de pacientes</div>
+          <Dot /><span>500+ implantes realizados</span>
+          <Dot /><span>20+ años de experiencia clínica</span>
+          <Dot /><span>98% satisfacción de pacientes</span>
         </div>
       </section>
 
-      {/* 3.4 Testimonios Marquee (ReviewsSlider) */}
-      <section className="py-24 overflow-hidden bg-white/50">
+      {/* Testimonios */}
+      <section className="py-24 overflow-hidden">
         <div className="text-center mb-10 max-w-7xl mx-auto px-6 md:px-12">
-          <h2 className="text-3xl md:text-5xl font-serif text-primary mb-6">Lo que dicen nuestros pacientes</h2>
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-textMain/70">
-            <span className="font-medium text-primary">Reseñas de pacientes reales de Cochabamba</span>
-            <div className="hidden md:block w-1.5 h-1.5 rounded-full bg-neutral/30"></div>
-            <div className="inline-flex items-center gap-1.5 bg-purple-50 text-purple-700 px-3 py-1 rounded-full text-xs font-medium border border-purple-100">
-              <Award size={14} />
-              Negocio liderado por mujeres
-            </div>
+          <span className="eyebrow mb-4">Testimonios</span>
+          <h2 className="text-3xl md:text-5xl font-serif text-text mt-3 mb-5">Lo que dicen nuestros pacientes</h2>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-muted">
+            <span className="font-medium text-brand">Reseñas reales de pacientes de Cochabamba</span>
+            <Dot />
+            <span className="chip bg-accent-soft text-accent">
+              <Award size={14} /> Negocio liderado por mujeres
+            </span>
           </div>
         </div>
-        
         <ReviewsSlider />
       </section>
 
-      {/* 3.5 Casos de Éxito (Antes y Después) */}
-      <section className="py-24 max-w-7xl mx-auto px-6 md:px-12">
+      {/* Antes y después */}
+      <section id="casos" className="py-24 max-w-7xl mx-auto px-6 md:px-12">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-serif text-primary mb-4">Transformaciones Reales</h2>
-          <p className="text-textMain/70 max-w-2xl mx-auto">Deslizá para ver el impacto de nuestros tratamientos en la vida de nuestros pacientes. (Usa tus fotos aquí)</p>
+          <span className="eyebrow mb-4">Resultados</span>
+          <h2 className="text-3xl md:text-5xl font-serif text-text mt-3 mb-4">Transformaciones reales</h2>
+          <p className="text-muted max-w-2xl mx-auto">Deslizá para ver el impacto de nuestros tratamientos en la vida de nuestros pacientes.</p>
         </div>
-        
         <div className="max-w-4xl mx-auto">
-          {/* Aquí se cargarán "antes.jpg" y "despues.jpg" cuando las pongas en la carpeta */}
-          <BeforeAfterSlider 
-            beforeImage="/images/antes.jpg" 
-            afterImage="/images/despues.jpg"
-          />
+          <BeforeAfterSlider beforeImage="/images/antes.jpg" afterImage="/images/despues.jpg" />
           <div className="mt-8 text-center">
-            <h3 className="text-xl font-medium text-primary">Ortodoncia y Alineación Dental</h3>
-            <p className="text-textMain/70 mt-2">Transformación real con nuestros tratamientos personalizados</p>
+            <h3 className="text-xl font-serif text-brand">Ortodoncia y alineación dental</h3>
+            <p className="text-muted mt-2">Transformación real con tratamientos personalizados</p>
           </div>
         </div>
       </section>
 
-      {/* 3.6 Servicios (Grid tipo Apple) */}
-      <section className="py-24 bg-white" id="servicios">
+      {/* Servicios */}
+      <section className="py-24 bg-surface border-y border-border" id="servicios">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-serif text-primary mb-4">Especialidades Clínicas</h2>
-            <p className="text-textMain/70 max-w-2xl mx-auto">Odontología moderna con estándares hospitalarios de esterilización.</p>
+            <span className="eyebrow mb-4">Especialidades</span>
+            <h2 className="text-3xl md:text-5xl font-serif text-text mt-3 mb-4">Especialidades clínicas</h2>
+            <p className="text-muted max-w-2xl mx-auto">Odontología moderna con estándares hospitalarios de esterilización.</p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              { title: "Implantes Dentales", desc: "Recuperá la funcionalidad y estética con implantes de titanio de primera línea.", image: "/images/implantes.jpg", icon: <ShieldCheck size={24}/> },
-              { title: "Diseño de Sonrisa y Carillas", desc: "Resultados naturales y duraderos. El cambio estético que siempre soñaste.", image: "/images/carillas.jpg", icon: <Smile size={24}/> },
-              { title: "Ortopedia y Ortodoncia", desc: "Alineación dental para una mordida perfecta. Tu cambio empieza hoy.", image: "/images/ortodoncia.jpg", icon: <CheckCircle size={24}/> },
-              { title: "Rehabilitación Oral", desc: "Coronas, puentes y placas (totales y parciales) con materiales de alta estética.", image: "/images/rehabilitacion.jpg", icon: <Star size={24}/> },
-              { title: "Blanqueamiento Dental", desc: "Aclará varios tonos en una sola sesión de forma segura y sin dolor.", image: "/images/blanqueamiento.jpg", icon: <Sparkles size={24}/> },
-              { title: "Endodoncia", desc: "Tratamiento de conductos especializado para salvar tus piezas dentales.", image: "/images/endodoncia.jpg", icon: <Stethoscope size={24}/> },
-              { title: "Gingivoplastia", desc: "Contorneado de encías para armonizar el tamaño de tus dientes y tu sonrisa.", image: "/images/gingivoplastia.jpg", icon: <Smile size={24}/> },
-              { title: "Cirugía (Terceros Molares)", desc: "Extracciones seguras y planificadas. Agenda tu valoración hoy mismo.", image: "/images/molares.jpg", icon: <Stethoscope size={24}/> },
-              { title: "Higiene y Prevención", desc: "Limpieza profunda con ultrasonido para mantener tus encías sanas.", image: "/images/limpieza.jpg", icon: <ShieldCheck size={24}/> },
-            ].map((service, i) => (
-              <div key={i} className="group p-8 rounded-3xl bg-secondary/30 border border-neutral/10 hover:shadow-xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
-                {/* Background image effect on hover if image exists */}
-                {service.image && (
-                  <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500">
-                     <img src={service.image} alt={service.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  </div>
-                )}
-                
-                <div className="relative z-10">
-                  <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-primary mb-6 shadow-sm group-hover:scale-110 transition-transform">
+            {services.map((service, i) => (
+              <div key={i} className="group card-interactive p-8 relative overflow-hidden">
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-[0.06] transition-opacity duration-500">
+                  <Image src={service.image} alt="" fill sizes="(max-width:768px) 100vw, 33vw" className="object-cover group-hover:scale-110 transition-transform duration-700" />
+                </div>
+                <div className="relative">
+                  <div className="w-14 h-14 bg-brand-soft rounded-2xl flex items-center justify-center text-brand mb-6 group-hover:scale-110 transition-transform">
                     {service.icon}
                   </div>
-                  <h3 className="text-xl font-medium text-primary mb-3">{service.title}</h3>
-                  <p className="text-textMain/70 mb-6 line-clamp-3">{service.desc}</p>
-                  
-                  {/* Si hay imagen promocional, la mostramos en móviles siempre, y en desktop solo al hacer hover */}
-                  {service.image && (
-                     <div className="w-full h-32 md:h-40 rounded-xl overflow-hidden mb-6 block md:hidden md:group-hover:block transition-all shadow-md">
-                       <img src={service.image} alt={service.title} className="w-full h-full object-cover object-center" />
-                     </div>
-                  )}
-
-                  <a href="https://wa.me/59172212402" className="inline-flex items-center gap-2 text-primary font-medium group-hover:text-accent transition-colors">
+                  <h3 className="text-xl font-serif text-text mb-3">{service.title}</h3>
+                  <p className="text-muted mb-6 line-clamp-3">{service.desc}</p>
+                  <div className="relative w-full h-36 rounded-xl overflow-hidden mb-6 md:hidden">
+                    <Image src={service.image} alt={service.title} fill sizes="100vw" className="object-cover" />
+                  </div>
+                  <a href={wa} className="inline-flex items-center gap-2 text-brand font-medium group-hover:gap-3 group-hover:text-accent transition-all">
                     Conocer más <ArrowRight size={16} />
                   </a>
                 </div>
@@ -118,97 +118,87 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3.10 El camino del paciente (Timeline Animado) */}
-      <section className="py-24 bg-primary/5">
+      {/* Camino del paciente */}
+      <section className="py-24 bg-brand-soft/40">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <h2 className="text-3xl md:text-5xl font-serif text-primary mb-16 text-center">Tu camino hacia una nueva sonrisa</h2>
-          <div className="flex flex-col md:flex-row justify-between relative">
-            <div className="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-primary/20 -translate-y-1/2 z-0"></div>
-            {[
-              { step: "1", title: "Reserva", desc: "Agendá tu turno online o por WhatsApp." },
-              { step: "2", title: "Evaluación", desc: "Escaneo digital y diagnóstico preciso." },
-              { step: "3", title: "Tratamiento", desc: "Procedimiento cómodo y sin dolor." },
-              { step: "4", title: "Sonrisa Nueva", desc: "Recuperación rápida y seguimiento." }
-            ].map((item, i) => (
-              <div key={i} className="relative z-10 flex flex-col items-center text-center max-w-[200px] mx-auto mb-8 md:mb-0">
-                <div className="w-16 h-16 bg-primary text-white rounded-full flex items-center justify-center text-2xl font-serif mb-4 shadow-lg">
+          <div className="text-center mb-16">
+            <span className="eyebrow mb-4">El proceso</span>
+            <h2 className="text-3xl md:text-5xl font-serif text-text mt-3">Tu camino hacia una nueva sonrisa</h2>
+          </div>
+          <div className="flex flex-col md:flex-row justify-between relative gap-8 md:gap-0">
+            <div className="hidden md:block absolute top-8 left-0 w-full h-0.5 bg-brand/20 z-0" />
+            {steps.map((item, i) => (
+              <div key={i} className="relative z-10 flex flex-col items-center text-center max-w-[220px] mx-auto">
+                <div className="w-16 h-16 bg-brand text-brand-fg rounded-2xl flex items-center justify-center text-2xl font-serif mb-4 shadow-soft">
                   {item.step}
                 </div>
-                <h3 className="text-lg font-medium text-primary mb-2">{item.title}</h3>
-                <p className="text-sm text-textMain/70">{item.desc}</p>
+                <h3 className="text-lg font-serif text-text mb-2">{item.title}</h3>
+                <p className="text-sm text-muted">{item.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 3.11 Tecnología (con la foto de los moldes) */}
+      {/* Tecnología */}
       <section className="py-24 max-w-7xl mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div>
-            <h2 className="text-3xl md:text-5xl font-serif text-primary mb-6">Precisión que marca la diferencia</h2>
-            <p className="text-lg text-textMain/70 mb-8">Utilizamos tecnología de vanguardia para garantizar diagnósticos exactos y tratamientos menos invasivos.</p>
+            <span className="eyebrow mb-4">Tecnología</span>
+            <h2 className="text-3xl md:text-5xl font-serif text-text mt-3 mb-6">Precisión que marca la diferencia</h2>
+            <p className="text-lg text-muted mb-8">Tecnología de vanguardia para garantizar diagnósticos exactos y tratamientos menos invasivos.</p>
             <ul className="space-y-4">
-              {[
-                "Esterilización de nivel hospitalario",
-                "Cirugía de implantes",
-                "Materiales biocompatibles de alta gama"
-              ].map((tech, i) => (
-                <li key={i} className="flex items-center gap-3 text-textMain/80">
-                  <CheckCircle className="text-accent" size={20} />
+              {["Esterilización de nivel hospitalario", "Cirugía de implantes guiada", "Materiales biocompatibles de alta gama"].map((tech, i) => (
+                <li key={i} className="flex items-center gap-3 text-text">
+                  <span className="grid place-items-center h-7 w-7 rounded-full bg-success-soft text-success shrink-0">
+                    <CheckCircle size={16} />
+                  </span>
                   <span>{tech}</span>
                 </li>
               ))}
             </ul>
           </div>
-          <div className="relative h-[400px] rounded-3xl overflow-hidden border border-neutral/20 shadow-xl">
-            <img src="/images/tecnologia.jpg" alt="Tecnología Dental" className="w-full h-full object-cover object-center bg-neutral/20" />
+          <div className="relative h-[420px] rounded-3xl overflow-hidden ring-1 ring-border shadow-lift">
+            <Image src="/images/tecnologia.jpg" alt="Tecnología dental" fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" />
           </div>
         </div>
       </section>
 
-      {/* 3.12 Sobre Nosotros */}
-      <section className="py-24 bg-secondary/30" id="sobre-nosotros">
+      {/* Sobre nosotros */}
+      <section className="py-24 bg-surface border-y border-border" id="sobre-nosotros">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-serif text-primary mb-4">Sobre Nosotros</h2>
-            <p className="text-textMain/70 max-w-2xl mx-auto">Nuestra filosofía de trabajo y compromiso con tu sonrisa.</p>
+            <span className="eyebrow mb-4">Filosofía</span>
+            <h2 className="text-3xl md:text-5xl font-serif text-text mt-3 mb-4">Sobre nosotros</h2>
+            <p className="text-muted max-w-2xl mx-auto">Nuestra filosofía de trabajo y compromiso con tu sonrisa.</p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-neutral/5 hover:shadow-md transition-shadow">
-              <h3 className="text-2xl font-serif text-primary mb-4 flex items-center gap-3">
-                <Star className="text-accent" size={24} /> Misión
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="card p-8">
+              <h3 className="text-2xl font-serif text-text mb-4 flex items-center gap-3">
+                <Star className="text-accent" size={22} /> Misión
               </h3>
-              <p className="text-textMain/70 leading-relaxed">
+              <p className="text-muted leading-relaxed">
                 Brindar atención odontológica de excelencia en implantología y estética dental, combinando precisión técnica, tecnología de vanguardia y un trato cercano que haga sentir a cada paciente escuchado y seguro.
               </p>
             </div>
-            
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-neutral/5 hover:shadow-md transition-shadow">
-              <h3 className="text-2xl font-serif text-primary mb-4 flex items-center gap-3">
-                <Sparkles className="text-accent" size={24} /> Visión
+            <div className="card p-8">
+              <h3 className="text-2xl font-serif text-text mb-4 flex items-center gap-3">
+                <Sparkles className="text-accent" size={22} /> Visión
               </h3>
-              <p className="text-textMain/70 leading-relaxed">
-                Ser la clínica de referencia en Cochabamba en implantes y diseño de sonrisa, reconocida por la confianza de sus pacientes y por formar parte de un estándar internacional de calidad clínica.
+              <p className="text-muted leading-relaxed">
+                Ser la clínica de referencia en Cochabamba en implantes y diseño de sonrisa, reconocida por la confianza de sus pacientes y por un estándar internacional de calidad clínica.
               </p>
             </div>
           </div>
-
-          <div className="bg-primary text-white rounded-[3rem] p-8 md:p-12">
-            <h3 className="text-2xl md:text-3xl font-serif mb-10 text-center">Nuestros Valores</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                { title: "Precisión clínica", desc: "Cada diagnóstico y procedimiento respaldado por tecnología digital." },
-                { title: "Calidez humana", desc: "La paciente y su tranquilidad están primero." },
-                { title: "Actualización constante", desc: "Formación continua a nivel internacional." },
-                { title: "Transparencia", desc: "El paciente sabe en todo momento qué tratamiento tiene, qué debe y qué sigue." }
-              ].map((valor, i) => (
-                <div key={i} className="bg-white/10 p-6 rounded-2xl border border-white/10 hover:bg-white/15 transition-colors">
+          <div className="bg-brand text-brand-fg rounded-3xl p-8 md:p-12">
+            <h3 className="text-2xl md:text-3xl font-serif mb-10 text-center">Nuestros valores</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {values.map((valor, i) => (
+                <div key={i} className="bg-brand-fg/10 p-6 rounded-2xl border border-brand-fg/10 hover:bg-brand-fg/15 transition-colors">
                   <h4 className="font-medium text-lg mb-3 flex items-center gap-2">
                     <CheckCircle className="text-accent" size={18} /> {valor.title}
                   </h4>
-                  <p className="text-white/70 text-sm leading-relaxed">{valor.desc}</p>
+                  <p className="text-brand-fg/75 text-sm leading-relaxed">{valor.desc}</p>
                 </div>
               ))}
             </div>
@@ -216,138 +206,95 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3.8 Equipo / Doctora */}
-      <section className="py-24 bg-white" id="clinica">
+      {/* Equipo / Doctora */}
+      <section className="py-24" id="clinica">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
-          <div className="bg-primary/5 rounded-[3rem] p-8 md:p-16 flex flex-col md:flex-row gap-12 items-center">
-            <div className="w-full md:w-1/3 aspect-square rounded-full overflow-hidden border-4 border-white shadow-xl">
-              {/* Foto Doctora */}
-              <img src="/images/doctora.jpg" alt="Dra. Villarroel" className="w-full h-full object-cover object-center" />
+          <div className="bg-brand-soft/40 rounded-3xl p-8 md:p-16 flex flex-col md:flex-row gap-12 items-center">
+            <div className="relative w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden ring-4 ring-surface shadow-lift shrink-0">
+              <Image src="/images/doctora.jpg" alt="Dra. Villarroel" fill sizes="288px" className="object-cover" />
             </div>
-            <div className="w-full md:w-2/3">
-              <div className="inline-flex items-center gap-1.5 bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium mb-4">
+            <div className="flex-1">
+              <span className="chip bg-accent-soft text-accent mb-4">
                 <Award size={14} /> Negocio liderado por mujeres
+              </span>
+              <h2 className="text-3xl md:text-5xl font-serif text-text mb-2">Dra. Villarroel</h2>
+              <h3 className="text-xl text-brand mb-6">Especialista en Ortopedia y Ortodoncia</h3>
+              <div className="text-muted text-lg leading-relaxed space-y-4 mb-8">
+                <p>La Dra. Marisol Villarroel es una referente en odontología especializada con más de 20 años de trayectoria internacional. Formó su base profesional en la Universidad Mayor de San Simón (UMSS) en Cochabamba.</p>
+                <p>Se especializó en Ortodoncia en el IPENO y continuó su formación con subespecialidades en Buenos Aires, experiencia directa en Washington D.C. y programas de perfeccionamiento avanzado en Brasil.</p>
+                <p>Hoy combina su recorrido académico con un enfoque vanguardista en implantología y estética dental de alta precisión, con los más rigurosos estándares clínicos internacionales.</p>
               </div>
-              <h2 className="text-3xl md:text-5xl font-serif text-primary mb-4">Dra. Villarroel</h2>
-              <h3 className="text-xl text-accent mb-6">Especialista en Ortopedia y Ortodoncia</h3>
-              <div className="text-textMain/75 text-lg leading-relaxed space-y-4 mb-8">
-                <p>
-                  La Dra. Marisol Villarroel es una referente en odontología especializada con más de 20 años de trayectoria internacional. Formó su sólida base profesional en la Universidad Mayor de San Simón (UMSS) en Cochabamba, la facultad de odontología de mayor prestigio en Bolivia.
-                </p>
-                <p>
-                  Movida por la excelencia, se especializó en Ortodoncia en el IPENO, y continuó su formación académica con subespecialidades en Buenos Aires, Argentina. Su visión clínica global se enriqueció con experiencia directa en Washington D.C., Estados Unidos, y programas de perfeccionamiento avanzado en Brasil.
-                </p>
-                <p>
-                  Hoy en día, combina su vasto recorrido académico con un enfoque vanguardista en implantología y estética dental de alta precisión, garantizando tratamientos que cumplen con los más rigurosos estándares clínicos internacionales.
-                </p>
-              </div>
-              <a href="https://wa.me/59172212402" className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-full hover-scale">
-                Hablar con la doctora
-              </a>
+              <a href={wa} className="btn-primary px-6 py-3 rounded-full">Hablar con la doctora</a>
             </div>
           </div>
-          
-          {/* Galería de Certificados */}
+
           <div className="mt-20">
-            <h3 className="text-2xl md:text-3xl font-serif text-primary mb-12 text-center">Trayectoria y Certificaciones</h3>
+            <div className="text-center mb-12">
+              <span className="eyebrow mb-4">Trayectoria</span>
+              <h3 className="text-2xl md:text-4xl font-serif text-text mt-3">Trayectoria y certificaciones</h3>
+            </div>
             <CertificatesGallery />
           </div>
         </div>
       </section>
 
-      {/* 3.9 Ubicación y Mapa Real */}
+      {/* Ubicación */}
       <section className="py-24 max-w-7xl mx-auto px-6 md:px-12" id="contacto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 bg-white rounded-[3rem] p-8 md:p-12 shadow-xl border border-neutral/10">
-          
-          {/* Columna 1: Info y Formulario/Calendario Placeholder */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 card p-8 md:p-12">
           <div>
-            <h2 className="text-3xl font-serif text-primary mb-4">Visitá nuestra clínica</h2>
-            <p className="text-textMain/70 mb-8">Calle Man Césped #342 y Washington, Edificio El Porvenir, Cochabamba, Bolivia.</p>
-            
+            <span className="eyebrow mb-4">Contacto</span>
+            <h2 className="text-3xl font-serif text-text mt-3 mb-4">Visitá nuestra clínica</h2>
+            <p className="text-muted mb-8">Calle Man Césped #342 y Washington, Edificio El Porvenir, Cochabamba, Bolivia.</p>
             <div className="space-y-6 mb-10">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                  <Phone size={18} />
-                </div>
-                <div>
-                  <p className="font-medium text-textMain">WhatsApp Directo</p>
-                  <p className="text-textMain/70">+591 72212402</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                  <Clock size={18} />
-                </div>
-                <div>
-                  <p className="font-medium text-textMain">Horarios de Atención</p>
-                  <p className="text-textMain/70">Lunes a Viernes<br/>Mañana: hasta 12:00 PM<br/>Tarde: desde 15:00 PM<br/>Sábados: Previa cita</p>
-                </div>
-              </div>
+              <ContactRow icon={<Phone size={18} />} title="WhatsApp directo" value="+591 72212402" />
+              <ContactRow icon={<Clock size={18} />} title="Horarios de atención" value={<>Lunes a Viernes<br />Mañana: hasta 12:00 · Tarde: desde 15:00<br />Sábados: previa cita</>} />
             </div>
-
-            {/* Calendario Interactivo Real (Frontend to WhatsApp) */}
             <BookingCalendar />
           </div>
-
-          {/* Columna 2: Google Maps Embed Real */}
-          <div className="relative h-[400px] lg:h-full min-h-[400px] rounded-2xl overflow-hidden border border-neutral/20">
-            <iframe 
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15229.076899479362!2d-66.1691238!3d-17.3986427!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x93e373f736c535cd%3A0x8e833481232822a1!2sJorge%20Washington%2C%20Cochabamba%2C%20Bolivia!5e0!3m2!1ses-419!2sar!4v1715000000000!5m2!1ses-419!2sar" 
-              width="100%" 
-              height="100%" 
-              style={{ border: 0 }} 
-              allowFullScreen={false} 
-              loading="lazy" 
-              referrerPolicy="no-referrer-when-downgrade"
-              className="absolute inset-0 grayscale-[20%] contrast-[1.1] hue-rotate-[-10deg]" // Filtro CSS para que el mapa combine mejor con los tonos verdes
-            ></iframe>
-            
-            {/* Floating button on map */}
-            <a 
-              href="https://maps.app.goo.gl/s56cVLy2Rd7aGTG87"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white text-primary px-6 py-3 rounded-full font-medium shadow-xl flex items-center gap-2 hover:bg-secondary transition-colors whitespace-nowrap"
-            >
-              <MapPin size={18} />
-              Cómo llegar (Google Maps)
+          <div className="relative h-[400px] lg:h-full min-h-[400px] rounded-2xl overflow-hidden ring-1 ring-border">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15229.076899479362!2d-66.1691238!3d-17.3986427!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x93e373f736c535cd%3A0x8e833481232822a1!2sJorge%20Washington%2C%20Cochabamba%2C%20Bolivia!5e0!3m2!1ses-419!2sar!4v1715000000000!5m2!1ses-419!2sar"
+              width="100%" height="100%" style={{ border: 0 }} allowFullScreen={false} loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade" className="absolute inset-0"
+            />
+            <a href="https://maps.app.goo.gl/s56cVLy2Rd7aGTG87" target="_blank" rel="noopener noreferrer"
+              className="absolute bottom-6 left-1/2 -translate-x-1/2 btn bg-surface text-brand shadow-lift rounded-full whitespace-nowrap">
+              <MapPin size={18} /> Cómo llegar
             </a>
           </div>
         </div>
       </section>
 
-      {/* 3.13 Banner de Conversión Final */}
-      <section className="py-24 bg-primary text-center px-6">
+      {/* Banner final */}
+      <section className="py-24 bg-brand text-center px-6">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-serif text-white mb-8">Te vas a dar una razón más para sonreír.</h2>
-          <a href="https://wa.me/59172212402" className="inline-flex items-center gap-2 bg-white text-primary px-8 py-4 rounded-full text-lg font-medium hover-scale shadow-2xl">
+          <h2 className="text-3xl md:text-5xl font-serif text-brand-fg mb-8">Te vas a dar una razón más para sonreír.</h2>
+          <a href={wa} className="btn bg-surface text-brand text-lg px-8 py-4 rounded-full shadow-lift">
             Reservar por WhatsApp
           </a>
         </div>
       </section>
 
-      {/* 3.14 Footer */}
-      <footer className="bg-primary text-white/80 py-16 border-t border-white/10">
+      {/* Footer */}
+      <footer className="bg-brand-hover text-brand-fg/80 py-16">
         <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          <div className="col-span-1 md:col-span-2">
-            <h3 className="text-2xl font-serif text-white mb-4">Clínica Odontológica Villarroel</h3>
+          <div className="md:col-span-2">
+            <h3 className="text-2xl font-serif text-brand-fg mb-4">Clínica Villarroel</h3>
             <p className="max-w-sm mb-6">La clínica de implantes y estética dental de referencia en Cochabamba.</p>
-            <div className="inline-flex items-center gap-1.5 bg-white/10 text-white px-3 py-1 rounded-full text-xs font-medium">
+            <span className="chip bg-brand-fg/10 text-brand-fg">
               <Award size={14} /> Negocio liderado por mujeres
-            </div>
+            </span>
           </div>
           <div>
-            <h4 className="text-white font-medium mb-4">Enlaces Rápidos</h4>
+            <h4 className="text-brand-fg font-medium mb-4">Enlaces rápidos</h4>
             <ul className="space-y-3">
-              <li><a href="#servicios" className="hover:text-white transition-colors">Servicios</a></li>
-              <li><a href="#casos" className="hover:text-white transition-colors">Casos de Éxito</a></li>
-              <li><a href="#sobre-nosotros" className="hover:text-white transition-colors">Sobre Nosotros</a></li>
-              <li><a href="#clinica" className="hover:text-white transition-colors">La Clínica</a></li>
-              <li><a href="#contacto" className="hover:text-white transition-colors">Contacto</a></li>
+              {[["#servicios", "Servicios"], ["#casos", "Casos de éxito"], ["#sobre-nosotros", "Sobre nosotros"], ["#clinica", "La clínica"], ["#contacto", "Contacto"]].map(([h, l]) => (
+                <li key={h}><a href={h} className="hover:text-brand-fg transition-colors">{l}</a></li>
+              ))}
             </ul>
           </div>
           <div>
-            <h4 className="text-white font-medium mb-4">Contacto</h4>
+            <h4 className="text-brand-fg font-medium mb-4">Contacto</h4>
             <ul className="space-y-3">
               <li>+591 72212402</li>
               <li>Calle Man Césped #342, Ed. El Porvenir, Cbba</li>
@@ -355,10 +302,26 @@ export default function Home() {
             </ul>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-6 md:px-12 text-center text-sm text-white/50 pt-8 border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 text-center text-sm text-brand-fg/50 pt-8 border-t border-brand-fg/10">
           © {new Date().getFullYear()} Clínica Odontológica Villarroel. Todos los derechos reservados.
         </div>
       </footer>
     </main>
+  );
+}
+
+function Dot() {
+  return <span className="hidden md:block w-1 h-1 rounded-full bg-faint/50" />;
+}
+
+function ContactRow({ icon, title, value }: { icon: React.ReactNode; title: string; value: React.ReactNode }) {
+  return (
+    <div className="flex items-start gap-4">
+      <div className="w-10 h-10 rounded-full bg-brand-soft flex items-center justify-center text-brand shrink-0">{icon}</div>
+      <div>
+        <p className="font-medium text-text">{title}</p>
+        <p className="text-muted">{value}</p>
+      </div>
+    </div>
   );
 }
