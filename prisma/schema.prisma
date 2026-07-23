@@ -228,6 +228,15 @@ model TimelineEvent {
   @@index([createdAt])
 }
 
+model ClinicSettings {
+  id         String   @id @default("main")
+  clinicName String   @default("Clínica Odontológica Villarroel")
+  phone      String?
+  address    String?
+  currency   String   @default("BOB")
+  updatedAt  DateTime @default(now()) @updatedAt
+}
+
 model AuditLog {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   userId    String   @db.Uuid
