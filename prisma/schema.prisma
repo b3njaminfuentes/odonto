@@ -182,6 +182,7 @@ model Appointment {
   startsAt      DateTime
   endsAt        DateTime
   status        AppointmentStatus @default(DISPONIBLE)
+  notes         String?
   createdAt     DateTime          @default(now())
 
   patient Patient? @relation(fields: [patientId], references: [id])

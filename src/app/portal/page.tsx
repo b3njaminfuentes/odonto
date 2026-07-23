@@ -37,7 +37,7 @@ export default async function PortalDashboardPage() {
     .select('*')
     .eq('patientId', patient.id)
     .gte('startsAt', new Date().toISOString())
-    .not('status', 'eq', 'CANCELADA')
+    .not('status', 'eq', 'CANCELADO')
     .order('startsAt', { ascending: true })
     .limit(3)
 
@@ -46,7 +46,7 @@ export default async function PortalDashboardPage() {
     .from('Treatment')
     .select('*')
     .eq('patientId', patient.id)
-    .in('status', ['ACTIVO', 'PLANIFICADO'])
+    .in('status', ['ACTIVO', 'PAUSADO'])
     .order('createdAt', { ascending: false })
 
   return (

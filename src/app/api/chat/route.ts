@@ -1,9 +1,14 @@
 import { createClient } from '@/utils/supabase/server'
 import { streamText } from 'ai'
-import { google } from '@ai-sdk/google'
+import { createGoogleGenerativeAI } from '@ai-sdk/google'
 
 export const maxDuration = 30
 export const dynamic = 'force-dynamic'
+
+// Provider explícito: acepta el nombre estándar del SDK o el GEMINI_API_KEY del .env
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY,
+})
 
 export async function POST(req: Request) {
   const supabase = createClient()
@@ -47,14 +52,14 @@ Tu tono debe ser profesional, servicial y de colega. Ayúdala a gestionar su dí
       // Extraemos próximas citas del paciente
       const { data: appointments } = await supabase
         .from('Appointment')
-        .select('startsAt, type, status')
+        .select('startsAt, treatmentType, status')
         .eq('patientId', patient.id)
         .gte('startsAt', new Date().toISOString())
         .order('startsAt', { ascending: true })
         .limit(2)
 
       const appointmentsText = appointments && appointments.length > 0 
-        ? appointments.map(a => `- ${a.type} el ${new Date(a.startsAt).toLocaleString()}`).join('\\n')
+        ? appointments.map(a => `- ${a.treatmentType || 'Consulta'} el ${new Date(a.startsAt).toLocaleString()}`).join('\\n')
         : 'Ninguna cita próxima.'
 
       systemContext = `Eres Muelita, la IA asistente y mascota amigable de la Clínica Odontológica Villarroel.
@@ -75,7 +80,7 @@ REGLA DE ORO: Tienes estrictamente prohibido mencionar o revelar información de
 
   // 3. Streaming con Gemini
   const result = await streamText({
-    model: google('gemini-1.5-flash'), // Requiere GOOGLE_GENERATIVE_AI_API_KEY
+    model: google('gemini-2.0-flash'),
     system: systemContext,
     messages,
   })
