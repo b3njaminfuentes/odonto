@@ -1,105 +1,82 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { getUnmappedImages, renameImage } from './actions'
-import { certificatesData } from '@/data/certificates'
-import { Check, Image as ImageIcon, RefreshCw } from 'lucide-react'
+import { useState } from 'react'
+import { rotateCertificate } from './actions'
+import { certificatesData, Certificate } from '@/data/certificates'
+import { RotateCw, CheckCircle2 } from 'lucide-react'
 
 export default function CertMapperPage() {
-  const [files, setFiles] = useState<string[]>([])
-  const [loading, setLoading] = useState(true)
+  const [certs, setCerts] = useState<Certificate[]>(certificatesData)
+  const [loadingFile, setLoadingFile] = useState<string | null>(null)
 
-  const mappedFilenames = certificatesData.map(c => c.filename)
+  const handleRotate = async (filename: string, currentRotationClass: string = '') => {
+    setLoadingFile(filename)
+    
+    // Calcula la siguiente rotacion
+    let nextRotation = ''
+    if (currentRotationClass === '') nextRotation = 'rotate-90'
+    else if (currentRotationClass === 'rotate-90') nextRotation = 'rotate-180'
+    else if (currentRotationClass === 'rotate-180') nextRotation = '-rotate-90'
+    else if (currentRotationClass === '-rotate-90') nextRotation = ''
 
-  const loadFiles = async () => {
-    setLoading(true)
-    const allFiles = await getUnmappedImages()
-    // Solo mostrar los que NO han sido asignados correctamente aún
-    const pending = allFiles.filter(f => !mappedFilenames.includes(f))
-    setFiles(pending)
-    setLoading(false)
-  }
+    // Actualiza UI optimista
+    setCerts(prev => prev.map(c => c.filename === filename ? { ...c, rotationClass: nextRotation } : c))
 
-  useEffect(() => {
-    loadFiles()
-  }, [])
-
-  const handleAssign = async (oldName: string, certId: string) => {
-    const targetCert = certificatesData.find(c => c.id === certId)
-    if (!targetCert) return
-
-    const res = await renameImage(oldName, targetCert.filename)
-    if (res.success) {
-      setFiles(prev => prev.filter(f => f !== oldName))
-    } else {
-      alert("Error al renombrar: " + res.error)
+    // Llama al servidor para guardar en archivo
+    const res = await rotateCertificate(filename, nextRotation)
+    if (!res.success) {
+      alert("Error al rotar: " + res.error)
+      // Revertir si falla
+      setCerts(prev => prev.map(c => c.filename === filename ? { ...c, rotationClass: currentRotationClass } : c))
     }
+    
+    setLoadingFile(null)
   }
-
-  if (loading) return <div className="p-10">Cargando imágenes...</div>
 
   return (
     <div className="min-h-screen bg-secondary p-8">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-3xl p-8 shadow-sm">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="text-3xl font-serif text-primary mb-2">Asistente de Certificados</h1>
-              <p className="text-textMain/70">
-                Arrastra todas tus fotos a <code>public/certificates</code>. Luego, asígnales el título correcto aquí abajo. 
-                Yo me encargo de renombrar el archivo y aplicarle la rotación automática en la web.
-              </p>
-            </div>
-            <button onClick={loadFiles} className="bg-primary/10 text-primary p-3 rounded-full hover:bg-primary/20">
-              <RefreshCw size={24} />
-            </button>
+          <div className="mb-8">
+            <h1 className="text-3xl font-serif text-primary mb-2">Rotación de Certificados</h1>
+            <p className="text-textMain/70">
+              Si alguna imagen aparece de lado en el carrusel de la página principal, busca la imagen aquí y haz clic en "Rotar" hasta que quede derecha. Los cambios se guardan automáticamente y se reflejan al instante.
+            </p>
           </div>
 
-          {files.length === 0 ? (
-            <div className="text-center py-20 border-2 border-dashed border-neutral/20 rounded-2xl">
-              <ImageIcon className="mx-auto text-neutral/30 mb-4" size={48} />
-              <h3 className="text-xl font-medium text-textMain mb-2">No hay fotos pendientes</h3>
-              <p className="text-textMain/60">Pon más fotos en la carpeta public/certificates para mapearlas.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {files.map(file => (
-                <div key={file} className="bg-secondary/50 rounded-2xl overflow-hidden border border-neutral/10">
-                  <div className="aspect-square relative bg-black/5">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                      src={`/certificates/${file}`} 
-                      alt={file} 
-                      className="w-full h-full object-contain p-2"
-                    />
-                  </div>
-                  <div className="p-4 bg-white">
-                    <p className="text-xs text-textMain/50 mb-3 truncate" title={file}>Archivo actual: {file}</p>
-                    <select 
-                      className="w-full p-2 border border-neutral/20 rounded-lg text-sm bg-white mb-3"
-                      onChange={(e) => {
-                        if (e.target.value) {
-                          handleAssign(file, e.target.value)
-                        }
-                      }}
-                      defaultValue=""
-                    >
-                      <option value="" disabled>Selecciona el certificado real...</option>
-                      {certificatesData.map(cert => (
-                        <option 
-                          key={cert.id} 
-                          value={cert.id}
-                          disabled={!files.includes(cert.filename) && mappedFilenames.includes(cert.filename)} // Si ya se usó, no lo mostramos (opcional)
-                        >
-                          {cert.title} ({cert.category})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {certs.map(cert => (
+              <div key={cert.id} className="bg-secondary/50 rounded-2xl overflow-hidden border border-neutral/10 flex flex-col">
+                <div className="aspect-square relative bg-neutral/5 flex items-center justify-center p-2 overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src={`/certificates/${cert.filename}`} 
+                    alt={cert.filename} 
+                    className={`max-w-full max-h-full object-contain transition-transform duration-300 ${cert.rotationClass || ''}`}
+                  />
                 </div>
-              ))}
-            </div>
-          )}
+                <div className="p-4 bg-white flex flex-col items-center justify-between flex-1 border-t border-neutral/10">
+                  <p className="text-[10px] text-textMain/40 mb-3 truncate w-full text-center" title={cert.filename}>
+                    {cert.filename}
+                  </p>
+                  
+                  <button 
+                    onClick={() => handleRotate(cert.filename, cert.rotationClass)}
+                    disabled={loadingFile === cert.filename}
+                    className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-accent/10 hover:bg-accent/20 text-accent rounded-lg transition-colors text-sm font-medium disabled:opacity-50"
+                  >
+                    {loadingFile === cert.filename ? (
+                      <span className="animate-spin"><RotateCw size={16} /></span>
+                    ) : (
+                      <>
+                        <RotateCw size={16} /> Rotar 90°
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
