@@ -93,7 +93,7 @@ export async function getMorePatients(offset: number) {
       phone,
       email,
       status,
-      avatarUrl,
+      profilePhotoId,
       Treatment (
         name,
         status,
@@ -153,7 +153,7 @@ export async function getMorePatients(offset: number) {
       phone: p.phone,
       email: p.email,
       status: p.status,
-      avatarUrl: p.avatarUrl,
+      avatarUrl: p.profilePhotoId || null,
       mainTreatment, 
       lastVisit,
       nextAppointment
