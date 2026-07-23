@@ -74,6 +74,7 @@ model Patient {
   diagnoses    Diagnosis[]
   payments     Payment[]
   events       TimelineEvent[]
+  media        CaseMedia[]
 
   @@index([dni])
   @@index([phone])
@@ -167,6 +168,7 @@ model CaseMedia {
   visibleToPatient Boolean @default(false)
   createdAt   DateTime @default(now())
 
+  patient   Patient    @relation(fields: [patientId], references: [id])
   treatment Treatment? @relation(fields: [treatmentId], references: [id])
 
   @@index([patientId])

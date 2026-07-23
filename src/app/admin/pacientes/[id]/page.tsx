@@ -25,6 +25,7 @@ export default async function PatientProfilePage({ params }: { params: { id: str
     .single()
 
   if (error || !patient) {
+    console.error('Error fetching patient profile:', error)
     return notFound()
   }
 
