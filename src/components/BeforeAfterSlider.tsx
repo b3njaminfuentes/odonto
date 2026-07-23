@@ -2,7 +2,17 @@
 import { useState, useRef } from 'react';
 import { ArrowLeftRight } from 'lucide-react';
 
-export default function BeforeAfterSlider({ beforeImage, afterImage }: { beforeImage: string, afterImage: string }) {
+export default function BeforeAfterSlider({
+  beforeImage,
+  afterImage,
+  beforePosition = 'center',
+  afterPosition = 'center',
+}: {
+  beforeImage: string
+  afterImage: string
+  beforePosition?: string
+  afterPosition?: string
+}) {
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -38,16 +48,17 @@ export default function BeforeAfterSlider({ beforeImage, afterImage }: { beforeI
       onTouchStart={() => setIsDragging(true)}
     >
       {/* After Image (Background) */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${afterImage})` }}
+      <div
+        className="absolute inset-0 bg-cover"
+        style={{ backgroundImage: `url(${afterImage})`, backgroundPosition: afterPosition }}
       ></div>
-      
+
       {/* Before Image (Foreground, clipped) */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ 
+      <div
+        className="absolute inset-0 bg-cover"
+        style={{
           backgroundImage: `url(${beforeImage})`,
+          backgroundPosition: beforePosition,
           clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)`
         }}
       ></div>

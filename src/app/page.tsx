@@ -77,7 +77,7 @@ export default function Home() {
           <p className="text-muted max-w-2xl mx-auto">Deslizá para ver el impacto de nuestros tratamientos en la vida de nuestros pacientes.</p>
         </div>
         <div className="max-w-4xl mx-auto">
-          <BeforeAfterSlider beforeImage="/images/antes.jpg" afterImage="/images/despues.jpg" />
+          <BeforeAfterSlider beforeImage="/images/antes.jpg" afterImage="/images/despues.jpg" beforePosition="center 72%" afterPosition="center 50%" />
           <div className="mt-8 text-center">
             <h3 className="text-xl font-serif text-brand">Ortodoncia y alineación dental</h3>
             <p className="text-muted mt-2">Transformación real con tratamientos personalizados</p>

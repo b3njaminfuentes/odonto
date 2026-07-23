@@ -132,7 +132,8 @@ export default function BookingCalendar() {
               selected={date}
               onSelect={(d) => { if (d) { setDate(d); setTime(""); setStep(3); } }}
               locale={es}
-              disabled={{ before: new Date(), dayOfWeek: [0, 6] }}
+              disabled={{ before: new Date(new Date().setHours(0, 0, 0, 0)), dayOfWeek: [0, 6] }}
+              fromDate={new Date(new Date().setHours(0, 0, 0, 0))}
               className="text-sm font-medium"
             />
           </div>
