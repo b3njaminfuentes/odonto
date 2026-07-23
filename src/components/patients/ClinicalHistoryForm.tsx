@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Save, Loader2, Plus, Clock, User, AlertCircle } from 'lucide-react'
+import { Save, Loader2, Plus, Clock, User, AlertCircle, Calendar } from 'lucide-react'
 import { getClinicalHistory, updateGeneralHistory, saveEvolutionNote } from '@/app/admin/pacientes/history-actions'
 
 interface ClinicalHistoryFormProps {
