@@ -13,7 +13,7 @@ export function PatientAccessButton({ patientId, hasAccess }: Props) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [creds, setCreds] = useState<{ email: string; password: string; regenerated: boolean } | null>(null)
+  const [code, setCode] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
   const run = async () => {
@@ -22,18 +22,18 @@ export function PatientAccessButton({ patientId, hasAccess }: Props) {
     const res = await generatePatientAccess(patientId)
     setLoading(false)
     if ('error' in res) setError(res.error)
-    else setCreds({ email: res.email, password: res.password, regenerated: res.regenerated })
+    else setCode(res.code)
   }
 
   const openModal = () => {
     setOpen(true)
-    setCreds(null)
+    setCode(null)
     setError(null)
   }
 
   const copy = () => {
-    if (!creds) return
-    const text = `Acceso a tu portal — Clínica Villarroel\nUsuario: ${creds.email}\nContraseña: ${creds.password}\nIngresa en: /login`
+    if (!code) return
+    const text = `Hola! Este es tu código de acceso al portal de Clínica Villarroel: ${code}\nIngresá en la web, elegí "Soy paciente" y escribilo ahí para ver tu tratamiento.`
     navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
@@ -63,48 +63,39 @@ export function PatientAccessButton({ patientId, hasAccess }: Props) {
             <div className="w-12 h-12 rounded-2xl bg-brand-soft text-brand grid place-items-center mb-4">
               <KeyRound className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-serif text-text mb-1">Acceso al portal del paciente</h3>
+            <h3 className="text-lg font-serif text-text mb-1">Código de acceso del paciente</h3>
             <p className="text-sm text-muted mb-5">
               {hasAccess
-                ? 'Este paciente ya tiene acceso. Puedes restablecer su contraseña y entregarle las nuevas credenciales.'
-                : 'Genera un usuario y contraseña para que el paciente vea su caso clínico en el portal.'}
+                ? 'Este paciente ya tiene acceso. Podés generar un código nuevo (el anterior deja de funcionar).'
+                : 'Generá un código para que el paciente vea su caso clínico en el portal. Solo necesita este código para entrar.'}
             </p>
 
             {error && (
               <div className="mb-4 p-3 bg-danger-soft border border-danger/30 rounded-xl text-danger text-sm">{error}</div>
             )}
 
-            {creds ? (
+            {code ? (
               <div className="space-y-4">
-                <div className="p-4 bg-elevated rounded-xl border border-border space-y-3">
-                  <Field label="Usuario" value={creds.email} />
-                  <Field label="Contraseña" value={creds.password} mono />
+                <div className="p-5 bg-elevated rounded-xl border border-border text-center">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-faint mb-2">Código de acceso</p>
+                  <p className="text-3xl font-mono font-bold text-brand tracking-[0.2em]">{code}</p>
                 </div>
                 <div className="flex items-start gap-2 text-xs text-muted">
                   <ShieldCheck className="w-4 h-4 text-brand shrink-0 mt-0.5" />
-                  Guarda estas credenciales ahora: la contraseña no se vuelve a mostrar. Compártelas solo con el paciente.
+                  Guardá este código ahora: no se vuelve a mostrar. Pasáselo al paciente por WhatsApp — es lo único que necesita para entrar en /login.
                 </div>
                 <button onClick={copy} className="btn-primary w-full py-2.5">
-                  {copied ? <><Check className="w-4 h-4" /> Copiado</> : <><Copy className="w-4 h-4" /> Copiar credenciales</>}
+                  {copied ? <><Check className="w-4 h-4" /> Copiado</> : <><Copy className="w-4 h-4" /> Copiar mensaje para WhatsApp</>}
                 </button>
               </div>
             ) : (
               <button onClick={run} disabled={loading} className="btn-primary w-full py-2.5">
-                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Generando…</> : (hasAccess ? 'Restablecer contraseña' : 'Generar acceso')}
+                {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Generando…</> : (hasAccess ? 'Generar nuevo código' : 'Generar código de acceso')}
               </button>
             )}
           </div>
         </div>
       )}
     </>
-  )
-}
-
-function Field({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
-  return (
-    <div>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-faint mb-1">{label}</p>
-      <p className={`text-sm text-text break-all ${mono ? 'font-mono' : ''}`}>{value}</p>
-    </div>
   )
 }

@@ -6,7 +6,8 @@ import Link from 'next/link';
 
 const links = [
   { href: '#servicios', label: 'Servicios' },
-  { href: '#clinica', label: 'Clínica' },
+  { href: '#casos', label: 'Resultados' },
+  { href: '#sobre-nosotros', label: 'Clínica' },
   { href: '#equipo', label: 'Equipo' },
   { href: '#contacto', label: 'Contacto' },
 ];

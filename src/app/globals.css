@@ -92,6 +92,12 @@
     background: hsl(var(--brand) / 0.18);
   }
 
+  /* Anillo de foco del sistema (reemplaza el azul nativo del navegador en todo el sitio). */
+  a:focus-visible, button:focus-visible {
+    outline: 2px solid hsl(var(--brand) / 0.5);
+    outline-offset: 2px;
+  }
+
   /* Los controles nativos (date, select, textarea) heredan el tema:
      color-scheme dark hace que el picker de fecha/hora se muestre oscuro. */
   :root { color-scheme: light; }

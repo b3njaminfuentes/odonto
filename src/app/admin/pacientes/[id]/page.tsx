@@ -6,6 +6,7 @@ import { ArrowLeft, FileText } from 'lucide-react'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { PatientTabs } from '@/components/patients/PatientTabs'
 import { PatientAccessButton } from '@/components/patients/PatientAccessButton'
+import { EditPatientModal } from '@/components/patients/EditPatientModal'
 
 export const dynamic = 'force-dynamic'
 
@@ -68,6 +69,7 @@ export default async function PatientProfilePage({ params }: { params: { id: str
             <FileText className="w-4 h-4" />
             Cotización
           </Link>
+          <EditPatientModal patient={patient} />
           <PatientAccessButton patientId={patient.id} hasAccess={!!patient.profileId} />
         </div>
       </div>

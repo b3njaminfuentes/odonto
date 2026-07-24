@@ -4,8 +4,17 @@ import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function createAppointment(formData: FormData) {
+  try {
+    return await createAppointmentInner(formData)
+  } catch (e: any) {
+    console.error('Unexpected error in createAppointment:', e)
+    return { error: 'Ocurrió un error inesperado al crear la cita.' }
+  }
+}
+
+async function createAppointmentInner(formData: FormData) {
   const supabase = createClient()
-  
+
   const patientId = formData.get('patientId') as string
   // Aceptamos startsAt directo, o date + time por separado (UI más simple).
   const rawStarts = formData.get('startsAt') as string

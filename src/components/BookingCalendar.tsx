@@ -53,16 +53,22 @@ export default function BookingCalendar() {
     if (!selectedService || !date || !time) return;
     setSubmitting(true);
     setError(null);
-    const res = await requestAppointment({
-      service: selectedService,
-      dateISO: date.toISOString(),
-      time,
-      name,
-      phone,
-    });
-    setSubmitting(false);
-    if ('error' in res) { setError(res.error); return; }
-    setDone(true);
+    try {
+      const res = await requestAppointment({
+        service: selectedService,
+        dateISO: date.toISOString(),
+        time,
+        name,
+        phone,
+      });
+      if ('error' in res) { setError(res.error); return; }
+      setDone(true);
+    } catch (e) {
+      console.error('Error al solicitar cita:', e);
+      setError('No se pudo enviar la solicitud. Probá de nuevo o escribinos por WhatsApp.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (done) {

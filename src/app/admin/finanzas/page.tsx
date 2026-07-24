@@ -62,8 +62,9 @@ export default async function FinanzasPage({
     }
   }))
 
-  // Calcular KPIs (simplificado para el MVP: total de ingresos)
-  const totalIngresos = payments.reduce((acc, curr) => acc + curr.amount, 0)
+  // Calcular KPIs — solo pagos COMPLETADOS cuentan como ingreso real (los anulados no).
+  const completedPayments = payments.filter((p) => p.status === 'COMPLETADO')
+  const totalIngresos = completedPayments.reduce((acc, curr) => acc + Number(curr.amount), 0)
 
   // Un pequeño componente cliente para manejar el modal sin ensuciar la página SSR principal
   const FinanzasClientWrapper = () => {
@@ -92,7 +93,7 @@ export default async function FinanzasPage({
             </div>
             <div>
               <p className="text-sm font-medium text-muted">Ingresos Totales</p>
-              <h3 className="text-2xl font-bold text-text">${totalIngresos.toFixed(2)}</h3>
+              <h3 className="text-2xl font-bold text-text">Bs {totalIngresos.toFixed(2)}</h3>
             </div>
           </div>
         </div>
@@ -106,7 +107,7 @@ export default async function FinanzasPage({
             <div>
               <p className="text-sm font-medium text-muted">Ticket Promedio</p>
               <h3 className="text-2xl font-bold text-text">
-                ${payments.length > 0 ? (totalIngresos / payments.length).toFixed(2) : '0.00'}
+                Bs {completedPayments.length > 0 ? (totalIngresos / completedPayments.length).toFixed(2) : '0.00'}
               </h3>
             </div>
           </div>

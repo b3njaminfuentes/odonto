@@ -64,6 +64,7 @@ model Patient {
   address          String?
   status           PatientStatus @default(ACTIVE)
   profilePhotoId   String?       @db.Uuid // Opcional, referencia a CaseMedia o un bucket ID
+  accessCode       String?       @unique // Código de acceso al portal (lo entrega la dra por WhatsApp)
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
@@ -230,12 +231,15 @@ model TimelineEvent {
 }
 
 model ClinicSettings {
-  id         String   @id @default("main")
-  clinicName String   @default("Clínica Odontológica Villarroel")
-  phone      String?
-  address    String?
-  currency   String   @default("BOB")
-  updatedAt  DateTime @default(now()) @updatedAt
+  id                       String   @id @default("main")
+  clinicName               String   @default("Clínica Odontológica Villarroel")
+  phone                    String?
+  address                  String?
+  currency                 String   @default("BOB")
+  doctorName               String?  @default("Dra. Villarroel")
+  specialty                String?
+  pendingAppointmentsAlert Boolean  @default(true)
+  updatedAt                DateTime @default(now()) @updatedAt
 }
 
 model AuditLog {

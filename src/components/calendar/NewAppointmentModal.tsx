@@ -33,17 +33,21 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
     e.preventDefault()
     setLoading(true)
     setError(null)
-    
-    const formData = new FormData(e.currentTarget)
-    const result = await createAppointment(formData)
-    
-    if (result.error) {
-      setError(result.error)
+
+    try {
+      const formData = new FormData(e.currentTarget)
+      const result = await createAppointment(formData)
+      if (result.error) {
+        setError(result.error)
+      } else {
+        formRef.current?.reset()
+        onClose()
+      }
+    } catch (err) {
+      console.error('Error al agendar cita:', err)
+      setError('Ocurrió un error inesperado. Intenta nuevamente.')
+    } finally {
       setLoading(false)
-    } else {
-      setLoading(false)
-      formRef.current?.reset()
-      onClose()
     }
   }
 
@@ -56,7 +60,7 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
-      <div className="relative bg-surface rounded-2xl shadow-xl w-full max-w-lg overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+      <div data-lenis-prevent className="relative bg-surface rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
         <div className="bg-surface/80 backdrop-blur-md border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-10">
           <h2 className="text-xl font-semibold text-brand font-serif tracking-tight">Agendar Cita</h2>
           <button onClick={onClose} className="p-2 text-muted hover:text-muted hover:bg-elevated rounded-full transition-colors">
