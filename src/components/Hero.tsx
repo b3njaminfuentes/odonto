@@ -43,8 +43,8 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.1, ease }}
             className="text-lg text-muted mb-9 max-w-lg leading-relaxed"
           >
-            Implantología y odontología estética de alta precisión, en un ambiente
-            cálido pensado para tu tranquilidad.
+            Implantes y estética dental de alta precisión en Cochabamba, con la calidez
+            de un equipo que te acompaña en cada paso, sin apuros y sin sorpresas.
           </motion.p>
 
           <motion.div

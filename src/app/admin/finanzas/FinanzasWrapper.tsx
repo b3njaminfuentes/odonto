@@ -52,6 +52,7 @@ export default function FinanzasInteractivityWrapper({ patients, payments }: Fin
                   <th className="px-6 py-4 text-sm font-semibold text-muted uppercase tracking-wider">Paciente</th>
                   <th className="px-6 py-4 text-sm font-semibold text-muted uppercase tracking-wider">Concepto</th>
                   <th className="px-6 py-4 text-sm font-semibold text-muted uppercase tracking-wider">Método</th>
+                  <th className="px-6 py-4 text-sm font-semibold text-muted uppercase tracking-wider">Estado</th>
                   <th className="px-6 py-4 text-sm font-semibold text-muted uppercase tracking-wider text-right">Monto</th>
                 </tr>
               </thead>
@@ -72,9 +73,17 @@ export default function FinanzasInteractivityWrapper({ patients, payments }: Fin
                         {p.method}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-success text-right flex justify-end items-center gap-1">
-                      + ${p.amount.toFixed(2)}
-                      <ArrowUpRight className="w-4 h-4 opacity-50" />
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        p.status === 'COMPLETADO' ? 'bg-success-soft text-success' :
+                        p.status === 'CANCELADO' ? 'bg-danger-soft text-danger' : 'bg-warning-soft text-warning'
+                      }`}>
+                        {p.status}
+                      </span>
+                    </td>
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm font-bold text-right flex justify-end items-center gap-1 ${p.status === 'CANCELADO' ? 'text-faint line-through' : 'text-success'}`}>
+                      + Bs {Number(p.amount).toFixed(2)}
+                      {p.status !== 'CANCELADO' && <ArrowUpRight className="w-4 h-4 opacity-50" />}
                     </td>
                   </tr>
                 ))}

@@ -233,7 +233,7 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
         <div className="fixed inset-0 bg-bg/40 backdrop-blur-sm flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="absolute inset-0" onClick={closeModal} />
           
-          <div className="relative bg-surface rounded-2xl shadow-xl w-full max-w-md mx-4 animate-in zoom-in-95">
+          <div data-lenis-prevent className="relative bg-surface rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto mx-4 animate-in zoom-in-95">
             <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <h3 className="text-lg font-serif font-bold text-text">
                 {pendingFile ? 'Detalles del Archivo' : 'Editar Documento'}

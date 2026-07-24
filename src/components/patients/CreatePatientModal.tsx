@@ -77,7 +77,7 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
         onClick={!loading ? handleClose : undefined}
       />
       
-      <div className="relative bg-surface rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-2 duration-200 mx-4">
+      <div data-lenis-prevent className="relative bg-surface rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 slide-in-from-bottom-2 duration-200 mx-4">
         <div className="sticky top-0 bg-surface/80 backdrop-blur-md border-b border-border px-6 py-4 flex items-center justify-between z-10">
           <h2 className="text-xl font-semibold text-text">Nuevo Paciente</h2>
           <button 
@@ -201,8 +201,8 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
                         disabled={loading}
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="input w-full px-4 py-2.5" 
-                        placeholder="+591..." 
+                        className="input w-full px-4 py-2.5"
+                        placeholder="Ej: +591 700 00000 (código de país + número)"
                       />
                     </div>
                     <div>

@@ -1,34 +1,25 @@
 import React from 'react'
 import Link from 'next/link'
-import {
-  LayoutDashboard,
-  Users,
-  Calendar,
-  Stethoscope,
-  CreditCard,
-  FolderOpen,
-  Settings,
-  Bot,
-  LogOut
-} from 'lucide-react'
+import { LogOut } from 'lucide-react'
 import { signOut } from '@/app/auth/actions'
+import { SidebarNav } from '@/components/admin/SidebarNav'
+import { getClinicSettings } from './configuracion/actions'
 
-const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
-  { name: 'Pacientes', href: '/admin/pacientes', icon: Users },
-  { name: 'Calendario', href: '/admin/calendario', icon: Calendar },
-  { name: 'Tratamientos', href: '/admin/tratamientos', icon: Stethoscope },
-  { name: 'Pagos', href: '/admin/finanzas', icon: CreditCard },
-  { name: 'Documentos', href: '/admin/documentos', icon: FolderOpen },
-  { name: 'Muelita AI', href: '/admin/muelita', icon: Bot },
-  { name: 'Configuración', href: '/admin/configuracion', icon: Settings },
-]
-
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const settings = await getClinicSettings()
+  const doctorName = settings.doctorName || 'Dra. Villarroel'
+  const initials = doctorName
+    .replace(/^Dra?\.?\s*/i, '')
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase())
+    .join('') || 'DV'
+
   return (
     <div className="dark flex min-h-screen bg-bg text-text">
       {/* Sidebar */}
@@ -39,27 +30,16 @@ export default function AdminLayout({
           </Link>
         </div>
 
-        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
-          {navigation.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all font-medium text-sm text-muted hover:text-brand hover:bg-brand-soft"
-            >
-              <item.icon className="w-5 h-5" />
-              {item.name}
-            </Link>
-          ))}
-        </nav>
+        <SidebarNav />
 
         <div className="p-4 border-t border-border">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-brand-soft flex items-center justify-center font-semibold text-brand">
-              MV
+              {initials}
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-text truncate">Dra. Villarroel</p>
-              <p className="text-xs text-muted">Administradora</p>
+              <p className="text-sm font-semibold text-text truncate">{doctorName}</p>
+              <p className="text-xs text-muted">{settings.specialty || 'Administradora'}</p>
             </div>
             <form action={signOut} className="ml-auto">
               <button type="submit" className="p-2 text-faint hover:text-danger hover:bg-danger-soft rounded-lg transition-colors">

@@ -5,7 +5,21 @@ import ReviewsSlider from "@/components/ReviewsSlider";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import BookingCalendar from "@/components/BookingCalendar";
 import CertificatesGallery from "@/components/CertificatesGallery";
-import { Star, CheckCircle, Clock, MapPin, Phone, Award, ArrowRight, ShieldCheck, Smile, Stethoscope, Sparkles } from "lucide-react";
+import { Star, CheckCircle, Clock, MapPin, Phone, Award, ArrowRight, ShieldCheck, Smile, Stethoscope, Sparkles, Instagram, Facebook } from "lucide-react";
+
+const SOCIALS = [
+  { href: "https://www.instagram.com/clinicaodontologicavillarroel?igsh=aWJyMmtkcnhtbG03&utm_source=qr", label: "Instagram", icon: Instagram },
+  { href: "https://www.facebook.com/share/1Cthbe9Rt5/?mibextid=wwXIfr", label: "Facebook", icon: Facebook },
+  { href: "https://www.tiktok.com/@clinicavillarroel?_r=1&_t=ZS-98EATdcxCzZ", label: "TikTok", icon: TikTokIcon },
+];
+
+function TikTokIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M16.6 5.82c-1.02-.9-1.6-2.16-1.6-3.51h-3.1v13.6c0 1.56-1.27 2.83-2.83 2.83a2.83 2.83 0 1 1 0-5.66c.28 0 .55.04.8.12V9.9a5.8 5.8 0 0 0-.8-.05A5.93 5.93 0 0 0 3.14 15.8a5.93 5.93 0 0 0 5.93 5.93c3.27 0 5.93-2.66 5.93-5.93V9.1a8.6 8.6 0 0 0 4.6 1.34V7.35c-1.1 0-2.13-.35-2.99-.94-.02-.01-.02-.59-.01-.59Z" />
+    </svg>
+  );
+}
 
 const services = [
   { title: "Implantes Dentales", desc: "Recuperá la funcionalidad y estética con implantes de titanio de primera línea.", image: "/images/implantes.jpg", icon: <ShieldCheck size={22} /> },
@@ -77,7 +91,7 @@ export default function Home() {
           <p className="text-muted max-w-2xl mx-auto">Deslizá para ver el impacto de nuestros tratamientos en la vida de nuestros pacientes.</p>
         </div>
         <div className="max-w-4xl mx-auto">
-          <BeforeAfterSlider beforeImage="/images/antes.jpg" afterImage="/images/despues.jpg" beforePosition="center 72%" afterPosition="center 50%" />
+          <BeforeAfterSlider beforeImage="/images/antes.jpg" afterImage="/images/despues.jpg" beforePosition="center 82%" afterPosition="center 50%" />
           <div className="mt-8 text-center">
             <h3 className="text-xl font-serif text-brand">Ortodoncia y alineación dental</h3>
             <p className="text-muted mt-2">Transformación real con tratamientos personalizados</p>
@@ -207,7 +221,7 @@ export default function Home() {
       </section>
 
       {/* Equipo / Doctora */}
-      <section className="py-24" id="clinica">
+      <section className="py-24" id="equipo">
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="bg-brand-soft/40 rounded-3xl p-8 md:p-16 flex flex-col md:flex-row gap-12 items-center">
             <div className="relative w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden ring-4 ring-surface shadow-lift shrink-0">
@@ -268,7 +282,14 @@ export default function Home() {
       {/* Banner final */}
       <section className="py-24 bg-brand text-center px-6">
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-serif text-brand-fg mb-8">Te vas a dar una razón más para sonreír.</h2>
+          <span className="eyebrow justify-center mb-5 text-brand-fg/70">
+            <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+            Tu sonrisa, nuestra prioridad
+          </span>
+          <h2 className="text-3xl md:text-5xl font-serif text-brand-fg mb-4">Dale a tu sonrisa la clínica que se merece.</h2>
+          <p className="text-brand-fg/80 text-lg mb-8 max-w-xl mx-auto">
+            Escribinos hoy y coordinamos tu primera consulta. Sin vueltas, con la calidez de siempre.
+          </p>
           <a href={wa} className="btn bg-surface text-brand text-lg px-8 py-4 rounded-full shadow-lift">
             Reservar por WhatsApp
           </a>
@@ -281,14 +302,28 @@ export default function Home() {
           <div className="md:col-span-2">
             <h3 className="text-2xl font-serif text-brand-fg mb-4">Clínica Villarroel</h3>
             <p className="max-w-sm mb-6">La clínica de implantes y estética dental de referencia en Cochabamba.</p>
-            <span className="chip bg-brand-fg/10 text-brand-fg">
+            <span className="chip bg-brand-fg/10 text-brand-fg mb-6">
               <Award size={14} /> Negocio liderado por mujeres
             </span>
+            <div className="flex items-center gap-3">
+              {SOCIALS.map(({ href, label, icon: Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  className="w-9 h-9 rounded-full bg-brand-fg/10 hover:bg-brand-fg/20 flex items-center justify-center text-brand-fg transition-colors"
+                >
+                  <Icon size={18} />
+                </a>
+              ))}
+            </div>
           </div>
           <div>
             <h4 className="text-brand-fg font-medium mb-4">Enlaces rápidos</h4>
             <ul className="space-y-3">
-              {[["#servicios", "Servicios"], ["#casos", "Casos de éxito"], ["#sobre-nosotros", "Sobre nosotros"], ["#clinica", "La clínica"], ["#contacto", "Contacto"]].map(([h, l]) => (
+              {[["#servicios", "Servicios"], ["#casos", "Casos de éxito"], ["#sobre-nosotros", "Sobre nosotros"], ["#equipo", "Equipo"], ["#contacto", "Contacto"]].map(([h, l]) => (
                 <li key={h}><a href={h} className="hover:text-brand-fg transition-colors">{l}</a></li>
               ))}
             </ul>

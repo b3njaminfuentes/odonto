@@ -51,7 +51,7 @@ export function NewPaymentModal({ isOpen, onClose, patients }: NewPaymentModalPr
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={onClose} />
       
-      <div className="relative bg-surface rounded-2xl shadow-xl w-full max-w-lg overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+      <div data-lenis-prevent className="relative bg-surface rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
         <div className="bg-surface/80 backdrop-blur-md border-b border-border px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-text font-serif flex items-center gap-2">
             <DollarSign className="w-5 h-5 text-success" />

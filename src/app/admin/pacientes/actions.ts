@@ -75,6 +75,47 @@ export async function createPatient(formData: FormData) {
   }
 }
 
+export async function updatePatient(patientId: string, formData: FormData) {
+  try {
+    const supabase = createClient()
+
+    const firstName = (formData.get('firstName') as string)?.trim()
+    const lastName = (formData.get('lastName') as string)?.trim()
+    const dob = formData.get('dob') as string
+    if (!firstName || !lastName || !dob) {
+      return { error: 'Nombre, Apellido y Fecha de Nacimiento son obligatorios.' }
+    }
+
+    const { error } = await supabase
+      .from('Patient')
+      .update({
+        firstName,
+        lastName,
+        dob,
+        email: (formData.get('email') as string)?.trim() || null,
+        phone: (formData.get('phone') as string)?.trim() || null,
+        dni: (formData.get('dni') as string)?.trim() || null,
+        status: (formData.get('status') as string) || 'ACTIVE',
+        emergencyContactName: (formData.get('emergencyContactName') as string)?.trim() || null,
+        emergencyContactPhone: (formData.get('emergencyContactPhone') as string)?.trim() || null,
+        updatedAt: new Date().toISOString(),
+      })
+      .eq('id', patientId)
+
+    if (error) {
+      if (error.code === '23505') return { error: 'Ya existe otro paciente con ese DNI o Email.' }
+      return { error: `Error de BD: ${error.message}` }
+    }
+
+    revalidatePath(`/admin/pacientes/${patientId}`)
+    revalidatePath('/admin/pacientes')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Unhandled exception in updatePatient:', err)
+    return { error: `Server exception: ${err?.message || 'Unknown error'}` }
+  }
+}
+
 export async function getMorePatients(offset: number) {
   const supabase = createClient()
   
