@@ -78,6 +78,7 @@ model Patient {
   payments     Payment[]
   events       TimelineEvent[]
   media        CaseMedia[]
+  cephalometrics Cephalometry[]
 
   @@index([dni])
   @@index([phone])
@@ -107,6 +108,26 @@ model Odontogram {
   updatedAt DateTime @updatedAt
 
   patient Patient @relation(fields: [patientId], references: [id])
+}
+
+model Cephalometry {
+  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patientId           String   @db.Uuid
+  sna                 Decimal? @db.Decimal(5, 2)
+  snb                 Decimal? @db.Decimal(5, 2)
+  anb                 Decimal? @db.Decimal(5, 2)
+  planoMandibular     Decimal? @db.Decimal(5, 2)
+  anguloInterincisal  Decimal? @db.Decimal(5, 2)
+  u1SN                Decimal? @db.Decimal(5, 2)
+  impa                Decimal? @db.Decimal(5, 2)
+  convexidadFacial    Decimal? @db.Decimal(5, 2)
+  notes               String?
+  createdBy           String?  @db.Uuid
+  createdAt           DateTime @default(now())
+
+  patient Patient @relation(fields: [patientId], references: [id])
+
+  @@index([patientId])
 }
 
 model ClinicalHistory {

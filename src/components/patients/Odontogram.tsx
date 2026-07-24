@@ -9,7 +9,7 @@ interface OdontogramProps {
   readOnly?: boolean
 }
 
-type ToothState = 'normal' | 'caries' | 'obturación' | 'corona' | 'endodoncia' | 'implante' | 'extracción'
+type ToothState = 'normal' | 'caries' | 'obturación' | 'corona' | 'endodoncia' | 'implante' | 'extracción' | 'resto_radicular'
 
 const STATES: { key: ToothState; label: string; dot: string }[] = [
   { key: 'normal', label: 'Sano', dot: 'bg-[#dfe7e2]' },
@@ -18,6 +18,7 @@ const STATES: { key: ToothState; label: string; dot: string }[] = [
   { key: 'corona', label: 'Corona', dot: 'bg-[#e0a92e]' },
   { key: 'endodoncia', label: 'Endodoncia', dot: 'bg-accent' },
   { key: 'implante', label: 'Implante', dot: 'bg-brand' },
+  { key: 'resto_radicular', label: 'Resto Radicular', dot: 'bg-[#8a5a3a]' },
   { key: 'extracción', label: 'Ausente', dot: 'bg-faint' },
 ]
 
@@ -45,6 +46,7 @@ const ENAMEL: Record<ToothState, [string, string]> = {
   endodoncia: ['#ffffff', '#d9e2dc'],
   implante: ['#eef2f4', '#9fb0b8'],
   extracción: ['#eef1f0', '#cdd6d1'],
+  resto_radicular: ['#c9a48a', '#8a5a3a'],
 }
 
 function Tooth({ fdi, state, upper, selected, onClick, readOnly }: {
@@ -52,10 +54,11 @@ function Tooth({ fdi, state, upper, selected, onClick, readOnly }: {
 }) {
   const type = toothType(fdi)
   const [c0, c1] = ENAMEL[state]
-  const rootTint = state === 'endodoncia' ? '#f0876f' : (state === 'implante' ? '#8fa3ab' : c1)
+  const rootTint = state === 'endodoncia' ? '#f0876f' : (state === 'implante' ? '#8fa3ab' : (state === 'resto_radicular' ? '#8a5a3a' : c1))
   const gid = `en-${fdi}`
   const rid = `rt-${fdi}`
   const absent = state === 'extracción'
+  const rootRemnant = state === 'resto_radicular'
 
   return (
     <button
@@ -80,10 +83,15 @@ function Tooth({ fdi, state, upper, selected, onClick, readOnly }: {
         {ROOTS[type].map((d, i) => (
           <path key={i} d={d} fill={`url(#${rid})`} stroke="#b9c4bd" strokeWidth="0.6" />
         ))}
-        {/* corona */}
-        <path d={CROWN[type]} fill={`url(#${gid})`} stroke={selected ? 'hsl(150 26% 40%)' : '#b9c4bd'} strokeWidth={selected ? 1.6 : 0.8} />
+        {/* corona: ausente en resto radicular (solo queda la raíz, con un borde fracturado) */}
+        {rootRemnant ? (
+          <path d="M11 33 L17 30 L22 34 L27 30 L33 33 L33 36 C33 38 30 40 22 40 C14 40 11 38 11 36 Z"
+            fill={`url(#${gid})`} stroke="#6b4327" strokeWidth="1" />
+        ) : (
+          <path d={CROWN[type]} fill={`url(#${gid})`} stroke={selected ? 'hsl(150 26% 40%)' : '#b9c4bd'} strokeWidth={selected ? 1.6 : 0.8} />
+        )}
         {/* brillo especular */}
-        <ellipse cx="16" cy="13" rx="6.5" ry="4" fill="#ffffff" opacity="0.55" />
+        {!rootRemnant && <ellipse cx="16" cy="13" rx="6.5" ry="4" fill="#ffffff" opacity="0.55" />}
         {/* marcadores por estado */}
         {state === 'caries' && (<><circle cx="27" cy="22" r="4.2" fill="#7f1d1d" /><circle cx="21" cy="27" r="2.4" fill="#991b1b" /></>)}
         {state === 'obturación' && (<rect x="16" y="14" width="12" height="9" rx="3" fill="#2563eb" opacity="0.9" />)}
