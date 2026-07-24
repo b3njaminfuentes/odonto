@@ -5,14 +5,25 @@ import ReviewsSlider from "@/components/ReviewsSlider";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import BookingCalendar from "@/components/BookingCalendar";
 import CertificatesGallery from "@/components/CertificatesGallery";
-import { Star, CheckCircle, Clock, MapPin, Phone, Award, ArrowRight, ShieldCheck, Smile, Stethoscope, Sparkles, Instagram, Facebook } from "lucide-react";
+import { Star, CheckCircle, Clock, MapPin, Phone, Award, ArrowRight, ShieldCheck, Smile, Stethoscope, Sparkles } from "lucide-react";
 
-const SOCIALS = [
-  { href: "https://www.instagram.com/clinicaodontologicavillarroel?igsh=aWJyMmtkcnhtbG03&utm_source=qr", label: "Instagram", icon: Instagram },
-  { href: "https://www.facebook.com/share/1Cthbe9Rt5/?mibextid=wwXIfr", label: "Facebook", icon: Facebook },
-  { href: "https://www.tiktok.com/@clinicavillarroel?_r=1&_t=ZS-98EATdcxCzZ", label: "TikTok", icon: TikTokIcon },
-];
-
+// Lucide no incluye logos de marcas por diseño: usamos SVGs propios para redes sociales.
+function InstagramIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+function FacebookIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M13.5 21v-7.6h2.55l.38-2.96h-2.93V8.53c0-.86.24-1.44 1.47-1.44h1.57V4.46A21 21 0 0 0 14.3 4.3c-2.17 0-3.66 1.32-3.66 3.75v2.4H8.09v2.95h2.55V21h2.86Z" />
+    </svg>
+  );
+}
 function TikTokIcon({ size = 18 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -20,6 +31,12 @@ function TikTokIcon({ size = 18 }: { size?: number }) {
     </svg>
   );
 }
+
+const SOCIALS = [
+  { href: "https://www.instagram.com/clinicaodontologicavillarroel?igsh=aWJyMmtkcnhtbG03&utm_source=qr", label: "Instagram", icon: InstagramIcon },
+  { href: "https://www.facebook.com/share/1Cthbe9Rt5/?mibextid=wwXIfr", label: "Facebook", icon: FacebookIcon },
+  { href: "https://www.tiktok.com/@clinicavillarroel?_r=1&_t=ZS-98EATdcxCzZ", label: "TikTok", icon: TikTokIcon },
+];
 
 const services = [
   { title: "Implantes Dentales", desc: "Recuperá la funcionalidad y estética con implantes de titanio de primera línea.", image: "/images/implantes.jpg", icon: <ShieldCheck size={22} /> },
