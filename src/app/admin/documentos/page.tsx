@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import { FileText, File, ImageIcon, ArrowRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { toBO } from '@/lib/datetime'
 
 export const dynamic = 'force-dynamic'
 
@@ -61,7 +62,7 @@ export default async function DocumentosPage() {
                     {m.description || 'Sin título'}
                   </h4>
                   <p className="text-xs text-muted mt-0.5">
-                    {m.createdAt ? format(new Date(m.createdAt), "d 'de' MMM, yyyy", { locale: es }) : ''}
+                    {m.createdAt ? format(toBO(m.createdAt), "d 'de' MMM, yyyy", { locale: es }) : ''}
                   </p>
                 </div>
                 {m.Patient && (

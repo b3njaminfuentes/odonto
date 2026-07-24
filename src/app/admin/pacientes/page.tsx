@@ -2,6 +2,7 @@ import React from 'react'
 import { createClient } from '@/utils/supabase/server'
 import { PatientLeaderboard } from '@/components/patients/PatientLeaderboard'
 import { Patient } from '@/components/patients/PatientCard'
+import { intlBO, toBO } from '@/lib/datetime'
 
 export const dynamic = 'force-dynamic'
 
@@ -85,12 +86,12 @@ export default async function PacientesPage({
 
       if (pastAppointments.length > 0) {
         pastAppointments.sort((a: any, b: any) => new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime()) // Descending
-        lastVisit = new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(pastAppointments[0].startsAt))
+        lastVisit = intlBO({ dateStyle: 'medium' }).format(toBO(pastAppointments[0].startsAt))
       }
 
       if (futureAppointments.length > 0) {
         futureAppointments.sort((a: any, b: any) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime()) // Ascending
-        nextAppointment = new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(futureAppointments[0].startsAt))
+        nextAppointment = intlBO({ dateStyle: 'medium' }).format(toBO(futureAppointments[0].startsAt))
       }
     }
 

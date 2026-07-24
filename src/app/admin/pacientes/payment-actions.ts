@@ -81,6 +81,47 @@ export async function createPayment(formData: FormData) {
   return { success: true }
 }
 
+/** Corrige un pago ya registrado (monto, método, tratamiento o notas) cuando se cargó mal. */
+export async function updatePayment(paymentId: string, patientId: string, formData: FormData) {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return { error: 'No autorizado' }
+
+  const treatmentId = formData.get('treatmentId') as string
+  const amountStr = formData.get('amount') as string
+  const method = formData.get('method') as string
+  const notes = formData.get('notes') as string
+
+  const amount = parseFloat(amountStr)
+  if (isNaN(amount) || amount <= 0) return { error: 'Monto inválido' }
+
+  const { error } = await supabase
+    .from('Payment')
+    .update({
+      treatmentId: treatmentId || null,
+      amount,
+      method,
+      notes: notes || null,
+    })
+    .eq('id', paymentId)
+
+  if (error) {
+    console.error('Error updating payment:', error)
+    return { error: 'No se pudo actualizar el pago' }
+  }
+
+  await logAuditAction({
+    userId: session.user.id,
+    action: 'UPDATE',
+    entity: 'Payment',
+    entityId: paymentId,
+    metadata: { patientId, amount }
+  }).catch(() => {})
+
+  revalidatePath(`/admin/pacientes/${patientId}`)
+  return { success: true }
+}
+
 export interface AccountStatement {
   treatments: {
     id: string

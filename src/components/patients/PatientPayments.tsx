@@ -1,9 +1,10 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { DollarSign, Plus, Loader2, FileText, CheckCircle, XCircle } from 'lucide-react'
-import { getPatientPayments, getPatientActiveTreatments, createPayment, updatePaymentStatus, getAccountStatement, type AccountStatement as Statement } from '@/app/admin/pacientes/payment-actions'
+import { DollarSign, Plus, Loader2, FileText, CheckCircle, XCircle, Pencil } from 'lucide-react'
+import { getPatientPayments, getPatientActiveTreatments, createPayment, updatePayment, updatePaymentStatus, getAccountStatement, type AccountStatement as Statement } from '@/app/admin/pacientes/payment-actions'
 import { AccountStatement } from './AccountStatement'
+import { intlBO, toBO } from '@/lib/datetime'
 
 interface PatientPaymentsProps {
   patientId: string
@@ -15,8 +16,14 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
   const [statement, setStatement] = useState<Statement | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isAdding, setIsAdding] = useState(false)
+  const [editingPayment, setEditingPayment] = useState<any | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [amount, setAmount] = useState('')
+  const [selectedTreatmentId, setSelectedTreatmentId] = useState('')
   const formRef = useRef<HTMLFormElement>(null)
+  const isFormOpen = isAdding || !!editingPayment
+
+  const selectedBalance = statement?.treatments.find((t) => t.id === selectedTreatmentId)?.balance ?? null
 
   const loadData = async () => {
     setIsLoading(true)
@@ -40,12 +47,37 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
     setIsSaving(true)
     const formData = new FormData(e.currentTarget)
     formData.append('patientId', patientId)
-    
-    await createPayment(formData)
+
+    if (editingPayment) {
+      await updatePayment(editingPayment.id, patientId, formData)
+    } else {
+      await createPayment(formData)
+    }
     await loadData()
-    
+
     setIsSaving(false)
+    closeForm()
+  }
+
+  const openNewForm = () => {
+    setEditingPayment(null)
+    setAmount('')
+    setSelectedTreatmentId('')
+    setIsAdding(true)
+  }
+
+  const openEditForm = (p: any) => {
     setIsAdding(false)
+    setEditingPayment(p)
+    setAmount(String(p.amount))
+    setSelectedTreatmentId(p.treatmentId || '')
+  }
+
+  const closeForm = () => {
+    setIsAdding(false)
+    setEditingPayment(null)
+    setAmount('')
+    setSelectedTreatmentId('')
   }
 
   const handleStatus = async (id: string, status: string) => {
@@ -61,9 +93,9 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
           <DollarSign className="w-5 h-5 text-brand" />
           Historial de Pagos
         </h2>
-        {!isAdding && (
-          <button 
-            onClick={() => setIsAdding(true)}
+        {!isFormOpen && (
+          <button
+            onClick={openNewForm}
             className="btn-primary px-4 py-2 flex items-center gap-2 text-sm"
           >
             <Plus className="w-4 h-4" />
@@ -80,37 +112,19 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
         </div>
       )}
 
-      {isAdding && (
+      {isFormOpen && (
         <div className="bg-elevated border border-border rounded-2xl p-6 mb-8 animate-in fade-in slide-in-from-top-4">
-          <h3 className="text-lg font-bold text-text mb-4">Registrar Nuevo Pago</h3>
-          <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+          <h3 className="text-lg font-bold text-text mb-4">{editingPayment ? 'Editar Pago' : 'Registrar Nuevo Pago'}</h3>
+          <form key={editingPayment?.id ?? 'new'} ref={formRef} onSubmit={handleSubmit} className="space-y-4">
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-muted">Monto (Bs) *</label>
-                <input 
-                  type="number" 
-                  name="amount" 
-                  step="0.01"
-                  required
-                  placeholder="0.00"
-                  className="input w-full px-4 py-2.5 bg-surface"
-                />
-              </div>
-              
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-muted">Método de Pago</label>
-                <select name="method" className="input w-full px-4 py-2.5 bg-surface">
-                  <option value="Efectivo">Efectivo</option>
-                  <option value="Transferencia / QR">Transferencia / QR</option>
-                  <option value="Tarjeta">Tarjeta</option>
-                </select>
-              </div>
-            </div>
-
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-muted">Vincular a Tratamiento (Opcional)</label>
-              <select name="treatmentId" className="input w-full px-4 py-2.5 bg-surface">
+              <select
+                name="treatmentId"
+                value={selectedTreatmentId}
+                onChange={(e) => setSelectedTreatmentId(e.target.value)}
+                className="input w-full px-4 py-2.5 bg-surface"
+              >
                 <option value="">Ninguno (Pago General)</option>
                 {activeTreatments.map(t => (
                   <option key={t.id} value={t.id}>
@@ -120,31 +134,69 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
               </select>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-medium text-muted">Monto (Bs) *</label>
+                  {selectedBalance != null && selectedBalance > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setAmount(selectedBalance.toFixed(2))}
+                      className="text-xs font-semibold text-brand hover:underline"
+                    >
+                      Pagó el saldo completo (Bs {selectedBalance.toFixed(2)})
+                    </button>
+                  )}
+                </div>
+                <input
+                  type="number"
+                  name="amount"
+                  step="0.01"
+                  min="0.01"
+                  required
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="0.00"
+                  className="input w-full px-4 py-2.5 bg-surface"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium text-muted">Método de Pago</label>
+                <select name="method" defaultValue={editingPayment?.method || 'Efectivo'} className="input w-full px-4 py-2.5 bg-surface">
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Transferencia / QR">Transferencia / QR</option>
+                  <option value="Tarjeta">Tarjeta</option>
+                </select>
+              </div>
+            </div>
+
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-muted">Notas Adicionales</label>
-              <input 
-                type="text" 
-                name="notes" 
+              <input
+                type="text"
+                name="notes"
+                defaultValue={editingPayment?.notes || ''}
                 placeholder="Ej: Adelanto para ortodoncia"
                 className="input w-full px-4 py-2.5 bg-surface"
               />
             </div>
 
             <div className="flex justify-end gap-3 pt-4 border-t border-border">
-              <button 
-                type="button" 
-                onClick={() => setIsAdding(false)}
+              <button
+                type="button"
+                onClick={closeForm}
                 className="px-5 py-2.5 text-muted hover:bg-elevated font-medium rounded-xl transition-colors text-sm"
               >
                 Cancelar
               </button>
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={isSaving}
                 className="btn-primary px-6 py-2.5 flex items-center gap-2 text-sm disabled:opacity-50"
               >
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                Registrar Pago
+                {editingPayment ? 'Guardar Cambios' : 'Registrar Pago'}
               </button>
             </div>
           </form>
@@ -177,7 +229,7 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
               {payments.map(p => (
                 <tr key={p.id} className="hover:bg-elevated/50 transition-colors">
                   <td className="px-6 py-4 font-medium text-text">
-                    {new Intl.DateTimeFormat('es-BO', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(p.date))}
+                    {intlBO({ dateStyle: 'short', timeStyle: 'short' }).format(toBO(p.date))}
                   </td>
                   <td className="px-6 py-4 font-bold text-brand">
                     Bs {Number(p.amount).toFixed(2)}
@@ -205,15 +257,26 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    {p.status !== 'CANCELADO' && (
-                      <button 
-                        onClick={() => handleStatus(p.id, 'CANCELADO')}
-                        className="text-danger hover:text-danger transition-colors"
-                        title="Anular Pago"
-                      >
-                        <XCircle className="w-5 h-5" />
-                      </button>
-                    )}
+                    <div className="flex items-center justify-end gap-3">
+                      {p.status !== 'CANCELADO' && (
+                        <button
+                          onClick={() => openEditForm(p)}
+                          className="text-muted hover:text-brand transition-colors"
+                          title="Editar Pago"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                      )}
+                      {p.status !== 'CANCELADO' && (
+                        <button
+                          onClick={() => handleStatus(p.id, 'CANCELADO')}
+                          className="text-danger hover:text-danger transition-colors"
+                          title="Anular Pago"
+                        >
+                          <XCircle className="w-5 h-5" />
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

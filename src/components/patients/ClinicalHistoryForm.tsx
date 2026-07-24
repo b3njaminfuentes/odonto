@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { Save, Loader2, Plus, Clock, User, AlertCircle, Calendar } from 'lucide-react'
 import { getClinicalHistory, updateGeneralHistory, saveEvolutionNote } from '@/app/admin/pacientes/history-actions'
+import { intlBO, toBO } from '@/lib/datetime'
 
 interface ClinicalHistoryFormProps {
   patientId: string
@@ -196,10 +197,10 @@ export function ClinicalHistoryForm({ patientId }: ClinicalHistoryFormProps) {
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-sm font-semibold text-text flex items-center gap-2">
                       <Calendar className="w-4 h-4 text-faint" />
-                      {new Intl.DateTimeFormat('es-BO', { 
+                      {intlBO({ 
                         dateStyle: 'long', 
                         timeStyle: 'short' 
-                      }).format(new Date(version.createdAt))}
+                      }).format(toBO(version.createdAt))}
                     </span>
                     <span className="text-xs font-medium text-muted bg-elevated px-2.5 py-1 rounded-full flex items-center gap-1.5">
                       <User className="w-3 h-3" />

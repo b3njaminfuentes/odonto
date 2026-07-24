@@ -11,6 +11,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { NewAppointmentModal } from './NewAppointmentModal'
 import { StatusBadge } from '../ui/StatusBadge'
+import { toBO } from '@/lib/datetime'
 
 interface AppointmentData {
   id: string
@@ -62,7 +63,7 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
 
   const apptsOn = (day: Date) => appts.filter(a => isSameDay(new Date(a.startsAt), day))
 
-  const formatTime = (iso: string) => format(new Date(iso), 'HH:mm')
+  const formatTime = (iso: string) => format(toBO(iso), 'HH:mm')
   const getStatusType = (s: string) => (s === 'CONFIRMADO' ? 'success' : s === 'PENDIENTE' ? 'warning' : s === 'CANCELADO' ? 'danger' : s === 'COMPLETADO' ? 'info' : 'default')
 
   // Días de la grilla del mes (semana empieza lunes)

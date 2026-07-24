@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import { KPICard } from '@/components/ui/KPICard'
 import { getClinicSettings } from './configuracion/actions'
 import { Users, Calendar, Banknote, Clock, ClipboardList, ArrowRight } from 'lucide-react'
+import { intlBO, toBO } from '@/lib/datetime'
 
 export const dynamic = 'force-dynamic'
 
@@ -113,7 +114,7 @@ export default async function AdminDashboardPage() {
                   <div>
                     <p className="font-medium text-text">{getActivityDescription(log.action, log.entity)}</p>
                     <p className="text-xs text-muted mt-1">
-                      {new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(log.createdAt))}
+                      {intlBO({ dateStyle: 'medium', timeStyle: 'short' }).format(toBO(log.createdAt))}
                       {' '}• Referencia: {log.entityId.split('-')[0]}...
                     </p>
                   </div>
@@ -140,7 +141,7 @@ export default async function AdminDashboardPage() {
                 <div key={a.id} className="bg-surface/70 rounded-xl p-3 text-sm">
                   <p className="font-semibold text-text">{a.Patient?.firstName ? `${a.Patient.firstName} ${a.Patient.lastName}` : (a.notes?.split('—')[1]?.split('·')[0]?.trim() || 'Solicitud web')}</p>
                   <p className="text-muted text-xs mt-0.5">
-                    {new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(a.startsAt))} · {a.treatmentType || 'Consulta'}
+                    {intlBO({ dateStyle: 'medium', timeStyle: 'short' }).format(toBO(a.startsAt))} · {a.treatmentType || 'Consulta'}
                   </p>
                 </div>
               ))}

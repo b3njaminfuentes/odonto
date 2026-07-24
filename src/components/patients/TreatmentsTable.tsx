@@ -2,8 +2,10 @@
 
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { Stethoscope, User, Calendar, CreditCard, Search } from 'lucide-react'
+import { Stethoscope, User, Calendar, CreditCard, Search, X } from 'lucide-react'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { intlBO, toBO } from '@/lib/datetime'
+import { updateTreatmentStatus } from '@/app/admin/pacientes/treatment-actions'
 
 interface TreatmentRow {
   id: string
@@ -28,9 +30,16 @@ const getStatusColor = (status: string) => {
   }
 }
 
-export function TreatmentsTable({ treatments }: { treatments: TreatmentRow[] }) {
+export function TreatmentsTable({ treatments: initialTreatments }: { treatments: TreatmentRow[] }) {
+  const [treatments, setTreatments] = useState(initialTreatments)
   const [query, setQuery] = useState('')
   const [status, setStatus] = useState<typeof STATUS_OPTIONS[number]>('TODOS')
+
+  const cancelTreatment = async (id: string, patientId: string) => {
+    if (!confirm('¿Cancelar este tratamiento? El paciente no seguirá con él.')) return
+    setTreatments((prev) => prev.map((t) => (t.id === id ? { ...t, status: 'CANCELADO' } : t)))
+    await updateTreatmentStatus(id, 'CANCELADO', patientId)
+  }
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -69,12 +78,13 @@ export function TreatmentsTable({ treatments }: { treatments: TreatmentRow[] }) 
                 <th className="px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">Fecha Inicio</th>
                 <th className="px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">Presupuesto</th>
                 <th className="px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">Estado</th>
+                <th className="px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider text-right">Acción</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-faint">
+                  <td colSpan={6} className="px-6 py-12 text-center text-faint">
                     <Stethoscope className="w-12 h-12 mx-auto mb-4 text-faint" />
                     <p>{treatments.length === 0 ? 'Aún no hay tratamientos registrados.' : 'Ningún tratamiento coincide con la búsqueda.'}</p>
                   </td>
@@ -97,7 +107,7 @@ export function TreatmentsTable({ treatments }: { treatments: TreatmentRow[] }) 
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2 text-sm text-muted">
                         <Calendar className="w-4 h-4 text-faint" />
-                        {new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(t.startDate))}
+                        {intlBO({ dateStyle: 'medium' }).format(toBO(t.startDate))}
                       </div>
                     </td>
                     <td className="px-6 py-4">

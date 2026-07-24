@@ -56,6 +56,7 @@ export default async function FinanzasPage({
     method: p.method,
     concept: p.notes, // Map notes from DB to concept in UI
     status: p.status,
+    patientId: p.patientId,
     patient: {
       firstName: p.Patient?.firstName || 'Paciente',
       lastName: p.Patient?.lastName || 'Desconocido',

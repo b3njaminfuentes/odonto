@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server'
 import { Calendar, AlertCircle, Activity } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { toBO } from '@/lib/datetime'
 
 export const dynamic = 'force-dynamic'
 
@@ -80,10 +81,10 @@ export default async function PortalDashboardPage() {
                 <div key={app.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-brand-soft/50 rounded-xl border border-brand-soft">
                   <div>
                     <p className="font-bold text-brand capitalize">
-                      {format(new Date(app.startsAt), "EEEE, d 'de' MMMM", { locale: es })}
+                      {format(toBO(app.startsAt), "EEEE, d 'de' MMMM", { locale: es })}
                     </p>
                     <p className="text-sm font-medium text-brand">
-                      {format(new Date(app.startsAt), "HH:mm")} - {app.treatmentType || 'Consulta General'}
+                      {format(toBO(app.startsAt), "HH:mm")} - {app.treatmentType || 'Consulta General'}
                     </p>
                   </div>
                   <div className="mt-2 sm:mt-0">
