@@ -7,21 +7,23 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 import { PatientTabs } from '@/components/patients/PatientTabs'
 import { PatientAccessButton } from '@/components/patients/PatientAccessButton'
 import { EditPatientModal } from '@/components/patients/EditPatientModal'
+import { getAccountStatement } from '@/app/admin/pacientes/payment-actions'
 
 export const dynamic = 'force-dynamic'
 
 export default async function PatientProfilePage({ params }: { params: { id: string } }) {
   const supabase = createClient()
 
-  // Buscar el paciente
+  // Buscar el paciente con todo lo necesario para el resumen completo (línea de tiempo)
   const { data: patient, error } = await supabase
     .from('Patient')
     .select(`
       *,
-      appointments:Appointment(startsAt, endsAt, treatmentType, status),
-      history:ClinicalHistory(medicalHistory),
-      treatments:Treatment(id, status),
-      media:CaseMedia(id)
+      appointments:Appointment(id, startsAt, endsAt, treatmentType, status),
+      history:ClinicalHistory(medicalHistory, updatedAt),
+      treatments:Treatment(id, name, status, startDate, budget, finalCost),
+      payments:Payment(id, amount, status, date, method),
+      media:CaseMedia(id, description, category, createdAt, visibleToPatient)
     `)
     .eq('id', params.id)
     .single()
@@ -30,6 +32,8 @@ export default async function PatientProfilePage({ params }: { params: { id: str
     console.error('Error fetching patient profile:', error)
     return notFound()
   }
+
+  const statement = await getAccountStatement(params.id)
 
   // Edad real a partir de la fecha de nacimiento (defensivo ante fechas inválidas o futuras)
   const calculateAge = (dob: string): number | null => {
@@ -109,8 +113,12 @@ export default async function PatientProfilePage({ params }: { params: { id: str
         summaryData={{
           appointments: patient.appointments || [],
           history: patient.history,
+          treatments: patient.treatments || [],
+          payments: patient.payments || [],
+          media: patient.media || [],
           treatmentsCount: (patient.treatments || []).filter((t: any) => t.status === 'ACTIVO').length,
-          mediaCount: (patient.media || []).length
+          mediaCount: (patient.media || []).length,
+          statement,
         }}
       />
     </div>
