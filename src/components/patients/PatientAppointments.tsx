@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { Calendar, Clock, Loader2, CalendarPlus, AlertCircle } from 'lucide-react'
 import { getPatientAppointments } from '@/app/admin/pacientes/appointment-actions'
 import Link from 'next/link'
+import { intlBO, toBO } from '@/lib/datetime'
 
 interface PatientAppointmentsProps {
   patientId: string
@@ -71,7 +72,7 @@ export function PatientAppointments({ patientId }: PatientAppointmentsProps) {
                   <div key={a.id} className="bg-surface border border-brand-soft shadow-sm rounded-2xl p-5 flex items-start gap-4 ring-1 ring-brand/10">
                     <div className="bg-brand-soft rounded-xl p-3 flex flex-col items-center justify-center min-w-[70px] border border-brand-soft">
                       <span className="text-xs font-bold text-brand uppercase">
-                        {new Intl.DateTimeFormat('es-BO', { month: 'short' }).format(new Date(a.startsAt))}
+                        {intlBO({ month: 'short' }).format(toBO(a.startsAt))}
                       </span>
                       <span className="text-2xl font-black text-brand leading-none my-1">
                         {new Date(a.startsAt).getDate()}
@@ -86,8 +87,8 @@ export function PatientAppointments({ patientId }: PatientAppointmentsProps) {
                       </div>
                       <div className="flex items-center gap-2 text-sm font-medium text-muted mt-2">
                         <Clock className="w-4 h-4 text-muted" />
-                        {new Intl.DateTimeFormat('es-BO', { timeStyle: 'short' }).format(new Date(a.startsAt))} - 
-                        {new Intl.DateTimeFormat('es-BO', { timeStyle: 'short' }).format(new Date(a.endsAt))}
+                        {intlBO({ timeStyle: 'short' }).format(toBO(a.startsAt))} - 
+                        {intlBO({ timeStyle: 'short' }).format(toBO(a.endsAt))}
                       </div>
                     </div>
                   </div>
@@ -116,10 +117,10 @@ export function PatientAppointments({ patientId }: PatientAppointmentsProps) {
                     {pastAppointments.map(a => (
                       <tr key={a.id} className="hover:bg-elevated/50 transition-colors">
                         <td className="px-6 py-4 font-medium text-text">
-                          {new Intl.DateTimeFormat('es-BO', { dateStyle: 'long' }).format(new Date(a.startsAt))}
+                          {intlBO({ dateStyle: 'long' }).format(toBO(a.startsAt))}
                         </td>
                         <td className="px-6 py-4 text-muted">
-                          {new Intl.DateTimeFormat('es-BO', { timeStyle: 'short' }).format(new Date(a.startsAt))}
+                          {intlBO({ timeStyle: 'short' }).format(toBO(a.startsAt))}
                         </td>
                         <td className="px-6 py-4 font-medium">
                           {a.treatmentType || 'Consulta General'}

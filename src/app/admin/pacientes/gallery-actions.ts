@@ -30,7 +30,7 @@ export async function uploadPatientMedia(formData: FormData): Promise<{ success:
   const description = ((formData.get('description') as string) || '').trim()
   const visibleToPatient = formData.get('visibleToPatient') === 'true'
   if (!file || !patientId) return { error: 'Archivo o paciente faltante.' }
-  if (file.size > 25 * 1024 * 1024) return { error: 'El archivo supera los 25 MB.' }
+  if (file.size > 20 * 1024 * 1024) return { error: 'El archivo supera los 20 MB.' }
 
   const isPdf = file.type.includes('pdf')
   const bucket = isPdf ? 'documents' : 'cases-images'

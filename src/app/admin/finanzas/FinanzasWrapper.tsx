@@ -1,10 +1,12 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Plus, ArrowUpRight } from 'lucide-react'
+import { Plus, ArrowUpRight, XCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { NewPaymentModal } from '@/components/finanzas/NewPaymentModal'
+import { toBO } from '@/lib/datetime'
+import { updatePaymentStatus } from '@/app/admin/pacientes/payment-actions'
 
 interface FinanzasWrapperProps {
   patients: { id: string, name: string, code: string }[]
@@ -15,6 +17,7 @@ interface FinanzasWrapperProps {
     method: string
     concept: string
     status: string
+    patientId: string
     patient: {
       firstName: string
       lastName: string
@@ -22,8 +25,15 @@ interface FinanzasWrapperProps {
   }[]
 }
 
-export default function FinanzasInteractivityWrapper({ patients, payments }: FinanzasWrapperProps) {
+export default function FinanzasInteractivityWrapper({ patients, payments: initialPayments }: FinanzasWrapperProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [payments, setPayments] = useState(initialPayments)
+
+  const cancelPayment = async (id: string, patientId: string) => {
+    if (!confirm('¿Anular este pago? Dejará de contar en los ingresos.')) return
+    setPayments((prev) => prev.map((p) => (p.id === id ? { ...p, status: 'CANCELADO' } : p)))
+    await updatePaymentStatus(id, 'CANCELADO', patientId)
+  }
 
   return (
     <>
@@ -54,13 +64,14 @@ export default function FinanzasInteractivityWrapper({ patients, payments }: Fin
                   <th className="px-6 py-4 text-sm font-semibold text-muted uppercase tracking-wider">Método</th>
                   <th className="px-6 py-4 text-sm font-semibold text-muted uppercase tracking-wider">Estado</th>
                   <th className="px-6 py-4 text-sm font-semibold text-muted uppercase tracking-wider text-right">Monto</th>
+                  <th className="px-6 py-4 text-sm font-semibold text-muted uppercase tracking-wider text-right">Acción</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {payments.map((p) => (
                   <tr key={p.id} className="hover:bg-elevated/50 transition-colors group">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-muted capitalize">
-                      {format(new Date(p.date), "d MMM, yyyy", { locale: es })}
+                      {format(toBO(p.date), "d MMM, yyyy", { locale: es })}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-bold text-text">{p.patient.firstName} {p.patient.lastName}</div>
@@ -81,9 +92,22 @@ export default function FinanzasInteractivityWrapper({ patients, payments }: Fin
                         {p.status}
                       </span>
                     </td>
-                    <td className={`px-6 py-4 whitespace-nowrap text-sm font-bold text-right flex justify-end items-center gap-1 ${p.status === 'CANCELADO' ? 'text-faint line-through' : 'text-success'}`}>
-                      + Bs {Number(p.amount).toFixed(2)}
-                      {p.status !== 'CANCELADO' && <ArrowUpRight className="w-4 h-4 opacity-50" />}
+                    <td className={`px-6 py-4 whitespace-nowrap text-sm font-bold text-right ${p.status === 'CANCELADO' ? 'text-faint line-through' : 'text-success'}`}>
+                      <span className="inline-flex items-center gap-1">
+                        + Bs {Number(p.amount).toFixed(2)}
+                        {p.status !== 'CANCELADO' && <ArrowUpRight className="w-4 h-4 opacity-50" />}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      {p.status !== 'CANCELADO' && (
+                        <button
+                          onClick={() => cancelPayment(p.id, p.patientId)}
+                          className="text-danger hover:text-danger transition-colors"
+                          title="Anular Pago"
+                        >
+                          <XCircle className="w-5 h-5" />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

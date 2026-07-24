@@ -3,6 +3,7 @@
 import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { logAuditAction } from '@/utils/audit'
+import { intlBO, toBO } from '@/lib/datetime'
 
 // Creamos un código de paciente aleatorio. Ej: PT-100234
 const generatePatientCode = () => `PT-${Math.floor(100000 + Math.random() * 900000)}`
@@ -175,12 +176,12 @@ export async function getMorePatients(offset: number) {
 
       if (pastAppointments.length > 0) {
         pastAppointments.sort((a: any, b: any) => new Date(b.startsAt).getTime() - new Date(a.startsAt).getTime())
-        lastVisit = new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(pastAppointments[0].startsAt))
+        lastVisit = intlBO({ dateStyle: 'medium' }).format(toBO(pastAppointments[0].startsAt))
       }
 
       if (futureAppointments.length > 0) {
         futureAppointments.sort((a: any, b: any) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime())
-        nextAppointment = new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(futureAppointments[0].startsAt))
+        nextAppointment = intlBO({ dateStyle: 'medium' }).format(toBO(futureAppointments[0].startsAt))
       }
     }
 

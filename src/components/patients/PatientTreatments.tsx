@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Plus, CheckCircle, Clock, Loader2, DollarSign, FileText, Activity, MoreVertical, X, Settings2, Save } from 'lucide-react'
 import { getPatientTreatments, createTreatment, updateTreatment, updateTreatmentStatus } from '@/app/admin/pacientes/treatment-actions'
+import { intlBO, toBO } from '@/lib/datetime'
 
 interface PatientTreatmentsProps {
   patientId: string
@@ -99,13 +100,22 @@ export function PatientTreatments({ patientId }: PatientTreatmentsProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {treatments.map((t) => (
-            <div 
-              key={t.id} 
+            <div
+              key={t.id}
               onClick={() => openEditModal(t)}
-              className="card p-5 group cursor-pointer flex flex-col justify-between"
+              className="relative card p-5 group cursor-pointer flex flex-col justify-between"
             >
+              {t.status !== 'CANCELADO' && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleStatusChange(t.id, 'CANCELADO') }}
+                  title="Cancelar tratamiento"
+                  className="absolute top-3 right-3 p-1.5 rounded-lg text-faint hover:text-danger hover:bg-danger-soft opacity-0 group-hover:opacity-100 transition-all z-10"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
               <div>
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-3 pr-8">
                   <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-md ring-1 ring-inset ${getStatusColor(t.status)}`}>
                     {t.status}
                   </span>
@@ -115,7 +125,7 @@ export function PatientTreatments({ patientId }: PatientTreatmentsProps) {
                     </span>
                   )}
                 </div>
-                
+
                 <h3 className="font-bold text-text text-lg leading-tight mb-2 group-hover:text-brand transition-colors">{t.name}</h3>
                 
                 {t.description && (
@@ -126,7 +136,7 @@ export function PatientTreatments({ patientId }: PatientTreatmentsProps) {
               <div className="pt-4 border-t border-border flex items-center justify-between text-xs font-medium text-muted">
                 <span className="flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5" />
-                  {new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(t.startDate))}
+                  {intlBO({ dateStyle: 'medium' }).format(toBO(t.startDate))}
                 </span>
                 
                 <div className="flex flex-col items-end">

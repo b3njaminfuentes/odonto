@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server'
 import { DollarSign, MessageCircle, AlertCircle } from 'lucide-react'
 import { getAccountStatement } from '@/app/admin/pacientes/payment-actions'
 import { AccountStatement } from '@/components/patients/AccountStatement'
+import { intlBO, toBO } from '@/lib/datetime'
 
 export const dynamic = 'force-dynamic'
 
@@ -81,7 +82,7 @@ export default async function PagosPage() {
                   {payments.map(p => (
                     <tr key={p.id} className="hover:bg-elevated/50 transition-colors">
                       <td className="px-6 py-4 font-medium text-text">
-                        {new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(p.date))}
+                        {intlBO({ dateStyle: 'medium' }).format(toBO(p.date))}
                       </td>
                       <td className="px-6 py-4">
                         <span className={`font-bold ${p.status === 'CANCELADO' ? 'text-muted line-through' : 'text-brand'}`}>

@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server'
 import { Calendar, AlertCircle, Clock } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { toBO } from '@/lib/datetime'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,10 +61,10 @@ export default async function CitasPage() {
               <div key={a.id} className="bg-surface border border-brand-soft shadow-sm rounded-2xl p-5 flex items-start gap-4 ring-1 ring-brand/10">
                 <div className="bg-brand-soft rounded-xl p-3 flex flex-col items-center justify-center min-w-[70px] border border-brand-soft">
                   <span className="text-xs font-bold text-brand uppercase">
-                    {format(new Date(a.startsAt), "MMM", { locale: es })}
+                    {format(toBO(a.startsAt), "MMM", { locale: es })}
                   </span>
                   <span className="text-2xl font-black text-brand leading-none my-1">
-                    {format(new Date(a.startsAt), "d")}
+                    {format(toBO(a.startsAt), "d")}
                   </span>
                 </div>
                 <div className="flex-1">
@@ -72,7 +73,7 @@ export default async function CitasPage() {
                   </div>
                   <div className="flex items-center gap-2 text-sm font-medium text-muted mt-2">
                     <Clock className="w-4 h-4 text-muted" />
-                    {format(new Date(a.startsAt), "HH:mm")} - {format(new Date(a.endsAt), "HH:mm")}
+                    {format(toBO(a.startsAt), "HH:mm")} - {format(toBO(a.endsAt), "HH:mm")}
                   </div>
                 </div>
               </div>
@@ -107,10 +108,10 @@ export default async function CitasPage() {
                 {pastAppointments.map(a => (
                   <tr key={a.id} className="hover:bg-elevated/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-text capitalize">
-                      {format(new Date(a.startsAt), "EEEE, d 'de' MMMM", { locale: es })}
+                      {format(toBO(a.startsAt), "EEEE, d 'de' MMMM", { locale: es })}
                     </td>
                     <td className="px-6 py-4 text-muted">
-                      {format(new Date(a.startsAt), "HH:mm")}
+                      {format(toBO(a.startsAt), "HH:mm")}
                     </td>
                     <td className="px-6 py-4 font-medium">
                       {a.treatmentType || 'Consulta General'}

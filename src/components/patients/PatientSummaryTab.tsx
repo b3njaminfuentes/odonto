@@ -1,5 +1,6 @@
 import React from 'react'
 import { Calendar, AlertCircle, FileText, Activity } from 'lucide-react'
+import { intlBO, toBO } from '@/lib/datetime'
 
 interface PatientSummaryTabProps {
   summaryData: {
@@ -52,13 +53,13 @@ export function PatientSummaryTab({ summaryData }: PatientSummaryTabProps) {
           {nextAppointment ? (
             <div>
               <p className="text-xl font-bold text-text mb-1 capitalize">
-                {new Intl.DateTimeFormat('es-BO', { 
+                {intlBO({ 
                   weekday: 'long', 
                   day: 'numeric', 
                   month: 'long',
                   hour: '2-digit',
                   minute: '2-digit'
-                }).format(new Date(nextAppointment.startsAt))}
+                }).format(toBO(nextAppointment.startsAt))}
               </p>
               <p className="text-sm text-muted font-medium capitalize">
                 {nextAppointment.treatmentType || 'Consulta General'} • {nextAppointment.status}

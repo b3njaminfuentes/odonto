@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Upload, Image as ImageIcon, X, Loader2, File, Edit2, Eye, EyeOff, Save } from 'lucide-react'
 import { getPatientMedia, uploadPatientMedia, deleteMediaRecord, updateMediaRecord } from '@/app/admin/pacientes/gallery-actions'
+import { intlBO, toBO } from '@/lib/datetime'
 
 interface GalleryViewerProps {
   patientId: string
@@ -207,7 +208,7 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
                     </h4>
                   </div>
                   <p className="text-xs font-medium text-muted flex items-center gap-1.5">
-                    {new Intl.DateTimeFormat('es-BO', { dateStyle: 'medium' }).format(new Date(img.createdAt))}
+                    {intlBO({ dateStyle: 'medium' }).format(toBO(img.createdAt))}
                   </p>
                 </div>
                 
