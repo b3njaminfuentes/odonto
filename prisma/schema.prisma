@@ -61,6 +61,7 @@ model Patient {
   phone            String?
   emergencyContactName String?
   emergencyContactPhone String?
+  referralSource   String? // Cómo nos conoció: Facebook, Instagram, TikTok, Google Maps, Recomendado, Otro
   address          String?
   status           PatientStatus @default(ACTIVE)
   profilePhotoId   String?       @db.Uuid // Opcional, referencia a CaseMedia o un bucket ID

@@ -202,9 +202,10 @@ export function PatientTreatments({ patientId }: PatientTreatmentsProps) {
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium text-muted">Presupuesto Inicial (Bs)</label>
                   <input 
-                    type="number" 
-                    name="budget" 
+                    type="number"
+                    name="budget"
                     step="0.01"
+                    min="0"
                     defaultValue={editingTreatment?.budget}
                     placeholder="0.00"
                     className="input w-full px-4 py-2.5"
@@ -213,9 +214,10 @@ export function PatientTreatments({ patientId }: PatientTreatmentsProps) {
                 <div className="space-y-1.5">
                   <label className="text-sm font-medium text-muted">Costo Final Cobrado (Bs)</label>
                   <input 
-                    type="number" 
-                    name="finalCost" 
+                    type="number"
+                    name="finalCost"
                     step="0.01"
+                    min="0"
                     defaultValue={editingTreatment?.finalCost}
                     placeholder="0.00"
                     className="input w-full px-4 py-2.5"

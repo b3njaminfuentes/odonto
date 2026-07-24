@@ -82,6 +82,9 @@ export async function requestAppointment(input: {
     })
 
     if (error) {
+      // 23P01 = violación de la restricción de exclusión (choque real detectado por la DB,
+      // incluso si dos personas reservan el mismo instante en simultáneo).
+      if (error.code === '23P01') return { error: 'Ese horario acaba de ocuparse. Elegí otro, por favor.' }
       console.error('requestAppointment insert error:', error)
       return { error: 'No se pudo registrar la solicitud. Intentá de nuevo.' }
     }

@@ -43,6 +43,8 @@ export async function createTreatment(formData: FormData) {
   if (!patientId || !name) {
     return { error: 'Faltan campos obligatorios' }
   }
+  if (budget !== null && (isNaN(budget) || budget < 0)) return { error: 'El presupuesto no puede ser negativo.' }
+  if (finalCost !== null && (isNaN(finalCost) || finalCost < 0)) return { error: 'El costo final no puede ser negativo.' }
 
   const { data, error } = await supabase
     .from('Treatment')
@@ -119,6 +121,8 @@ export async function updateTreatment(treatmentId: string, formData: FormData) {
   if (!name) {
     return { error: 'El nombre es obligatorio' }
   }
+  if (budget !== null && (isNaN(budget) || budget < 0)) return { error: 'El presupuesto no puede ser negativo.' }
+  if (finalCost !== null && (isNaN(finalCost) || finalCost < 0)) return { error: 'El costo final no puede ser negativo.' }
 
   const { error } = await supabase
     .from('Treatment')
