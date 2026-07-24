@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/utils/supabase/server'
-import LoginTabs from './login-tabs'
+import UnifiedLoginForm from './unified-login-form'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,7 +30,7 @@ export default async function LoginPage() {
           <h1 className="text-3xl font-bold text-text tracking-tight">Clínica Odontológica Villarroel</h1>
           <p className="text-muted mt-2 text-sm">Portal de acceso</p>
         </div>
-        <LoginTabs />
+        <UnifiedLoginForm />
       </div>
     </div>
   )

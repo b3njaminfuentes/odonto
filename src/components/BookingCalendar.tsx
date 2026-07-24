@@ -12,6 +12,7 @@ const SERVICES = [
   "Diseño de Sonrisa y Carillas",
   "Ortopedia y Ortodoncia",
   "Rehabilitación Oral (Coronas/Puentes)",
+  "Curación de Caries",
   "Placas Totales y Parciales",
   "Blanqueamiento Dental",
   "Endodoncia",

@@ -22,9 +22,13 @@ export async function createPatient(formData: FormData) {
     const emergencyContactPhone = formData.get('emergencyContactPhone') as string
     const referralSource = formData.get('referralSource') as string
 
-    // Validación básica
+    // Validación básica. El email es obligatorio: es lo que el paciente usará,
+    // junto con su código de acceso, para entrar al portal.
     if (!firstName || !lastName || !dob) {
       return { error: 'Nombre, Apellido y Fecha de Nacimiento son obligatorios.' }
+    }
+    if (!email || !email.trim()) {
+      return { error: 'El email es obligatorio: el paciente lo necesita para ingresar a su portal.' }
     }
 
     // Insertar en Supabase usando el cliente autenticado normal

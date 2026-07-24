@@ -19,6 +19,7 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
+  const [email, setEmail] = useState('')
   const [isTouched, setIsTouched] = useState(false)
 
   const formRef = useRef<HTMLFormElement>(null)
@@ -206,8 +207,21 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-muted mb-1.5">Email</label>
-                      <input type="email" name="email" disabled={loading} className="input w-full px-4 py-2.5" />
+                      <label className="block text-sm font-medium text-muted mb-1.5">Email *</label>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        disabled={loading}
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        data-invalid={isTouched && email.trim() === ''}
+                        className="input w-full px-4 py-2.5 data-[invalid=true]:border-danger data-[invalid=true]:ring-danger/10"
+                      />
+                      <p className="text-xs text-faint mt-1">Lo va a usar para ingresar a su portal junto con el código de acceso.</p>
+                      {isTouched && email.trim() === '' && (
+                        <p className="text-xs text-danger mt-1 animate-in fade-in slide-in-from-top-1 duration-150">Este campo es obligatorio</p>
+                      )}
                     </div>
                     <div className="sm:col-span-2">
                       <label className="block text-sm font-medium text-muted mb-1.5">¿Cómo nos conoció?</label>
@@ -255,7 +269,7 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
                 </button>
                 <button
                   type="submit"
-                  disabled={loading || (isTouched && (firstName.trim() === '' || lastName.trim() === ''))}
+                  disabled={loading || (isTouched && (firstName.trim() === '' || lastName.trim() === '' || email.trim() === ''))}
                   className="btn-primary px-6 py-2.5 text-sm flex items-center gap-2"
                 >
                   {loading ? (
