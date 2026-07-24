@@ -2,12 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { KeyRound, Loader2 } from 'lucide-react'
-import { patientLoginWithCode } from './patient-actions'
+import { Loader2 } from 'lucide-react'
+import { unifiedLogin } from './unified-login-actions'
 
-export default function PatientLoginForm() {
-  const [code, setCode] = useState('')
+export default function UnifiedLoginForm() {
   const [email, setEmail] = useState('')
+  const [code, setCode] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -17,7 +17,7 @@ export default function PatientLoginForm() {
     setError(null)
     setLoading(true)
     try {
-      const res = await patientLoginWithCode(code, email)
+      const res = await unifiedLogin(email, code)
       if ('error' in res) {
         setError(res.error)
         return
@@ -33,32 +33,27 @@ export default function PatientLoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-muted mb-1">Código de acceso</label>
-        <div className="relative">
-          <KeyRound className="w-4 h-4 text-faint absolute left-3.5 top-1/2 -translate-y-1/2" />
-          <input
-            type="text"
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            required
-            autoCapitalize="characters"
-            className="input w-full pl-10 pr-4 py-2.5 tracking-widest font-mono uppercase"
-            placeholder="Ej: X7K2P9QF"
-          />
-        </div>
-        <p className="text-xs text-faint mt-1.5">Es el código que te compartió la Dra. Villarroel por WhatsApp.</p>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-muted mb-1">Tu email (opcional)</label>
+        <label className="block text-sm font-medium text-muted mb-1">Email</label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
           className="input w-full px-4 py-2.5"
           placeholder="tu@email.com"
         />
-        <p className="text-xs text-faint mt-1.5">Lo guardamos para avisarte novedades de tu tratamiento. No es obligatorio.</p>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-muted mb-1">Código de acceso</label>
+        <input
+          type="password"
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          required
+          className="input w-full px-4 py-2.5"
+          placeholder="••••••••"
+        />
       </div>
 
       {error && (
@@ -67,10 +62,10 @@ export default function PatientLoginForm() {
 
       <button
         type="submit"
-        disabled={loading || !code.trim()}
+        disabled={loading}
         className="w-full py-2.5 px-4 bg-brand hover:bg-brand/90 text-white font-medium rounded-lg transition-colors focus:ring-4 focus:ring-brand/20 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
-        {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Ingresando...</> : 'Ingresar con mi código'}
+        {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> Ingresando...</> : 'Ingresar'}
       </button>
     </form>
   )

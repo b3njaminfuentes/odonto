@@ -124,6 +124,7 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
               <select name="type" required disabled={loading} className="w-full px-4 py-2.5 bg-surface border border-border rounded-xl focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all disabled:bg-elevated disabled:text-muted text-sm">
                 <option value="Consulta General">Consulta General</option>
                 <option value="Limpieza">Limpieza Profunda</option>
+                <option value="Curación">Curación</option>
                 <option value="Extracción">Extracción</option>
                 <option value="Control Ortodoncia">Control Ortodoncia</option>
                 <option value="Implante">Cirugía / Implante</option>
