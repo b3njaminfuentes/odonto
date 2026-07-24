@@ -13,7 +13,7 @@ interface CreatePatientModalProps {
 export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePatientModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [successData, setSuccessData] = useState<{ patientCode: string, name: string, id: string } | null>(null)
+  const [successData, setSuccessData] = useState<{ patientCode: string, accessCode: string | null, name: string, id: string } | null>(null)
   
   // Live validation states
   const [firstName, setFirstName] = useState('')
@@ -54,6 +54,7 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
         formRef.current?.reset()
         setSuccessData({
           patientCode: result.patient.patientCode,
+          accessCode: result.accessCode ?? null,
           name: `${result.patient.firstName} ${result.patient.lastName}`,
           id: result.patient.id
         })
@@ -104,13 +105,23 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 <h3 className="text-xl font-semibold text-text mb-2">¡Paciente Creado!</h3>
-                <p className="text-sm text-muted mb-6">
-                  Has registrado a <strong>{successData.name}</strong>. Código de acceso al portal:
+                <p className="text-sm text-muted mb-4">
+                  Has registrado a <strong>{successData.name}</strong>. Ficha N.º {successData.patientCode}.
                 </p>
-                
-                <div className="bg-surface border border-brand-soft rounded-xl p-4 mb-4">
-                  <span className="text-3xl font-mono font-semibold text-brand tracking-wider">{successData.patientCode}</span>
-                </div>
+
+                {successData.accessCode ? (
+                  <>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-2">Código de acceso al portal (para el paciente)</p>
+                    <div className="bg-surface border border-brand-soft rounded-xl p-4 mb-2">
+                      <span className="text-3xl font-mono font-semibold text-brand tracking-wider">{successData.accessCode}</span>
+                    </div>
+                    <p className="text-xs text-muted mb-4">Guardalo ahora: no se vuelve a mostrar. Pasáselo al paciente por WhatsApp junto con su email para que entre en /login.</p>
+                  </>
+                ) : (
+                  <div className="mb-4 p-3 bg-warning-soft border border-warning/30 rounded-xl text-warning text-xs">
+                    No se pudo generar el código de acceso automáticamente. Andá al perfil del paciente y usá "Generar acceso".
+                  </div>
+                )}
 
                 <div className="flex flex-col gap-3">
                   <a

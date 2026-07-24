@@ -3,6 +3,19 @@ import { createClient } from '@/utils/supabase/server'
 import { PatientLeaderboard } from '@/components/patients/PatientLeaderboard'
 import { Patient } from '@/components/patients/PatientCard'
 import { intlBO, toBO } from '@/lib/datetime'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
+
+async function resolvePhotoUrls(profilePhotoIds: (string | null)[]): Promise<Record<string, string>> {
+  const ids = profilePhotoIds.filter((id): id is string => !!id)
+  if (ids.length === 0) return {}
+  const svc = createServiceClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, { auth: { persistSession: false } })
+  const urls: Record<string, string> = {}
+  await Promise.all(ids.map(async (path) => {
+    const { data } = await svc.storage.from('patients-profile').createSignedUrl(path, 3600)
+    if (data?.signedUrl) urls[path] = data.signedUrl
+  }))
+  return urls
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -58,6 +71,7 @@ export default async function PacientesPage({
   }
 
   const now = new Date()
+  const photoUrls = await resolvePhotoUrls((rawPatients || []).map((p: any) => p.profilePhotoId))
 
   // Mapear los datos reales para la UI
   const initialPatients: Patient[] = (rawPatients || []).map((p: any) => {
@@ -103,8 +117,7 @@ export default async function PacientesPage({
       phone: p.phone,
       email: p.email,
       status: p.status,
-      // profilePhotoId es un UUID del bucket privado, no una URL: caemos a iniciales.
-      avatarUrl: null,
+      avatarUrl: p.profilePhotoId ? (photoUrls[p.profilePhotoId] || null) : null,
       mainTreatment,
       lastVisit,
       nextAppointment

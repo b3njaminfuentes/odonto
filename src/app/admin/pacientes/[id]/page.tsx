@@ -7,7 +7,9 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 import { PatientTabs } from '@/components/patients/PatientTabs'
 import { PatientAccessButton } from '@/components/patients/PatientAccessButton'
 import { EditPatientModal } from '@/components/patients/EditPatientModal'
+import { ProfilePhoto } from '@/components/patients/ProfilePhoto'
 import { getAccountStatement } from '@/app/admin/pacientes/payment-actions'
+import { getProfilePhotoUrl } from '@/app/admin/pacientes/profile-photo-actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,7 +35,10 @@ export default async function PatientProfilePage({ params }: { params: { id: str
     return notFound()
   }
 
-  const statement = await getAccountStatement(params.id)
+  const [statement, photoUrl] = await Promise.all([
+    getAccountStatement(params.id),
+    getProfilePhotoUrl(patient.profilePhotoId),
+  ])
 
   // Edad real a partir de la fecha de nacimiento (defensivo ante fechas inválidas o futuras)
   const calculateAge = (dob: string): number | null => {
@@ -80,9 +85,7 @@ export default async function PatientProfilePage({ params }: { params: { id: str
 
       {/* Header Profile Card (Sticky) */}
       <div className="sticky top-0 z-20 bg-surface rounded-2xl p-6 shadow-sm border border-border flex flex-col md:flex-row gap-6 md:items-center">
-        <div className="w-20 h-20 rounded-full bg-brand-soft text-brand flex items-center justify-center text-3xl font-bold border-4 border-white shadow-sm flex-shrink-0">
-          {patient.firstName[0]}{patient.lastName[0]}
-        </div>
+        <ProfilePhoto patientId={patient.id} initials={`${patient.firstName[0]}${patient.lastName[0]}`} photoUrl={photoUrl} />
         
         <div className="flex-1">
           <div className="flex flex-wrap items-center gap-3 mb-1">
