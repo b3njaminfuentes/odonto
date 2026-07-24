@@ -73,6 +73,7 @@ async function createAppointmentInner(formData: FormData) {
     .single()
 
   if (error) {
+    if (error.code === '23P01') return { error: '¡El horario seleccionado choca con otro turno existente!' }
     console.error('Error creating appointment:', error)
     return { error: 'No se pudo crear la cita.' }
   }

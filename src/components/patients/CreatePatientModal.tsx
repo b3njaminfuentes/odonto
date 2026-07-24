@@ -209,6 +209,18 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
                       <label className="block text-sm font-medium text-muted mb-1.5">Email</label>
                       <input type="email" name="email" disabled={loading} className="input w-full px-4 py-2.5" />
                     </div>
+                    <div className="sm:col-span-2">
+                      <label className="block text-sm font-medium text-muted mb-1.5">¿Cómo nos conoció?</label>
+                      <select name="referralSource" disabled={loading} defaultValue="" className="input w-full px-4 py-2.5">
+                        <option value="">Selecciona una opción…</option>
+                        <option value="Recomendado">Recomendado (conocido)</option>
+                        <option value="Facebook">Facebook</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="TikTok">TikTok</option>
+                        <option value="Google Maps">Google Maps</option>
+                        <option value="Otro">Otro</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 

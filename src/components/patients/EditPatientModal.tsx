@@ -15,6 +15,7 @@ export interface EditablePatient {
   status: string
   emergencyContactName: string | null
   emergencyContactPhone: string | null
+  referralSource: string | null
 }
 
 export function EditPatientModal({ patient }: { patient: EditablePatient }) {
@@ -95,6 +96,18 @@ export function EditPatientModal({ patient }: { patient: EditablePatient }) {
                     <option value="CONTROL">Control</option>
                     <option value="INACTIVE">Inactivo</option>
                     <option value="ARCHIVED">Archivado</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-muted mb-1.5">¿Cómo nos conoció?</label>
+                  <select name="referralSource" disabled={loading} defaultValue={patient.referralSource ?? ''} className="input w-full px-4 py-2.5">
+                    <option value="">Sin especificar</option>
+                    <option value="Recomendado">Recomendado (conocido)</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="TikTok">TikTok</option>
+                    <option value="Google Maps">Google Maps</option>
+                    <option value="Otro">Otro</option>
                   </select>
                 </div>
               </div>

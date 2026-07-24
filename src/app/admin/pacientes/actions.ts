@@ -19,6 +19,7 @@ export async function createPatient(formData: FormData) {
     const dni = formData.get('dni') as string
     const emergencyContactName = formData.get('emergencyContactName') as string
     const emergencyContactPhone = formData.get('emergencyContactPhone') as string
+    const referralSource = formData.get('referralSource') as string
 
     // Validación básica
     if (!firstName || !lastName || !dob) {
@@ -38,6 +39,7 @@ export async function createPatient(formData: FormData) {
         dni: dni || null,
         emergencyContactName: emergencyContactName || null,
         emergencyContactPhone: emergencyContactPhone || null,
+        referralSource: referralSource || null,
         status: 'ACTIVE',
         updatedAt: new Date().toISOString(),
       })
@@ -98,6 +100,7 @@ export async function updatePatient(patientId: string, formData: FormData) {
         status: (formData.get('status') as string) || 'ACTIVE',
         emergencyContactName: (formData.get('emergencyContactName') as string)?.trim() || null,
         emergencyContactPhone: (formData.get('emergencyContactPhone') as string)?.trim() || null,
+        referralSource: (formData.get('referralSource') as string)?.trim() || null,
         updatedAt: new Date().toISOString(),
       })
       .eq('id', patientId)
