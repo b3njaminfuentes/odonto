@@ -4,6 +4,7 @@ import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { logAuditAction } from '@/utils/audit'
 import { intlBO, toBO } from '@/lib/datetime'
+import { generatePatientAccess } from './access-actions'
 
 // Creamos un código de paciente aleatorio. Ej: PT-100234
 const generatePatientCode = () => `PT-${Math.floor(100000 + Math.random() * 900000)}`
@@ -74,8 +75,13 @@ export async function createPatient(formData: FormData) {
 
     // Refresca la caché de Next.js para que el nuevo paciente aparezca instantáneamente
     revalidatePath('/admin/pacientes')
-    
-    return { success: true, patient: data }
+
+    // Generamos de una el acceso real al portal (accessCode), para que el código
+    // que se le muestra a la doctora sea el mismo que valida el login del paciente.
+    const access = await generatePatientAccess(data.id)
+    const accessCode = 'code' in access ? access.code : null
+
+    return { success: true, patient: data, accessCode }
   } catch (err: any) {
     console.error('Unhandled exception in createPatient:', err)
     return { error: `Server exception: ${err?.message || 'Unknown error'}` }
@@ -158,6 +164,16 @@ export async function getMorePatients(offset: number) {
 
   const now = new Date()
 
+  const photoIds = (rawPatients || []).map((p: any) => p.profilePhotoId).filter((id: any): id is string => !!id)
+  const photoUrls: Record<string, string> = {}
+  if (photoIds.length > 0) {
+    const svc = createAdminClient()
+    await Promise.all(photoIds.map(async (path: string) => {
+      const { data } = await svc.storage.from('patients-profile').createSignedUrl(path, 3600)
+      if (data?.signedUrl) photoUrls[path] = data.signedUrl
+    }))
+  }
+
   return (rawPatients || []).map((p: any) => {
     let mainTreatment = 'Consulta General'
     if (p.Treatment && p.Treatment.length > 0) {
@@ -197,9 +213,7 @@ export async function getMorePatients(offset: number) {
       phone: p.phone,
       email: p.email,
       status: p.status,
-      // profilePhotoId es un UUID (objeto en el bucket privado patients-profile),
-      // no una URL. Hasta que exista el flujo de subida+signed URL, caemos a iniciales.
-      avatarUrl: null,
+      avatarUrl: p.profilePhotoId ? (photoUrls[p.profilePhotoId] || null) : null,
       mainTreatment,
       lastVisit,
       nextAppointment

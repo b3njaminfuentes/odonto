@@ -33,7 +33,7 @@ export function PatientAccessButton({ patientId, hasAccess }: Props) {
 
   const copy = () => {
     if (!code) return
-    const text = `Hola! Este es tu código de acceso al portal de Clínica Villarroel: ${code}\nIngresá en la web, elegí "Soy paciente" y escribilo ahí para ver tu tratamiento.`
+    const text = `Hola! Este es tu código de acceso al portal de Clínica Villarroel: ${code}\nIngresá en /login con tu email y este código para ver tu tratamiento.`
     navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
