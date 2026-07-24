@@ -9,13 +9,15 @@ interface OdontogramProps {
   readOnly?: boolean
 }
 
-type ToothState = 'normal' | 'caries' | 'obturación' | 'corona' | 'endodoncia' | 'implante' | 'extracción' | 'resto_radicular'
+type ToothState = 'normal' | 'caries' | 'obturación' | 'incrustación' | 'corona' | 'puente' | 'endodoncia' | 'implante' | 'extracción' | 'resto_radicular'
 
 const STATES: { key: ToothState; label: string; dot: string }[] = [
   { key: 'normal', label: 'Sano', dot: 'bg-[#dfe7e2]' },
   { key: 'caries', label: 'Caries', dot: 'bg-danger' },
   { key: 'obturación', label: 'Obturación', dot: 'bg-info' },
+  { key: 'incrustación', label: 'Incrustación', dot: 'bg-[#c9922e]' },
   { key: 'corona', label: 'Corona', dot: 'bg-[#e0a92e]' },
+  { key: 'puente', label: 'Puente', dot: 'bg-[#6b7d87]' },
   { key: 'endodoncia', label: 'Endodoncia', dot: 'bg-accent' },
   { key: 'implante', label: 'Implante', dot: 'bg-brand' },
   { key: 'resto_radicular', label: 'Resto Radicular', dot: 'bg-[#8a5a3a]' },
@@ -42,7 +44,9 @@ const ENAMEL: Record<ToothState, [string, string]> = {
   normal: ['#ffffff', '#d9e2dc'],
   caries: ['#ffffff', '#d9e2dc'],
   obturación: ['#ffffff', '#d9e2dc'],
+  incrustación: ['#ffffff', '#d9e2dc'],
   corona: ['#fff2c9', '#d99a1f'],
+  puente: ['#eef2f4', '#7d8a91'],
   endodoncia: ['#ffffff', '#d9e2dc'],
   implante: ['#eef2f4', '#9fb0b8'],
   extracción: ['#eef1f0', '#cdd6d1'],
@@ -54,7 +58,7 @@ function Tooth({ fdi, state, upper, selected, onClick, readOnly }: {
 }) {
   const type = toothType(fdi)
   const [c0, c1] = ENAMEL[state]
-  const rootTint = state === 'endodoncia' ? '#f0876f' : (state === 'implante' ? '#8fa3ab' : (state === 'resto_radicular' ? '#8a5a3a' : c1))
+  const rootTint = state === 'endodoncia' ? '#f0876f' : (state === 'implante' || state === 'puente' ? '#8fa3ab' : (state === 'resto_radicular' ? '#8a5a3a' : c1))
   const gid = `en-${fdi}`
   const rid = `rt-${fdi}`
   const absent = state === 'extracción'
@@ -95,6 +99,8 @@ function Tooth({ fdi, state, upper, selected, onClick, readOnly }: {
         {/* marcadores por estado */}
         {state === 'caries' && (<><circle cx="27" cy="22" r="4.2" fill="#7f1d1d" /><circle cx="21" cy="27" r="2.4" fill="#991b1b" /></>)}
         {state === 'obturación' && (<rect x="16" y="14" width="12" height="9" rx="3" fill="#2563eb" opacity="0.9" />)}
+        {state === 'incrustación' && (<rect x="18" y="16" width="8" height="8" rx="1.5" transform="rotate(45 22 20)" fill="#c9922e" opacity="0.9" />)}
+        {state === 'puente' && (<rect x="1" y="0" width="42" height="4" rx="2" fill="#5b6b72" opacity="0.9" />)}
         {state === 'implante' && (<>
           <line x1="18" y1="44" x2="26" y2="44" stroke="#5b6b72" strokeWidth="1.4" />
           <line x1="18" y1="49" x2="26" y2="49" stroke="#5b6b72" strokeWidth="1.4" />
