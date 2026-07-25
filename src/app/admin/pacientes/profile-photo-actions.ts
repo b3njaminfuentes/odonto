@@ -15,13 +15,13 @@ function serviceClient() {
   )
 }
 
-async function requireAdmin() {
+async function requireAdmin(): Promise<{ ok: true; userId: string } | { ok: false; error: string }> {
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { error: 'No autorizado.' } as const
+  if (!user) return { ok: false, error: 'No autorizado.' }
   const { data: caller } = await supabase.from('Profile').select('role').eq('id', user.id).single()
-  if (caller?.role !== 'admin') return { error: 'Solo la administradora puede hacer esto.' } as const
-  return { userId: user.id } as const
+  if (caller?.role !== 'admin') return { ok: false, error: 'Solo la administradora puede hacer esto.' }
+  return { ok: true, userId: user.id }
 }
 
 export async function getProfilePhotoUrl(profilePhotoId: string | null): Promise<string | null> {
@@ -33,7 +33,7 @@ export async function getProfilePhotoUrl(profilePhotoId: string | null): Promise
 
 export async function uploadProfilePhoto(patientId: string, formData: FormData): Promise<{ success: true } | { error: string }> {
   const auth = await requireAdmin()
-  if ('error' in auth) return auth
+  if (!auth.ok) return { error: auth.error }
 
   const file = formData.get('file') as File | null
   if (!file) return { error: 'Ningún archivo recibido.' }
@@ -74,7 +74,7 @@ export async function uploadProfilePhoto(patientId: string, formData: FormData):
 
 export async function removeProfilePhoto(patientId: string): Promise<{ success: true } | { error: string }> {
   const auth = await requireAdmin()
-  if ('error' in auth) return auth
+  if (!auth.ok) return { error: auth.error }
 
   const svc = serviceClient()
   const { data: patient } = await svc.from('Patient').select('profilePhotoId').eq('id', patientId).single()

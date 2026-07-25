@@ -86,7 +86,7 @@ function ProfessionalPanel({ initial }: { initial: ClinicSettings }) {
             <input name="specialty" type="text" defaultValue={initial.specialty ?? ''} className="input" placeholder="Odontología estética e implantes" />
           </div>
         </div>
-        <p className="text-xs text-muted">Este nombre aparece en el panel admin y como firma del asistente Muelita.</p>
+        <p className="text-xs text-muted">Este nombre aparece en el panel admin y en los documentos de la clínica (cotizaciones, consentimientos).</p>
         <div className="pt-4 flex justify-end items-center gap-3 border-t border-border">
           {saved && <span className="text-sm text-success flex items-center gap-1"><Check className="w-4 h-4" /> Guardado</span>}
           <button type="submit" disabled={saving} className="btn-primary px-6 py-2.5">

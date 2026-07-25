@@ -83,7 +83,7 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
           description: mediaForm.description,
           visibleToPatient: mediaForm.visibleToPatient
         }, patientId)
-        if (res && 'error' in res) { setError(res.error); setIsUploading(false); return }
+        if (res && 'error' in res) { setError(res.error ?? 'No se pudo actualizar'); setIsUploading(false); return }
       }
       await loadMedia()
       closeModal()

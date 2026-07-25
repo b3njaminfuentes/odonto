@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter, Fraunces } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
-import { MuelitaChat } from "@/components/chat/MuelitaChat";
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -44,7 +43,6 @@ export default function RootLayout({
       <body className="min-h-screen bg-bg">
         <SmoothScroll>
           {children}
-          <MuelitaChat />
         </SmoothScroll>
       </body>
     </html>

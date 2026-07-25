@@ -4,7 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, Users, Calendar, Stethoscope, CreditCard, FolderOpen, Settings, Bot,
+  LayoutDashboard, Users, Calendar, Stethoscope, CreditCard, FolderOpen, Settings,
 } from 'lucide-react'
 
 const navigation = [
@@ -14,7 +14,6 @@ const navigation = [
   { name: 'Tratamientos', href: '/admin/tratamientos', icon: Stethoscope },
   { name: 'Pagos', href: '/admin/finanzas', icon: CreditCard },
   { name: 'Documentos', href: '/admin/documentos', icon: FolderOpen },
-  { name: 'Muelita AI', href: '/admin/muelita', icon: Bot },
   { name: 'Configuración', href: '/admin/configuracion', icon: Settings },
 ]
 
