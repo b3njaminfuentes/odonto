@@ -2,17 +2,34 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport } from 'ai'
 import { MessageCircle, X, Send, User, Bot, Loader2 } from 'lucide-react'
+
+// Junta el texto de un mensaje (v7 usa message.parts en vez de message.content)
+function messageText(m: any): string {
+  if (typeof m.content === 'string') return m.content
+  return (m.parts || []).filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
+}
 
 export function MuelitaChat() {
   const [isOpen, setIsOpen] = useState(false)
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-    api: '/api/chat',
+  const [input, setInput] = useState('')
+  const { messages, sendMessage, status } = useChat({
+    transport: new DefaultChatTransport({ api: '/api/chat' }),
     onError: (err) => {
       console.error('Chat error:', err)
       alert('Error de conexión o sesión expirada.')
     }
   })
+  const isLoading = status === 'submitted' || status === 'streaming'
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const text = input.trim()
+    if (!text || isLoading) return
+    sendMessage({ text })
+    setInput('')
+  }
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -87,7 +104,7 @@ export function MuelitaChat() {
                 }`}
               >
                 {/* Renderizar saltos de línea básicos */}
-                {m.content.split('\\n').map((line, i) => (
+                {messageText(m).split('\n').map((line, i) => (
                   <span key={i}>
                     {line}
                     <br />
@@ -118,7 +135,7 @@ export function MuelitaChat() {
             <input
               type="text"
               value={input}
-              onChange={handleInputChange}
+              onChange={(e) => setInput(e.target.value)}
               placeholder="Escribe tu mensaje aquí..."
               disabled={isLoading}
               className="flex-1 pl-4 pr-12 py-3 bg-elevated border border-border rounded-xl focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-all text-sm disabled:opacity-50"

@@ -1,20 +1,37 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport, type UIMessage } from 'ai'
 import { Bot, Send, Sparkles, User, Database, TrendingUp } from 'lucide-react'
 
+// Junta el texto de un mensaje (v7 usa message.parts en vez de message.content)
+function messageText(m: any): string {
+  if (typeof m.content === 'string') return m.content
+  return (m.parts || []).filter((p: any) => p.type === 'text').map((p: any) => p.text).join('')
+}
+
 export default function MuelitaAIPage() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-    api: '/api/chat',
-    initialMessages: [
+  const [input, setInput] = useState('')
+  const { messages, sendMessage, status } = useChat({
+    transport: new DefaultChatTransport({ api: '/api/chat' }),
+    messages: [
       {
         id: '1',
         role: 'assistant',
-        content: '¡Hola Dra. Villarroel! Soy Muelita, tu asistente personal de inteligencia artificial. ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre tus citas, pacientes, finanzas o pedirme que redacte mensajes para pacientes.'
-      }
-    ]
+        parts: [{ type: 'text', text: '¡Hola Dra. Villarroel! Soy Muelita, tu asistente personal de inteligencia artificial. ¿En qué puedo ayudarte hoy? Puedes preguntarme sobre tus citas, pacientes, finanzas o pedirme que redacte mensajes para pacientes.' }],
+      },
+    ] as UIMessage[],
   })
+  const isLoading = status === 'submitted' || status === 'streaming'
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const text = input.trim()
+    if (!text || isLoading) return
+    sendMessage({ text })
+    setInput('')
+  }
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -53,7 +70,7 @@ export default function MuelitaAIPage() {
                   ? 'bg-brand/5 border border-brand/10 text-text rounded-tr-sm' 
                   : 'bg-elevated border border-border text-muted rounded-tl-sm'
                 }`}>
-                  <p className="leading-relaxed whitespace-pre-wrap">{m.content}</p>
+                  <p className="leading-relaxed whitespace-pre-wrap">{messageText(m)}</p>
                 </div>
               </div>
             ))}
@@ -75,8 +92,8 @@ export default function MuelitaAIPage() {
           <div className="p-4 bg-surface border-t border-border">
             <form onSubmit={handleSubmit} className="relative flex items-center">
               <input
-                value={input || ''}
-                onChange={handleInputChange}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
                 placeholder="Escribe un mensaje para Muelita..."
                 className="w-full pl-6 pr-14 py-4 bg-elevated border border-border rounded-2xl focus:ring-2 focus:ring-brand focus:border-brand outline-none transition-all resize-none shadow-sm"
               />
@@ -99,13 +116,13 @@ export default function MuelitaAIPage() {
               Sugerencias
             </h3>
             <div className="space-y-3">
-              <button onClick={() => handleInputChange({ target: { value: 'Resume mi agenda de hoy' } } as any)} className="w-full text-left p-3 text-sm text-muted hover:bg-elevated border border-border rounded-xl transition-colors">
+              <button onClick={() => setInput('Resume mi agenda de hoy')} className="w-full text-left p-3 text-sm text-muted hover:bg-elevated border border-border rounded-xl transition-colors">
                 "Resume mi agenda de hoy"
               </button>
-              <button onClick={() => handleInputChange({ target: { value: '¿Cuántos ingresos tuvimos este mes?' } } as any)} className="w-full text-left p-3 text-sm text-muted hover:bg-elevated border border-border rounded-xl transition-colors">
+              <button onClick={() => setInput('¿Cuántos ingresos tuvimos este mes?')} className="w-full text-left p-3 text-sm text-muted hover:bg-elevated border border-border rounded-xl transition-colors">
                 "¿Cuántos ingresos tuvimos este mes?"
               </button>
-              <button onClick={() => handleInputChange({ target: { value: 'Redacta un mensaje de WhatsApp para recordar cita' } } as any)} className="w-full text-left p-3 text-sm text-muted hover:bg-elevated border border-border rounded-xl transition-colors">
+              <button onClick={() => setInput('Redacta un mensaje de WhatsApp para recordar cita')} className="w-full text-left p-3 text-sm text-muted hover:bg-elevated border border-border rounded-xl transition-colors">
                 "Redacta un mensaje de WhatsApp para recordar cita"
               </button>
             </div>

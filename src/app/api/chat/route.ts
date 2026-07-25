@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import { streamText } from 'ai'
+import { streamText, convertToModelMessages, type UIMessage } from 'ai'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
 
 export const maxDuration = 30
@@ -12,7 +12,7 @@ const google = createGoogleGenerativeAI({
 
 export async function POST(req: Request) {
   const supabase = createClient()
-  const { messages } = await req.json()
+  const { messages }: { messages: UIMessage[] } = await req.json()
 
   // 1. Autenticación Estricta
   const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -79,11 +79,11 @@ REGLA DE ORO: Tienes estrictamente prohibido mencionar o revelar información de
   }
 
   // 3. Streaming con Gemini
-  const result = await streamText({
+  const result = streamText({
     model: google('gemini-2.0-flash'),
     system: systemContext,
-    messages,
+    messages: await convertToModelMessages(messages),
   })
 
-  return result.toDataStreamResponse()
+  return result.toUIMessageStreamResponse()
 }

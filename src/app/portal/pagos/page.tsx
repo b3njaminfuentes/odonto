@@ -94,7 +94,10 @@ export default async function PagosPage() {
                       </td>
                       <td className="px-6 py-4">
                         <p className="text-text font-medium">{p.method || 'Efectivo'}</p>
-                        {p.treatment?.name && <p className="text-xs text-muted mt-1">Tratamiento: {p.treatment.name}</p>}
+                        {(() => {
+                          const tName = Array.isArray(p.treatment) ? p.treatment[0]?.name : (p.treatment as any)?.name
+                          return tName ? <p className="text-xs text-muted mt-1">Tratamiento: {tName}</p> : null
+                        })()}
                       </td>
                     </tr>
                   ))}
