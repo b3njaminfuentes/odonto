@@ -93,65 +93,6 @@ export async function getPatientMedia(patientId: string) {
   return mediaWithUrls
 }
 
-export async function saveMediaRecord({
-  patientId,
-  bucket,
-  fileUrl,
-  category,
-  title,
-  mimeType,
-  size
-}: {
-  patientId: string
-  bucket: string
-  fileUrl: string
-  category: string
-  title: string
-  mimeType: string
-  size: number
-  visibleToPatient?: boolean
-}) {
-  const supabase = createClient()
-  const { data: { session } } = await supabase.auth.getSession()
-
-  if (!session) {
-    return { error: 'No autorizado' }
-  }
-
-  const { data, error } = await supabase
-    .from('CaseMedia')
-    .insert({
-      patientId,
-      bucket,
-      fileUrl,
-      category,
-      description: title,
-      mimeType,
-      size,
-      visibleToPatient: visibleToPatient || false,
-      uploadedBy: session.user.id
-    })
-    .select()
-    .single()
-
-  if (error) {
-    console.error('Error saving media record:', error)
-    return { error: 'No se pudo guardar el registro' }
-  }
-
-  await logAuditAction({
-    userId: session.user.id,
-    action: 'UPLOAD_MEDIA',
-    entity: 'CaseMedia',
-    entityId: data.id,
-    metadata: { patientId, fileUrl }
-  })
-
-  revalidatePath(`/admin/pacientes/${patientId}`)
-
-  return { success: true, media: data }
-}
-
 export async function deleteMediaRecord(mediaId: string, bucket: string, fileUrl: string, patientId: string) {
   const supabase = createClient()
   const { data: { session } } = await supabase.auth.getSession()

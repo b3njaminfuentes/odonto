@@ -6,18 +6,19 @@ import {
   startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths,
 } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, Plus, Clock, User, Phone, Loader2, CalendarDays, List } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Plus, Clock, User, Phone, Loader2, CalendarDays, List, Check, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { NewAppointmentModal } from './NewAppointmentModal'
 import { StatusBadge } from '../ui/StatusBadge'
 import { toBO } from '@/lib/datetime'
+import { updateAppointmentStatus } from '@/app/admin/calendario/actions'
 
 interface AppointmentData {
   id: string
   startsAt: string
   endsAt: string
-  status: 'CONFIRMADO' | 'PENDIENTE' | 'CANCELADO' | 'COMPLETADO'
+  status: 'CONFIRMADO' | 'PENDIENTE' | 'CANCELADO'
   type: string
   notes?: string
   patient: { id: string; firstName: string; lastName: string; phone?: string }
@@ -29,7 +30,7 @@ interface WeeklyCalendarProps {
 }
 
 const statusDot: Record<string, string> = {
-  CONFIRMADO: 'bg-success', PENDIENTE: 'bg-warning', CANCELADO: 'bg-danger', COMPLETADO: 'bg-info',
+  CONFIRMADO: 'bg-success', PENDIENTE: 'bg-warning', CANCELADO: 'bg-danger',
 }
 
 export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendarProps) {
@@ -41,6 +42,14 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
   const [view, setView] = useState<'month' | 'day'>('month')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isPending, setIsPending] = useState(false)
+  const [updatingId, setUpdatingId] = useState<string | null>(null)
+
+  const changeStatus = async (id: string, status: 'CONFIRMADO' | 'CANCELADO') => {
+    setUpdatingId(id)
+    await updateAppointmentStatus(id, status)
+    setUpdatingId(null)
+    router.refresh()
+  }
 
   const appts = initialAppointments.filter(a => a.status !== 'CANCELADO')
 
@@ -64,7 +73,7 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
   const apptsOn = (day: Date) => appts.filter(a => isSameDay(new Date(a.startsAt), day))
 
   const formatTime = (iso: string) => format(toBO(iso), 'HH:mm')
-  const getStatusType = (s: string) => (s === 'CONFIRMADO' ? 'success' : s === 'PENDIENTE' ? 'warning' : s === 'CANCELADO' ? 'danger' : s === 'COMPLETADO' ? 'info' : 'default')
+  const getStatusType = (s: string) => (s === 'CONFIRMADO' ? 'success' : s === 'PENDIENTE' ? 'warning' : s === 'CANCELADO' ? 'danger' : 'default')
 
   // Días de la grilla del mes (semana empieza lunes)
   const monthStart = startOfMonth(currentDate)
@@ -164,6 +173,31 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
                         </div>
                         {app.patient.phone && <div className="flex items-center gap-2 text-sm text-muted mb-3"><Phone className="w-4 h-4 text-faint" />{app.patient.phone}</div>}
                         {app.notes && <p className="text-sm text-muted bg-elevated p-3 rounded-xl border border-border mt-2">{app.notes}</p>}
+
+                        <div className="flex flex-wrap items-center gap-2 mt-4">
+                          {updatingId === app.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-brand" />
+                          ) : (
+                            <>
+                              {app.status === 'PENDIENTE' && (
+                                <button
+                                  onClick={() => changeStatus(app.id, 'CONFIRMADO')}
+                                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-success/10 text-success hover:bg-success/20 transition-colors"
+                                >
+                                  <Check className="w-3.5 h-3.5" /> Confirmar
+                                </button>
+                              )}
+                              {(app.status === 'PENDIENTE' || app.status === 'CONFIRMADO') && (
+                                <button
+                                  onClick={() => changeStatus(app.id, 'CANCELADO')}
+                                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-danger/10 text-danger hover:bg-danger/20 transition-colors"
+                                >
+                                  <X className="w-3.5 h-3.5" /> Cancelar
+                                </button>
+                              )}
+                            </>
+                          )}
+                        </div>
                       </div>
                       {app.patient.id && (
                         <Link href={`/admin/pacientes/${app.patient.id}`} className="shrink-0 text-sm font-medium text-brand hover:underline whitespace-nowrap">

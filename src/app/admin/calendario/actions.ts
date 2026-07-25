@@ -85,7 +85,7 @@ async function createAppointmentInner(formData: FormData) {
 }
 
 // Acción para cancelar o actualizar el estado de una cita
-export async function updateAppointmentStatus(appointmentId: string, status: 'CONFIRMADO' | 'PENDIENTE' | 'CANCELADO' | 'COMPLETADO') {
+export async function updateAppointmentStatus(appointmentId: string, status: 'CONFIRMADO' | 'PENDIENTE' | 'CANCELADO') {
   const supabase = createClient()
   
   const { error } = await supabase
