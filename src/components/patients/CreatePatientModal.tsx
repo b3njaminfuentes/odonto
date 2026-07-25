@@ -187,8 +187,9 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label className="block text-sm font-medium text-muted mb-1.5">Fecha de Nacimiento *</label>
-                      <input type="date" name="dob" required disabled={loading} max={new Date().toISOString().slice(0, 10)} className="input w-full px-4 py-2.5" />
+                      <label className="block text-sm font-medium text-muted mb-1.5">Fecha de Nacimiento</label>
+                      <input type="date" name="dob" disabled={loading} max={new Date().toISOString().slice(0, 10)} className="input w-full px-4 py-2.5" />
+                      <p className="text-xs text-faint mt-1">Opcional: podés completarla después desde el perfil.</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-muted mb-1.5">DNI o Cédula</label>
@@ -218,21 +219,16 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-muted mb-1.5">Email *</label>
+                      <label className="block text-sm font-medium text-muted mb-1.5">Email</label>
                       <input
                         type="email"
                         name="email"
-                        required
                         disabled={loading}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        data-invalid={isTouched && email.trim() === ''}
-                        className="input w-full px-4 py-2.5 data-[invalid=true]:border-danger data-[invalid=true]:ring-danger/10"
+                        className="input w-full px-4 py-2.5"
                       />
-                      <p className="text-xs text-faint mt-1">Lo va a usar para ingresar a su portal junto con el código de acceso.</p>
-                      {isTouched && email.trim() === '' && (
-                        <p className="text-xs text-danger mt-1 animate-in fade-in slide-in-from-top-1 duration-150">Este campo es obligatorio</p>
-                      )}
+                      <p className="text-xs text-faint mt-1">Opcional acá: si lo dejás vacío, el paciente lo carga solo al entrar por primera vez con su código.</p>
                     </div>
                     <div className="sm:col-span-2">
                       <label className="block text-sm font-medium text-muted mb-1.5">¿Cómo nos conoció?</label>
@@ -280,7 +276,7 @@ export function CreatePatientModal({ isOpen, onClose, onSuccessClose }: CreatePa
                 </button>
                 <button
                   type="submit"
-                  disabled={loading || (isTouched && (firstName.trim() === '' || lastName.trim() === '' || email.trim() === ''))}
+                  disabled={loading || (isTouched && (firstName.trim() === '' || lastName.trim() === ''))}
                   className="btn-primary px-6 py-2.5 text-sm flex items-center gap-2"
                 >
                   {loading ? (

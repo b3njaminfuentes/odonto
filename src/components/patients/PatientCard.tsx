@@ -21,7 +21,8 @@ export interface Patient {
 
 export function PatientCard({ patient }: { patient: Patient }) {
   // Edad real (defensivo ante fechas inválidas o futuras)
-  const calculateAge = (dob: string): number | null => {
+  const calculateAge = (dob: string | null): number | null => {
+    if (!dob) return null
     const b = new Date(dob)
     if (isNaN(b.getTime())) return null
     const now = new Date()

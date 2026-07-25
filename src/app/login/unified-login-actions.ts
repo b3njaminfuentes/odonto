@@ -21,21 +21,28 @@ export async function unifiedLogin(
   email: string,
   code: string
 ): Promise<{ success: true } | { error: string }> {
-  const cleanEmail = email?.trim().toLowerCase()
+  const raw = email?.trim().toLowerCase()
   const cleanCode = code?.trim()
-  if (!cleanEmail || !cleanEmail.includes('@')) return { error: 'Ingresá tu email.' }
+  if (!raw) return { error: 'Ingresá tu email.' }
   if (!cleanCode) return { error: 'Ingresá tu código de acceso.' }
 
   const supabase = createClient()
 
-  // 1. Intento como cuenta de la clínica (email real + contraseña real).
+  // 1. Intento como cuenta de la clínica. La doctora no necesita escribir su
+  // email completo: si escribe algo sin "@" (ej: "2001"), lo probamos como
+  // usuario dentro del dominio interno de la clínica.
+  const adminEmailCandidate = raw.includes('@') ? raw : `${raw}@clinicavillarroel.com`
   const { error: adminSignInError } = await supabase.auth.signInWithPassword({
-    email: cleanEmail,
+    email: adminEmailCandidate,
     password: cleanCode,
   })
   if (!adminSignInError) return { success: true }
 
   // No fue la clínica: intentamos como paciente por código de acceso.
+  // Los pacientes sí necesitan escribir su email real (con "@").
+  if (!raw.includes('@')) return { error: 'Email o código incorrectos.' }
+  const cleanEmail = raw
+
   const admin = adminAuth()
   const { data: patient } = await admin
     .from('Patient')

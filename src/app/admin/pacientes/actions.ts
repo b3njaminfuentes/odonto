@@ -23,13 +23,10 @@ export async function createPatient(formData: FormData) {
     const emergencyContactPhone = formData.get('emergencyContactPhone') as string
     const referralSource = formData.get('referralSource') as string
 
-    // Validación básica. El email es obligatorio: es lo que el paciente usará,
-    // junto con su código de acceso, para entrar al portal.
-    if (!firstName || !lastName || !dob) {
-      return { error: 'Nombre, Apellido y Fecha de Nacimiento son obligatorios.' }
-    }
-    if (!email || !email.trim()) {
-      return { error: 'El email es obligatorio: el paciente lo necesita para ingresar a su portal.' }
+    // Al crear un paciente nuevo solo el nombre es obligatorio: la dra completa
+    // el resto (email, teléfono, fecha de nacimiento, etc.) después, desde el perfil.
+    if (!firstName || !lastName) {
+      return { error: 'Nombre y Apellido son obligatorios.' }
     }
 
     // Insertar en Supabase usando el cliente autenticado normal
@@ -39,7 +36,7 @@ export async function createPatient(formData: FormData) {
         patientCode: generatePatientCode(),
         firstName,
         lastName,
-        dob,
+        dob: dob || null,
         email: email || null,
         phone: phone || null,
         dni: dni || null,
@@ -95,8 +92,8 @@ export async function updatePatient(patientId: string, formData: FormData) {
     const firstName = (formData.get('firstName') as string)?.trim()
     const lastName = (formData.get('lastName') as string)?.trim()
     const dob = formData.get('dob') as string
-    if (!firstName || !lastName || !dob) {
-      return { error: 'Nombre, Apellido y Fecha de Nacimiento son obligatorios.' }
+    if (!firstName || !lastName) {
+      return { error: 'Nombre y Apellido son obligatorios.' }
     }
 
     const { error } = await supabase
@@ -104,7 +101,7 @@ export async function updatePatient(patientId: string, formData: FormData) {
       .update({
         firstName,
         lastName,
-        dob,
+        dob: dob || null,
         email: (formData.get('email') as string)?.trim() || null,
         phone: (formData.get('phone') as string)?.trim() || null,
         dni: (formData.get('dni') as string)?.trim() || null,

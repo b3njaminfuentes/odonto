@@ -35,7 +35,9 @@ export default function UnifiedLoginForm() {
       <div>
         <label className="block text-sm font-medium text-muted mb-1">Email</label>
         <input
-          type="email"
+          type="text"
+          inputMode="email"
+          autoCapitalize="none"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required

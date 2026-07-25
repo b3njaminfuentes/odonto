@@ -67,7 +67,7 @@ Estás hablando con el paciente: ${patient.firstName} ${patient.lastName}.
 Tono: Amigable, empático, claro y profesional. Nunca des diagnósticos médicos definitivos, siempre recomienda consultar presencialmente a la Dra. Villarroel.
 
 Contexto del paciente:
-- Edad: ${Math.floor((Date.now() - new Date(patient.dob).getTime()) / 31557600000)} años.
+- Edad: ${patient.dob ? `${Math.floor((Date.now() - new Date(patient.dob).getTime()) / 31557600000)} años.` : 'no registrada.'}
 - Estado: ${patient.status}
 - Próximas citas:
 ${appointmentsText}

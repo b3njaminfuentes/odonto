@@ -73,8 +73,8 @@ export function EditPatientModal({ patient }: { patient: EditablePatient }) {
                   <input name="lastName" required disabled={loading} defaultValue={patient.lastName} className="input w-full px-4 py-2.5" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-muted mb-1.5">Fecha de Nacimiento *</label>
-                  <input type="date" name="dob" required disabled={loading} max={new Date().toISOString().slice(0, 10)} defaultValue={patient.dob?.slice(0, 10)} className="input w-full px-4 py-2.5" />
+                  <label className="block text-sm font-medium text-muted mb-1.5">Fecha de Nacimiento</label>
+                  <input type="date" name="dob" disabled={loading} max={new Date().toISOString().slice(0, 10)} defaultValue={patient.dob?.slice(0, 10)} className="input w-full px-4 py-2.5" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-muted mb-1.5">DNI o Cédula</label>

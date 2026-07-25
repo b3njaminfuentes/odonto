@@ -40,8 +40,9 @@ export default async function PatientProfilePage({ params }: { params: { id: str
     getProfilePhotoUrl(patient.profilePhotoId),
   ])
 
-  // Edad real a partir de la fecha de nacimiento (defensivo ante fechas inválidas o futuras)
-  const calculateAge = (dob: string): number | null => {
+  // Edad real a partir de la fecha de nacimiento (defensivo ante fechas inválidas, futuras o ausentes)
+  const calculateAge = (dob: string | null): number | null => {
+    if (!dob) return null
     const b = new Date(dob)
     if (isNaN(b.getTime())) return null
     const now = new Date()

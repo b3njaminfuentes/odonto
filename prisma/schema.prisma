@@ -56,7 +56,7 @@ model Patient {
   passport         String?
   firstName        String
   lastName         String
-  dob              DateTime      @db.Date
+  dob              DateTime?     @db.Date
   email            String?       @unique
   phone            String?
   emergencyContactName String?
