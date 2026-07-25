@@ -63,9 +63,16 @@ export default async function FinanzasPage({
     }
   }))
 
-  // Calcular KPIs — solo pagos COMPLETADOS cuentan como ingreso real (los anulados no).
-  const completedPayments = payments.filter((p) => p.status === 'COMPLETADO')
-  const totalIngresos = completedPayments.reduce((acc, curr) => acc + Number(curr.amount), 0)
+  // KPIs sobre TODO el historial (no solo los últimos 50 que se listan abajo).
+  // Solo los pagos COMPLETADOS cuentan como ingreso real (los anulados no).
+  const { data: allCompleted } = await supabase
+    .from('Payment')
+    .select('amount, patientId')
+    .eq('status', 'COMPLETADO')
+
+  const totalIngresos = (allCompleted || []).reduce((acc, curr) => acc + Number(curr.amount), 0)
+  const completedCount = (allCompleted || []).length
+  const patientsWithPayments = new Set((allCompleted || []).map((p) => p.patientId)).size
 
   // Un pequeño componente cliente para manejar el modal sin ensuciar la página SSR principal
   const FinanzasClientWrapper = () => {
@@ -108,7 +115,7 @@ export default async function FinanzasPage({
             <div>
               <p className="text-sm font-medium text-muted">Ticket Promedio</p>
               <h3 className="text-2xl font-bold text-text">
-                Bs {completedPayments.length > 0 ? (totalIngresos / completedPayments.length).toFixed(2) : '0.00'}
+                Bs {completedCount > 0 ? (totalIngresos / completedCount).toFixed(2) : '0.00'}
               </h3>
             </div>
           </div>
@@ -123,7 +130,7 @@ export default async function FinanzasPage({
             <div>
               <p className="text-sm font-medium text-muted">Pacientes con Pagos</p>
               <h3 className="text-2xl font-bold text-text">
-                {new Set(payments.map(p => p.patient.firstName + p.patient.lastName)).size}
+                {patientsWithPayments}
               </h3>
             </div>
           </div>
