@@ -33,11 +33,13 @@ export default function UnifiedLoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-muted mb-1">Email</label>
+        <label className="block text-sm font-medium text-muted mb-1">Email o usuario</label>
         <input
           type="text"
           inputMode="email"
           autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
