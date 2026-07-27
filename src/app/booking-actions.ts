@@ -58,13 +58,26 @@ export async function requestAppointment(input: {
 
     // Construir la fecha/hora a partir de año-mes-día locales (evita corrimientos de huso horario
     // entre el navegador del paciente y el servidor).
-    const day = new Date(dateISO)
-    if (isNaN(day.getTime())) return { error: 'Fecha inválida.' }
+    const datePart = dateISO.slice(0, 10)
+    const startsAtStr = `${datePart}T${time}:00`
     const [h, m] = time.split(':').map(Number)
-    const startsAt = new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, m, 0, 0)
-    const now = new Date()
-    if (startsAt.getTime() < now.getTime() - 5 * 60 * 1000) return { error: 'Esa fecha ya pasó.' }
-    const endsAt = new Date(startsAt.getTime() + 30 * 60 * 1000)
+    const totalMinutes = h * 60 + m + 30
+    const endH = String(Math.floor(totalMinutes / 60)).padStart(2, '0')
+    const endM = String(totalMinutes % 60).padStart(2, '0')
+    const endsAtStr = `${datePart}T${endH}:${endM}:00`
+
+    // Validación anti-pasado en hora local de Bolivia
+    const nowBO = new Intl.DateTimeFormat('sv-SE', {
+      timeZone: 'America/La_Paz',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(new Date()).replace(' ', 'T')
+
+    if (startsAtStr.slice(0, 16) < nowBO) return { error: 'Esa fecha ya pasó.' }
 
     const sb = admin()
 
@@ -72,7 +85,7 @@ export async function requestAppointment(input: {
     const { data: clash, error: clashError } = await sb
       .from('Appointment')
       .select('id')
-      .eq('startsAt', startsAt.toISOString())
+      .eq('startsAt', startsAtStr)
       .not('status', 'eq', 'CANCELADO')
       .limit(2)
     if (clashError) {
@@ -84,8 +97,8 @@ export async function requestAppointment(input: {
     const { error } = await sb.from('Appointment').insert({
       patientId: null,
       treatmentType: service,
-      startsAt: startsAt.toISOString(),
-      endsAt: endsAt.toISOString(),
+      startsAt: startsAtStr,
+      endsAt: endsAtStr,
       status: 'PENDIENTE',
       notes: `Solicitud web — ${name.trim()} · Tel: ${phone.trim()}`,
     })

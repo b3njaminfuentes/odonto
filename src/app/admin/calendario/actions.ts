@@ -17,31 +17,49 @@ async function createAppointmentInner(formData: FormData) {
 
   const patientId = formData.get('patientId') as string
   // Aceptamos startsAt directo, o date + time por separado (UI más simple).
-  const rawStarts = formData.get('startsAt') as string
   const date = formData.get('date') as string
   const time = formData.get('time') as string
-  // Construir la fecha/hora considerando huso horario de Bolivia (-04:00).
-  // Si se recibe date+time (ej: "2026-07-27" + "18:00"), 
-  // hay que agregar el offset de Bolivia para que no se interprete como UTC.
-  const startsAtWithTZ = rawStarts || (date && time ? `${date}T${time}:00-04:00` : '')
+  const rawStarts = formData.get('startsAt') as string
   const duration = parseInt(formData.get('duration') as string) || 30
   const treatmentType = formData.get('type') as string
   const notes = formData.get('notes') as string
 
-  if (!patientId || !startsAtWithTZ || !treatmentType) {
+  let startISO: string
+  let endISO: string
+
+  if (date && time) {
+    startISO = `${date}T${time}:00`
+    const [h, m] = time.split(':').map(Number)
+    const totalMinutes = h * 60 + m + duration
+    const endH = String(Math.floor(totalMinutes / 60)).padStart(2, '0')
+    const endM = String(totalMinutes % 60).padStart(2, '0')
+    endISO = `${date}T${endH}:${endM}:00`
+  } else if (rawStarts) {
+    startISO = rawStarts.slice(0, 19)
+    const d = new Date(rawStarts)
+    endISO = new Date(d.getTime() + duration * 60000).toISOString().slice(0, 19)
+  } else {
     return { error: 'Faltan campos obligatorios.' }
   }
 
-  const startObj = new Date(startsAtWithTZ)
-  if (isNaN(startObj.getTime())) return { error: 'Fecha u hora inválida.' }
-  // No permitir agendar en el pasado (con 5 min de tolerancia para margen operativo).
-  if (startObj.getTime() < Date.now() - 5 * 60000) {
+  if (!patientId || !treatmentType) {
+    return { error: 'Faltan campos obligatorios.' }
+  }
+
+  // Validación anti-pasado en hora local de Bolivia
+  const nowBO = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'America/La_Paz',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(new Date()).replace(' ', 'T')
+
+  if (startISO.slice(0, 16) < nowBO) {
     return { error: 'No se puede agendar en una fecha u hora que ya pasó.' }
   }
-  const endsAtObj = new Date(startObj.getTime() + duration * 60000)
-  
-  const startISO = startObj.toISOString()
-  const endISO = endsAtObj.toISOString()
 
   // 1. Lógica de prevención de choques (Overlap check)
   // Un choque ocurre si: (Existente_Start < Nuevo_End) AND (Existente_End > Nuevo_Start)
