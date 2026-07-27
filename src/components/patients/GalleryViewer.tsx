@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { Upload, Image as ImageIcon, X, Loader2, File, Edit2, Eye, EyeOff, Save } from 'lucide-react'
+import { Upload, Image as ImageIcon, X, Loader2, File, Edit2, Eye, EyeOff, Save, Camera, FolderOpen, FileImage } from 'lucide-react'
 import { getPatientMedia, uploadPatientMedia, deleteMediaRecord, updateMediaRecord } from '@/app/admin/pacientes/gallery-actions'
 import { intlBO, toBO } from '@/lib/datetime'
 
@@ -9,17 +9,32 @@ interface GalleryViewerProps {
   patientId: string
 }
 
+type MediaCategory = 'profile' | 'case-photo' | 'document'
+
+const CATEGORY_LABELS: Record<MediaCategory, string> = {
+  'profile': 'Foto de Perfil',
+  'case-photo': 'Fotos del Caso / Evolución',
+  'document': 'Documentos / Rayos X',
+}
+
+const CATEGORY_ICONS: Record<MediaCategory, React.ReactNode> = {
+  'profile': <Camera className="w-5 h-5 text-brand" />,
+  'case-photo': <FileImage className="w-5 h-5 text-brand" />,
+  'document': <FolderOpen className="w-5 h-5 text-brand" />,
+}
+
 export function GalleryViewer({ patientId }: GalleryViewerProps) {
   const [images, setImages] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploadCategory, setUploadCategory] = useState<MediaCategory>('case-photo')
   
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingMedia, setEditingMedia] = useState<any | null>(null)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
-  const [mediaForm, setMediaForm] = useState({ description: '', visibleToPatient: false })
+  const [mediaForm, setMediaForm] = useState({ description: '', visibleToPatient: false, category: 'case-photo' as MediaCategory })
   const [error, setError] = useState<string | null>(null)
 
   const loadMedia = async () => {
@@ -33,7 +48,8 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
     loadMedia()
   }, [patientId])
 
-  const handleUploadClick = () => {
+  const handleUploadClick = (category: MediaCategory) => {
+    setUploadCategory(category)
     fileInputRef.current?.click()
   }
 
@@ -42,11 +58,10 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
     if (!file) return
     
     setPendingFile(file)
-    setMediaForm({ description: file.name, visibleToPatient: false })
+    setMediaForm({ description: file.name, visibleToPatient: false, category: uploadCategory })
     setEditingMedia(null)
     setIsModalOpen(true)
     
-    // reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -55,7 +70,8 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
   const openEditModal = (img: any) => {
     setEditingMedia(img)
     setPendingFile(null)
-    setMediaForm({ description: img.description || '', visibleToPatient: img.visibleToPatient || false })
+    const cat = img.category === 'profile' ? 'profile' : img.category === 'document' ? 'document' : 'case-photo'
+    setMediaForm({ description: img.description || '', visibleToPatient: img.visibleToPatient || false, category: cat })
     setIsModalOpen(true)
   }
 
@@ -70,12 +86,12 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
     setError(null)
     try {
       if (pendingFile) {
-        // Subida vía server action (service-role), robusta ante RLS de Storage.
         const fd = new FormData()
         fd.append('file', pendingFile)
         fd.append('patientId', patientId)
         fd.append('description', mediaForm.description)
         fd.append('visibleToPatient', String(mediaForm.visibleToPatient))
+        fd.append('category', mediaForm.category)
         const res = await uploadPatientMedia(fd)
         if ('error' in res) { setError(res.error); setIsUploading(false); return }
       } else if (editingMedia) {
@@ -106,126 +122,146 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
   const toggleVisibilityDirect = async (e: React.MouseEvent, img: any) => {
     e.stopPropagation()
     const newVisibility = !img.visibleToPatient
-    
-    // Optimistic UI update
     setImages(images.map(i => i.id === img.id ? { ...i, visibleToPatient: newVisibility } : i))
-    
     await updateMediaRecord(img.id, { visibleToPatient: newVisibility }, patientId)
   }
 
-  return (
-    <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-300">
-      <div className="flex justify-between items-center border-b border-border pb-4 mb-6">
-        <h2 className="text-xl font-serif text-text flex items-center gap-2">
-          <ImageIcon className="w-5 h-5 text-brand" />
-          Documentos y Fotos
-        </h2>
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          className="hidden" 
-          accept="image/*,application/pdf"
-          onChange={handleFileChange}
-        />
+  // Classify media into sections
+  const profilePhotos = images.filter(i => i.category === 'profile')
+  const casePhotos = images.filter(i => i.category === 'case-photo' || i.category === 'image')
+  const documents = images.filter(i => i.category === 'document')
+
+  const renderMediaCard = (img: any) => (
+    <div 
+      key={img.id} 
+      onClick={() => openEditModal(img)}
+      className="group relative bg-surface rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col"
+    >
+      <div className="aspect-[4/3] bg-elevated relative flex items-center justify-center overflow-hidden">
+        {img.category === 'document' ? (
+          <File className="w-16 h-16 text-muted" />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img 
+            src={img.signedUrl} 
+            alt={img.description}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        )}
+        
         <button 
-          onClick={handleUploadClick}
-          disabled={isUploading}
-          className="btn-primary px-4 py-2 flex items-center gap-2 text-sm"
+          onClick={(e) => handleDelete(e, img.id, img.bucket, img.fileUrl)}
+          className="absolute top-3 right-3 p-1.5 bg-danger/90 text-white rounded-lg opacity-0 group-hover:opacity-100 hover:bg-danger transition-all shadow-sm"
+          title="Eliminar archivo"
         >
-          {isUploading && pendingFile ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-          Subir Archivo
+          <X className="w-4 h-4" />
+        </button>
+        
+        <button
+          onClick={(e) => toggleVisibilityDirect(e, img)}
+          className={`absolute top-3 left-3 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm backdrop-blur-md transition-colors ${
+            img.visibleToPatient 
+            ? 'bg-brand/90 text-white hover:bg-brand' 
+            : 'bg-elevated/60 text-white hover:bg-bg/80'
+          }`}
+          title={img.visibleToPatient ? 'Visible en portal' : 'Oculto (Privado)'}
+        >
+          {img.visibleToPatient ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+          {img.visibleToPatient ? 'Público' : 'Privado'}
         </button>
       </div>
+
+      <div className="p-4 flex-1 flex flex-col justify-between">
+        <div>
+          <div className="flex justify-between items-start mb-1.5 gap-2">
+            <h4 className="font-bold text-text text-sm line-clamp-2 leading-snug group-hover:text-brand transition-colors" title={img.description}>
+              {img.description}
+            </h4>
+          </div>
+          <p className="text-xs font-medium text-muted flex items-center gap-1.5">
+            {intlBO({ dateStyle: 'medium' }).format(toBO(img.createdAt))}
+          </p>
+        </div>
+        
+        {img.category === 'document' && (
+          <a 
+            href={img.signedUrl} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            onClick={(e) => e.stopPropagation()}
+            className="text-brand text-xs font-semibold hover:underline mt-3 inline-block"
+          >
+            Abrir documento
+          </a>
+        )}
+      </div>
+    </div>
+  )
+
+  const renderUploadCard = (category: MediaCategory, label: string) => (
+    <div 
+      onClick={() => handleUploadClick(category)}
+      className="border-2 border-dashed border-border rounded-2xl bg-elevated flex flex-col items-center justify-center p-6 text-muted hover:border-brand hover:bg-brand-soft hover:text-brand transition-all cursor-pointer min-h-[180px]"
+    >
+      <div className="w-10 h-10 bg-surface rounded-full flex items-center justify-center shadow-sm mb-3">
+        <Upload className="w-5 h-5" />
+      </div>
+      <p className="text-sm font-semibold">Click para subir</p>
+      <p className="text-xs font-medium mt-1">{label}</p>
+    </div>
+  )
+
+  return (
+    <div className="flex flex-col h-full animate-in fade-in slide-in-from-bottom-2 duration-300">
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        className="hidden" 
+        accept="image/*,application/pdf"
+        onChange={handleFileChange}
+      />
 
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-8 h-8 animate-spin text-brand" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {/* Subida rápida */}
-          <div 
-            onClick={handleUploadClick}
-            className="border-2 border-dashed border-border rounded-2xl bg-elevated flex flex-col items-center justify-center p-6 text-muted hover:border-brand hover:bg-brand-soft hover:text-brand transition-all cursor-pointer min-h-[220px]"
-          >
-            <div className="w-12 h-12 bg-surface rounded-full flex items-center justify-center shadow-sm mb-3">
-              <Upload className="w-6 h-6" />
+        <div className="space-y-10">
+          {/* 1. Foto de Perfil */}
+          <section>
+            <div className="flex items-center gap-2 border-b border-border pb-3 mb-5">
+              {CATEGORY_ICONS['profile']}
+              <h3 className="text-lg font-serif text-text font-semibold">Foto de Perfil</h3>
             </div>
-            <p className="text-sm font-semibold">Click para subir</p>
-            <p className="text-xs font-medium mt-1">Fotos, Radiografías o PDF</p>
-          </div>
-
-          {/* Galería */}
-          {images.map((img) => (
-            <div 
-              key={img.id} 
-              onClick={() => openEditModal(img)}
-              className="group relative bg-surface rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col"
-            >
-              {/* Imagen/Preview */}
-              <div className="aspect-[4/3] bg-elevated relative flex items-center justify-center overflow-hidden">
-                {img.category === 'document' ? (
-                  <File className="w-16 h-16 text-muted" />
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img 
-                    src={img.signedUrl} 
-                    alt={img.description}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                )}
-                
-                {/* Botón flotante para eliminar (solo visible en hover) */}
-                <button 
-                  onClick={(e) => handleDelete(e, img.id, img.bucket, img.fileUrl)}
-                  className="absolute top-3 right-3 p-1.5 bg-danger/90 text-white rounded-lg opacity-0 group-hover:opacity-100 hover:bg-danger transition-all shadow-sm"
-                  title="Eliminar archivo"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-                
-                {/* Badge flotante de visibilidad */}
-                <button
-                  onClick={(e) => toggleVisibilityDirect(e, img)}
-                  className={`absolute top-3 left-3 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm backdrop-blur-md transition-colors ${
-                    img.visibleToPatient 
-                    ? 'bg-brand/90 text-white hover:bg-brand' 
-                    : 'bg-elevated/60 text-white hover:bg-bg/80'
-                  }`}
-                  title={img.visibleToPatient ? 'Visible en portal' : 'Oculto (Privado)'}
-                >
-                  {img.visibleToPatient ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
-                  {img.visibleToPatient ? 'Público' : 'Privado'}
-                </button>
-              </div>
-
-              {/* Info y Edición */}
-              <div className="p-4 flex-1 flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-start mb-1.5 gap-2">
-                    <h4 className="font-bold text-text text-sm line-clamp-2 leading-snug group-hover:text-brand transition-colors" title={img.description}>
-                      {img.description}
-                    </h4>
-                  </div>
-                  <p className="text-xs font-medium text-muted flex items-center gap-1.5">
-                    {intlBO({ dateStyle: 'medium' }).format(toBO(img.createdAt))}
-                  </p>
-                </div>
-                
-                {img.category === 'document' && (
-                  <a 
-                    href={img.signedUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    onClick={(e) => e.stopPropagation()}
-                    className="text-brand text-xs font-semibold hover:underline mt-3 inline-block"
-                  >
-                    Abrir documento
-                  </a>
-                )}
-              </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+              {renderUploadCard('profile', 'Foto del paciente')}
+              {profilePhotos.map(renderMediaCard)}
             </div>
-          ))}
+          </section>
+
+          {/* 2. Fotos del Caso / Evolución */}
+          <section>
+            <div className="flex items-center gap-2 border-b border-border pb-3 mb-5">
+              {CATEGORY_ICONS['case-photo']}
+              <h3 className="text-lg font-serif text-text font-semibold">Fotos del Caso / Evolución</h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {renderUploadCard('case-photo', 'Fotos antes/después, progreso')}
+              {casePhotos.map(renderMediaCard)}
+            </div>
+          </section>
+
+          {/* 3. Documentos / Rayos X */}
+          <section>
+            <div className="flex items-center gap-2 border-b border-border pb-3 mb-5">
+              {CATEGORY_ICONS['document']}
+              <h3 className="text-lg font-serif text-text font-semibold">Documentos / Rayos X</h3>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {renderUploadCard('document', 'Radiografías, PDF, informes')}
+              {documents.map(renderMediaCard)}
+            </div>
+          </section>
         </div>
       )}
 
@@ -268,6 +304,22 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
                   className="input w-full px-4 py-2.5"
                 />
               </div>
+
+              {/* Categoría (solo al subir) */}
+              {pendingFile && (
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-muted">Categoría</label>
+                  <select
+                    value={mediaForm.category}
+                    onChange={(e) => setMediaForm({ ...mediaForm, category: e.target.value as MediaCategory })}
+                    className="input w-full px-4 py-2.5"
+                  >
+                    <option value="profile">Foto de Perfil</option>
+                    <option value="case-photo">Fotos del Caso / Evolución</option>
+                    <option value="document">Documentos / Rayos X</option>
+                  </select>
+                </div>
+              )}
 
               {/* Toggle de Visibilidad Clínico */}
               <label className="flex items-start gap-3 p-4 border border-border rounded-xl cursor-pointer hover:bg-elevated transition-colors">

@@ -33,7 +33,21 @@ export async function uploadPatientMedia(formData: FormData): Promise<{ success:
   if (file.size > 20 * 1024 * 1024) return { error: 'El archivo supera los 20 MB.' }
 
   const isPdf = file.type.includes('pdf')
-  const bucket = isPdf ? 'documents' : 'cases-images'
+  const formCategory = (formData.get('category') as string) || ''
+  // Determinar bucket y category según lo que seleccionó el usuario
+  let bucket: string
+  let category: string
+  if (formCategory === 'document' || isPdf) {
+    bucket = 'documents'
+    category = 'document'
+  } else if (formCategory === 'profile') {
+    bucket = 'cases-images'
+    category = 'profile'
+  } else {
+    bucket = 'cases-images'
+    category = 'case-photo'
+  }
+
   const ext = (file.name.split('.').pop() || 'bin').toLowerCase()
   const path = `${patientId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
@@ -49,7 +63,7 @@ export async function uploadPatientMedia(formData: FormData): Promise<{ success:
     patientId,
     bucket,
     fileUrl: path,
-    category: isPdf ? 'document' : 'image',
+    category,
     description: description || file.name,
     mimeType: file.type,
     size: file.size,

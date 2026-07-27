@@ -20,19 +20,22 @@ async function createAppointmentInner(formData: FormData) {
   const rawStarts = formData.get('startsAt') as string
   const date = formData.get('date') as string
   const time = formData.get('time') as string
-  const startsAt = rawStarts || (date && time ? `${date}T${time}` : '')
+  // Construir la fecha/hora considerando huso horario de Bolivia (-04:00).
+  // Si se recibe date+time (ej: "2026-07-27" + "18:00"), 
+  // hay que agregar el offset de Bolivia para que no se interprete como UTC.
+  const startsAtWithTZ = rawStarts || (date && time ? `${date}T${time}:00-04:00` : '')
   const duration = parseInt(formData.get('duration') as string) || 30
   const treatmentType = formData.get('type') as string
   const notes = formData.get('notes') as string
 
-  if (!patientId || !startsAt || !treatmentType) {
+  if (!patientId || !startsAtWithTZ || !treatmentType) {
     return { error: 'Faltan campos obligatorios.' }
   }
 
-  const startObj = new Date(startsAt)
+  const startObj = new Date(startsAtWithTZ)
   if (isNaN(startObj.getTime())) return { error: 'Fecha u hora inválida.' }
-  // No permitir agendar en el pasado (con 1 min de tolerancia).
-  if (startObj.getTime() < Date.now() - 60000) {
+  // No permitir agendar en el pasado (con 5 min de tolerancia para margen operativo).
+  if (startObj.getTime() < Date.now() - 5 * 60000) {
     return { error: 'No se puede agendar en una fecha u hora que ya pasó.' }
   }
   const endsAtObj = new Date(startObj.getTime() + duration * 60000)
