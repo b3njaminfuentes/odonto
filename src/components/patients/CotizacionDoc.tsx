@@ -112,13 +112,11 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
               <th className="no-print text-left font-semibold py-2 w-8"></th>
               <th className="text-left font-semibold py-2">Tratamiento</th>
               <th className="text-right font-semibold py-2">Presupuesto</th>
-              <th className="text-right font-semibold py-2">Pagado</th>
-              <th className="text-right font-semibold py-2">Saldo</th>
             </tr>
           </thead>
           <tbody>
             {treatments.length === 0 ? (
-              <tr><td colSpan={5} className="py-6 text-center text-gray-400">Sin tratamientos presupuestados.</td></tr>
+              <tr><td colSpan={3} className="py-6 text-center text-gray-400">Sin tratamientos presupuestados.</td></tr>
             ) : treatments.map((t) => (
               <tr key={t.id} className={`border-b border-gray-100 ${selected[t.id] ? '' : 'no-print'}`}>
                 <td className="no-print py-3 align-top">
@@ -128,9 +126,7 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
                   {t.name}{t.toothNumber ? <span className="text-gray-400 font-normal"> · Pieza {t.toothNumber}</span> : ''}
                   {isSurgery(t.name) && <span className="ml-2 text-[10px] uppercase tracking-wide text-amber-600 font-bold">Cirugía</span>}
                 </td>
-                <td className="py-3 text-right text-gray-700 tabular-nums">{money(t.cost)}</td>
-                <td className="py-3 text-right text-gray-700 tabular-nums">{money(t.paid)}</td>
-                <td className="py-3 text-right font-semibold text-gray-900 tabular-nums">{money(t.balance)}</td>
+                <td className="py-3 text-right font-semibold text-gray-900 tabular-nums">{money(t.cost)}</td>
               </tr>
             ))}
           </tbody>
@@ -138,14 +134,8 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
 
         <div className="flex justify-end mt-6">
           <div className="w-full sm:w-72 space-y-2">
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>Presupuesto total</span><span className="tabular-nums">{money(totals.cost)}</span>
-            </div>
-            <div className="flex justify-between text-sm text-gray-600">
-              <span>Pagado</span><span className="tabular-nums">{money(totals.paid)}</span>
-            </div>
             <div className="flex justify-between text-base font-bold text-gray-900 border-t border-gray-200 pt-2">
-              <span>Saldo pendiente</span><span className="tabular-nums">{money(totals.balance)}</span>
+              <span>Presupuesto total</span><span className="tabular-nums">{money(totals.cost)}</span>
             </div>
           </div>
         </div>
