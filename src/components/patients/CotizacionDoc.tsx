@@ -154,7 +154,6 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
           <p className="font-semibold text-gray-700 text-sm">Dra. Marisol Villarroel</p>
           <p>Teléfono: +591 72212402</p>
           <p>Email: dra.villarroel@gmail.com</p>
-          <p className="mt-2 text-gray-400">Cotización expresada en {clinic.currency}</p>
         </div>
 
         {/* Firma */}
