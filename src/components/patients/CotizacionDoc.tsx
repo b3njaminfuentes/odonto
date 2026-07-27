@@ -150,10 +150,12 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
           </div>
         </div>
 
-        <p className="text-xs text-gray-400 mt-10 border-t border-gray-100 pt-4 leading-relaxed">
-          Este documento es una cotización referencial de los tratamientos seleccionados. Los montos pueden variar según la evolución
-          clínica. Consulta con la clínica los métodos de pago disponibles. Moneda: {clinic.currency}.
-        </p>
+        <div className="text-xs text-gray-500 mt-10 border-t border-gray-100 pt-4 flex flex-col gap-1">
+          <p className="font-semibold text-gray-700 text-sm">Dra. Marisol Villarroel</p>
+          <p>Teléfono: +591 72212402</p>
+          <p>Email: dra.villarroel@gmail.com</p>
+          <p className="mt-2 text-gray-400">Cotización expresada en {clinic.currency}</p>
+        </div>
 
         {/* Firma */}
         <div className="mt-16 flex justify-between gap-8">
