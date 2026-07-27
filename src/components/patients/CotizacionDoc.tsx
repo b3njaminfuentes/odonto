@@ -156,19 +156,7 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
           <p>Email: dra.villarroel@gmail.com</p>
         </div>
 
-        {/* Firma */}
-        <div className="mt-16 flex justify-between gap-8">
-          <div className="flex-1 text-center">
-            <div className="border-t border-gray-400 pt-2 mx-4">
-              <p className="text-sm text-gray-600">Firma del paciente</p>
-            </div>
-          </div>
-          <div className="flex-1 text-center">
-            <div className="border-t border-gray-400 pt-2 mx-4">
-              <p className="text-sm text-gray-600">Fecha</p>
-            </div>
-          </div>
-        </div>
+
       </div>
 
       {/* Documento: Consentimiento informado (solo si hay cirugía seleccionada) */}
