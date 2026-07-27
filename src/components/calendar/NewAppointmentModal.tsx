@@ -54,7 +54,7 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
   // Fecha mínima = hoy (no se pueden agendar días pasados)
   const now = new Date()
   const todayISO = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10)
-  const TIME_SLOTS = ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','15:00','15:30','16:00','16:30','17:00','17:30','18:00']
+  const TIME_SLOTS = ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00']
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">

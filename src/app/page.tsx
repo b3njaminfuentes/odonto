@@ -278,7 +278,7 @@ export default function Home() {
             <p className="text-muted mb-8">Calle Man Césped #342 y Washington, Edificio El Porvenir, Cochabamba, Bolivia.</p>
             <div className="space-y-6 mb-10">
               <ContactRow icon={<Phone size={18} />} title="WhatsApp directo" value="+591 72212402" />
-              <ContactRow icon={<Clock size={18} />} title="Horarios de atención" value={<>Lunes a Viernes<br />Mañana: hasta 12:00 · Tarde: desde 15:00<br />Sábados: previa cita</>} />
+              <ContactRow icon={<Clock size={18} />} title="Horarios de atención" value={<>Lunes a Viernes<br />Mañana: hasta 12:00 · Tarde: 15:00 a 20:00<br />Sábados: previa cita</>} />
             </div>
             <BookingCalendar />
           </div>
@@ -350,7 +350,7 @@ export default function Home() {
             <ul className="space-y-3">
               <li>+591 72212402</li>
               <li>Calle Man Césped #342, Ed. El Porvenir, Cbba</li>
-              <li>Lunes a Viernes (Sábados previa cita)</li>
+              <li>Lunes a Viernes de 09:00 a 20:00<br/>(Sábados previa cita)</li>
             </ul>
           </div>
         </div>
