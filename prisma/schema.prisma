@@ -79,6 +79,7 @@ model Patient {
   events       TimelineEvent[]
   media        CaseMedia[]
   cephalometrics Cephalometry[]
+  moldCharts   ToothMoldChart[]
 
   @@index([dni])
   @@index([phone])
@@ -173,6 +174,7 @@ model Treatment {
   media     CaseMedia[]
   diagnoses Diagnosis[]
   payments  Payment[]
+  moldCharts ToothMoldChart[]
 
   @@index([patientId])
   @@index([status])
@@ -277,4 +279,36 @@ model AuditLog {
 
   @@index([userId])
   @@index([entity, entityId])
+}
+
+model ToothMoldChart {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patientId    String   @db.Uuid
+  treatmentId  String?  @db.Uuid
+  notes        String?
+  createdBy    String   @db.Uuid
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  patient      Patient                @relation(fields: [patientId], references: [id])
+  treatment    Treatment?             @relation(fields: [treatmentId], references: [id])
+  measurements ToothMoldMeasurement[]
+
+  @@index([patientId])
+  @@index([treatmentId])
+}
+
+model ToothMoldMeasurement {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  chartId        String   @db.Uuid
+  arc            String   // 'upper' | 'lower'
+  moldLine       String   // 'A' | 'B' | 'C' | 'D' | 'E'
+  toothPosition  String   // 'U1'..'U7' | 'L1'..'L7'
+  measurementMm  Decimal? @db.Decimal(4, 2)
+  biteAdjustment String?  // '+1.0mm' | '+0.5mm' | 'media' | '-0.5mm' | '-1.0mm'
+  isHighlighted  Boolean  @default(false)
+
+  chart ToothMoldChart @relation(fields: [chartId], references: [id], onDelete: Cascade)
+
+  @@index([chartId])
 }

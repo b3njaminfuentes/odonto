@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { FileText, Smile, ImageIcon, Stethoscope, Activity } from 'lucide-react'
+import { FileText, Smile, ImageIcon, Stethoscope, Activity, Sparkles } from 'lucide-react'
 import { Odontogram } from './Odontogram'
 import { GalleryViewer } from './GalleryViewer'
 import { ClinicalHistoryForm } from './ClinicalHistoryForm'
@@ -9,6 +9,7 @@ import { PatientTreatments } from './PatientTreatments'
 import { PatientSummaryTab } from './PatientSummaryTab'
 import { PatientPayments } from './PatientPayments'
 import { PatientAppointments } from './PatientAppointments'
+import { ToothMoldChartForm } from './ToothMoldChartForm'
 
 interface PatientTabsProps {
   patientId: string
@@ -16,7 +17,7 @@ interface PatientTabsProps {
 }
 
 export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
-  const [activeTab, setActiveTab] = useState<'resumen' | 'historial' | 'odontograma' | 'tratamientos' | 'galeria' | 'pagos' | 'citas'>('resumen')
+  const [activeTab, setActiveTab] = useState<'resumen' | 'historial' | 'odontograma' | 'ortodoncia' | 'tratamientos' | 'galeria' | 'pagos' | 'citas'>('resumen')
 
   return (
     <div className="bg-surface rounded-2xl shadow-sm border border-border overflow-hidden flex flex-col min-h-[500px]">
@@ -55,6 +56,17 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
         >
           <Smile className="w-4 h-4" />
           Odontograma
+        </button>
+        <button
+          onClick={() => setActiveTab('ortodoncia')}
+          className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
+            activeTab === 'ortodoncia' 
+            ? 'border-brand text-brand bg-brand-soft/50' 
+            : 'border-transparent text-muted hover:text-muted hover:bg-elevated'
+          }`}
+        >
+          <Sparkles className="w-4 h-4" />
+          Ortodoncia (Moldes)
         </button>
         <button
           onClick={() => setActiveTab('tratamientos')}
@@ -116,6 +128,12 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
 
         {activeTab === 'odontograma' && (
           <Odontogram patientId={patientId} />
+        )}
+
+        {activeTab === 'ortodoncia' && (
+          <div className="bg-surface rounded-xl shadow-sm border border-border p-6 md:p-8">
+            <ToothMoldChartForm patientId={patientId} />
+          </div>
         )}
 
         {activeTab === 'tratamientos' && (
