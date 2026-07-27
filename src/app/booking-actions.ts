@@ -23,9 +23,18 @@ export async function getBookedSlots(dateISO: string): Promise<string[]> {
       .gte('startsAt', start.toISOString())
       .lte('startsAt', end.toISOString())
       .not('status', 'eq', 'CANCELADO')
-    return (data || []).map((a: any) =>
+    const times = (data || []).map((a: any) =>
       new Date(a.startsAt).toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', hour12: false })
     )
+
+    // Agrupar las citas por horario para permitir hasta 2 por el mismo horario
+    const timeCounts = times.reduce((acc: any, time: string) => {
+      acc[time] = (acc[time] || 0) + 1
+      return acc
+    }, {})
+
+    // Devolver solo los horarios que tienen 2 o más reservas (completamente ocupados)
+    return Object.keys(timeCounts).filter(time => timeCounts[time] >= 2)
   } catch {
     return []
   }
@@ -59,18 +68,18 @@ export async function requestAppointment(input: {
 
     const sb = admin()
 
-    // Evitar doble reserva exacta del mismo horario.
+    // Evitar triple reserva exacta del mismo horario (máximo 2 permitidas).
     const { data: clash, error: clashError } = await sb
       .from('Appointment')
       .select('id')
       .eq('startsAt', startsAt.toISOString())
       .not('status', 'eq', 'CANCELADO')
-      .limit(1)
+      .limit(2)
     if (clashError) {
       console.error('requestAppointment clash check error:', clashError)
       return { error: 'No se pudo verificar disponibilidad. Intentá de nuevo.' }
     }
-    if (clash && clash.length > 0) return { error: 'Ese horario acaba de ocuparse. Elegí otro, por favor.' }
+    if (clash && clash.length >= 2) return { error: 'Ese horario acaba de ocuparse. Elegí otro, por favor.' }
 
     const { error } = await sb.from('Appointment').insert({
       patientId: null,

@@ -23,7 +23,8 @@ const SERVICES = [
 
 const TIME_SLOTS = [
   "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
-  "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"
+  "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", 
+  "18:00", "18:30", "19:00", "19:30", "20:00"
 ];
 
 export default function BookingCalendar() {
@@ -152,7 +153,7 @@ export default function BookingCalendar() {
             <button onClick={() => setStep(2)} className="text-xs text-brand underline">Cambiar fecha</button>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 mb-5">
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-5">
             {TIME_SLOTS.map((t) => {
               const isBooked = booked.includes(t);
               return (
