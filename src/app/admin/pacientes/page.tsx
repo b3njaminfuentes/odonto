@@ -29,6 +29,7 @@ export default async function PacientesPage({
   const q = searchParams?.q || ''
   const page = Number(searchParams?.page || '1')
   const statusFilter = searchParams?.status || 'ALL'
+  const sort = searchParams?.sort || 'alpha_asc'
   const limit = 20
   const offset = (page - 1) * limit
 
@@ -62,8 +63,16 @@ export default async function PacientesPage({
     query = query.eq('status', statusFilter)
   }
 
+  if (sort === 'alpha_desc') {
+    query = query.order('firstName', { ascending: false }).order('lastName', { ascending: false })
+  } else if (sort === 'recent') {
+    query = query.order('createdAt', { ascending: false })
+  } else {
+    // Por defecto: orden alfabético A-Z por nombre y apellido
+    query = query.order('firstName', { ascending: true }).order('lastName', { ascending: true })
+  }
+
   const { data: rawPatients, count, error } = await query
-    .order('createdAt', { ascending: false })
     .range(offset, offset + limit - 1)
 
   if (error) {
@@ -139,6 +148,7 @@ export default async function PacientesPage({
         currentPage={page}
         currentSearch={q}
         currentStatus={statusFilter}
+        currentSort={sort}
       />
     </div>
   )

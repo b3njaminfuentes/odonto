@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { PatientCard, Patient } from './PatientCard'
-import { Search, Plus, ChevronLeft, ChevronRight, Loader2, CheckCircle2, Trash2, CheckSquare, Square, AlertTriangle, X } from 'lucide-react'
+import { Search, Plus, ChevronLeft, ChevronRight, Loader2, CheckCircle2, Trash2, CheckSquare, Square, AlertTriangle, X, ArrowUpDown } from 'lucide-react'
 import { CreatePatientModal } from './CreatePatientModal'
 import { DeletePatientModal } from './DeletePatientModal'
 import { deletePatients } from '@/app/admin/pacientes/actions'
@@ -14,6 +14,7 @@ interface PatientLeaderboardProps {
   currentPage: number
   currentSearch: string
   currentStatus: string
+  currentSort?: string
 }
 
 export function PatientLeaderboard({ 
@@ -21,7 +22,8 @@ export function PatientLeaderboard({
   totalCount, 
   currentPage, 
   currentSearch, 
-  currentStatus 
+  currentStatus,
+  currentSort = 'alpha_asc'
 }: PatientLeaderboardProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -77,6 +79,10 @@ export function PatientLeaderboard({
 
   const handleStatusChange = (status: string) => {
     updateURL({ status, page: 1 })
+  }
+
+  const handleSortChange = (sort: string) => {
+    updateURL({ sort, page: 1 })
   }
 
   const handlePageChange = (newPage: number) => {
@@ -161,6 +167,23 @@ export function PatientLeaderboard({
                   {status.label}
                 </button>
               ))}
+            </div>
+
+            <div className="w-px h-6 bg-border hidden md:block" />
+
+            {/* Selector de Orden Alfabético / Recientes */}
+            <div className="flex items-center gap-1.5 bg-surface border border-border rounded-xl px-3 py-1.5 shrink-0 shadow-sm">
+              <ArrowUpDown className="w-4 h-4 text-brand" />
+              <span className="text-xs font-medium text-muted hidden sm:inline">Ordenar:</span>
+              <select
+                value={currentSort}
+                onChange={(e) => handleSortChange(e.target.value)}
+                className="bg-transparent text-xs font-bold text-text outline-none cursor-pointer"
+              >
+                <option value="alpha_asc">Nombre (A → Z)</option>
+                <option value="alpha_desc">Nombre (Z → A)</option>
+                <option value="recent">Más recientes</option>
+              </select>
             </div>
 
             <div className="w-px h-6 bg-border hidden md:block" />

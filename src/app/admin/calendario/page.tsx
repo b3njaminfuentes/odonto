@@ -16,7 +16,8 @@ export default async function CalendarioPage({
     .from('Patient')
     .select('id, firstName, lastName, patientCode')
     .eq('status', 'ACTIVE')
-    .order('lastName')
+    .order('firstName', { ascending: true })
+    .order('lastName', { ascending: true })
 
   const patientsForSelect = (rawPatients || []).map(p => ({
     id: p.id,

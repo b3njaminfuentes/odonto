@@ -52,6 +52,7 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
   }
 
   const appts = initialAppointments.filter(a => a.status !== 'CANCELADO')
+  const sortedPatients = [...patients].sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }))
 
   const goToMonthData = (newDate: Date) => {
     if (getMonth(currentDate) !== getMonth(newDate) || currentDate.getFullYear() !== newDate.getFullYear()) {
@@ -213,7 +214,7 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
         </div>
       )}
 
-      <NewAppointmentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} patients={patients} />
+      <NewAppointmentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} patients={sortedPatients} />
     </div>
   )
 }
