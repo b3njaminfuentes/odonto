@@ -1,8 +1,17 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { logAuditAction } from '@/utils/audit'
+
+function serviceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 import { intlBO, toBO } from '@/lib/datetime'
 import { generatePatientAccess } from './access-actions'
 
@@ -124,6 +133,118 @@ export async function updatePatient(patientId: string, formData: FormData) {
   } catch (err: any) {
     console.error('Unhandled exception in updatePatient:', err)
     return { error: `Server exception: ${err?.message || 'Unknown error'}` }
+  }
+}
+
+export async function deletePatient(patientId: string): Promise<{ success: true } | { error: string }> {
+  try {
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return { error: 'No autorizado.' }
+
+    const svc = serviceClient()
+
+    // 1. Obtener archivos asociados en CaseMedia para eliminarlos del Storage
+    const { data: mediaFiles } = await svc
+      .from('CaseMedia')
+      .select('bucket, fileUrl')
+      .eq('patientId', patientId)
+
+    if (mediaFiles && mediaFiles.length > 0) {
+      for (const m of mediaFiles) {
+        await svc.storage.from(m.bucket).remove([m.fileUrl]).catch(() => {})
+      }
+    }
+
+    // 2. Eliminar relaciones dependientes
+    await svc.from('ToothMoldChart').delete().eq('patientId', patientId)
+    await svc.from('Cephalometry').delete().eq('patientId', patientId)
+    await svc.from('CaseMedia').delete().eq('patientId', patientId)
+    await svc.from('TimelineEvent').delete().eq('patientId', patientId).catch(() => {})
+    await svc.from('Diagnosis').delete().eq('patientId', patientId)
+    await svc.from('Payment').delete().eq('patientId', patientId)
+    await svc.from('Treatment').delete().eq('patientId', patientId)
+    await svc.from('ClinicalHistory').delete().eq('patientId', patientId)
+    await svc.from('Odontogram').delete().eq('patientId', patientId)
+    await svc.from('Appointment').delete().eq('patientId', patientId)
+
+    // 3. Eliminar paciente
+    const { error } = await svc.from('Patient').delete().eq('id', patientId)
+
+    if (error) {
+      console.error('Error deleting patient:', error)
+      return { error: `No se pudo eliminar el paciente: ${error.message}` }
+    }
+
+    await logAuditAction({
+      userId: session.user.id,
+      action: 'DELETE',
+      entity: 'Patient',
+      entityId: patientId,
+    }).catch(() => {})
+
+    revalidatePath('/admin/pacientes')
+    return { success: true }
+  } catch (err: any) {
+    console.error('Unhandled exception in deletePatient:', err)
+    return { error: `Error de servidor: ${err?.message || 'Desconocido'}` }
+  }
+}
+
+export async function deletePatients(patientIds: string[]): Promise<{ success: true; deletedCount: number } | { error: string }> {
+  try {
+    if (!patientIds || patientIds.length === 0) return { error: 'No se seleccionaron pacientes.' }
+
+    const supabase = createClient()
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return { error: 'No autorizado.' }
+
+    const svc = serviceClient()
+
+    // 1. Obtener archivos multimedia de todos los pacientes a eliminar
+    const { data: mediaFiles } = await svc
+      .from('CaseMedia')
+      .select('bucket, fileUrl')
+      .in('patientId', patientIds)
+
+    if (mediaFiles && mediaFiles.length > 0) {
+      for (const m of mediaFiles) {
+        await svc.storage.from(m.bucket).remove([m.fileUrl]).catch(() => {})
+      }
+    }
+
+    // 2. Limpiar registros relacionados
+    await svc.from('ToothMoldChart').delete().in('patientId', patientIds)
+    await svc.from('Cephalometry').delete().in('patientId', patientIds)
+    await svc.from('CaseMedia').delete().in('patientId', patientIds)
+    await svc.from('Diagnosis').delete().in('patientId', patientIds)
+    await svc.from('Payment').delete().in('patientId', patientIds)
+    await svc.from('Treatment').delete().in('patientId', patientIds)
+    await svc.from('ClinicalHistory').delete().in('patientId', patientIds)
+    await svc.from('Odontogram').delete().in('patientId', patientIds)
+    await svc.from('Appointment').delete().in('patientId', patientIds)
+
+    // 3. Eliminar los pacientes en lote
+    const { error } = await svc.from('Patient').delete().in('id', patientIds)
+
+    if (error) {
+      console.error('Error in bulk deletePatients:', error)
+      return { error: `No se pudieron eliminar los pacientes: ${error.message}` }
+    }
+
+    await logAuditAction({
+      userId: session.user.id,
+      action: 'BULK_DELETE',
+      entity: 'Patient',
+      entityId: patientIds.join(','),
+      metadata: { count: patientIds.length },
+    }).catch(() => {})
+
+    revalidatePath('/admin/pacientes')
+    return { success: true, deletedCount: patientIds.length }
+  } catch (err: any) {
+    console.error('Unhandled exception in deletePatients:', err)
+    return { error: `Error de servidor: ${err?.message || 'Desconocido'}` }
   }
 }
 

@@ -7,6 +7,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 import { PatientTabs } from '@/components/patients/PatientTabs'
 import { PatientAccessButton } from '@/components/patients/PatientAccessButton'
 import { EditPatientModal } from '@/components/patients/EditPatientModal'
+import { DeletePatientModal } from '@/components/patients/DeletePatientModal'
 import { ProfilePhoto } from '@/components/patients/ProfilePhoto'
 import { getAccountStatement } from '@/app/admin/pacientes/payment-actions'
 import { getProfilePhotoUrl } from '@/app/admin/pacientes/profile-photo-actions'
@@ -81,6 +82,11 @@ export default async function PatientProfilePage({ params }: { params: { id: str
           </Link>
           <EditPatientModal patient={patient} />
           <PatientAccessButton patientId={patient.id} hasAccess={!!patient.profileId} />
+          <DeletePatientModal
+            patientId={patient.id}
+            patientName={`${patient.firstName} ${patient.lastName}`}
+            redirectToIndex={true}
+          />
         </div>
       </div>
 

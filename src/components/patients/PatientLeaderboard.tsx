@@ -1,10 +1,12 @@
 'use client'
 
-import React, { useState, useMemo, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { PatientCard, Patient } from './PatientCard'
-import { Search, Plus, ChevronLeft, ChevronRight, Loader2, CheckCircle2 } from 'lucide-react'
+import { Search, Plus, ChevronLeft, ChevronRight, Loader2, CheckCircle2, Trash2, CheckSquare, Square, AlertTriangle, X } from 'lucide-react'
 import { CreatePatientModal } from './CreatePatientModal'
+import { DeletePatientModal } from './DeletePatientModal'
+import { deletePatients } from '@/app/admin/pacientes/actions'
 
 interface PatientLeaderboardProps {
   initialPatients: Patient[]
@@ -29,16 +31,27 @@ export function PatientLeaderboard({
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isPending, setIsPending] = useState(false)
   const [showToast, setShowToast] = useState(false)
+  const [toastMessage, setToastMessage] = useState('Paciente agregado correctamente')
+
+  // Selección masiva (Chunk Delete)
+  const [selectionMode, setSelectionMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false)
+  const [isDeletingBulk, setIsDeletingBulk] = useState(false)
+  const [bulkError, setBulkError] = useState<string | null>(null)
+
+  // Eliminación individual
+  const [singleDeletePatient, setSingleDeletePatient] = useState<Patient | null>(null)
 
   // Auto-hide toast
   useEffect(() => {
     if (showToast) {
-      const t = setTimeout(() => setShowToast(false), 3000)
+      const t = setTimeout(() => setShowToast(false), 3500)
       return () => clearTimeout(t)
     }
   }, [showToast])
 
-  // Sincronizar el input de busqueda con URL y hacer debounce
+  // Debounce búsqueda
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchTerm !== currentSearch) {
@@ -70,59 +83,142 @@ export function PatientLeaderboard({
     updateURL({ page: newPage })
   }
 
+  const toggleSelectPatient = (id: string) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    )
+  }
+
+  const handleSelectAll = () => {
+    const allCurrentIds = initialPatients.map(p => p.id)
+    const allSelected = allCurrentIds.every(id => selectedIds.includes(id))
+    if (allSelected) {
+      setSelectedIds(prev => prev.filter(id => !allCurrentIds.includes(id)))
+    } else {
+      setSelectedIds(prev => Array.from(new Set([...prev, ...allCurrentIds])))
+    }
+  }
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.length === 0) return
+    setIsDeletingBulk(true)
+    setBulkError(null)
+    const res = await deletePatients(selectedIds)
+    setIsDeletingBulk(false)
+
+    if ('error' in res) {
+      setBulkError(res.error)
+    } else {
+      setIsBulkDeleteModalOpen(false)
+      setSelectedIds([])
+      setSelectionMode(false)
+      setToastMessage(`Se eliminaron ${res.deletedCount} pacientes correctamente.`)
+      setShowToast(true)
+      router.refresh()
+    }
+  }
+
   const totalPages = Math.ceil(totalCount / 20) || 1
+  const allCurrentSelected = initialPatients.length > 0 && initialPatients.every(p => selectedIds.includes(p.id))
+
   return (
     <div className="space-y-6">
+
       {/* Header & Controls */}
       <div className="sticky top-0 z-30 -mx-4 px-4 py-4 sm:mx-0 sm:px-0 sm:py-0 sm:static mb-6">
-        <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center bg-surface/90 backdrop-blur-xl p-4 sm:rounded-2xl sm:border border-b sm:border-border shadow-sm sm:shadow-sm">
-        <div className="relative flex-1 max-w-md">
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            {isPending ? <Loader2 className="h-5 w-5 text-faint animate-spin" /> : <Search className="h-5 w-5 text-faint" />}
-          </div>
-          <input
-            type="text"
-            className="block w-full pl-10 pr-3 py-2.5 bg-elevated border border-border rounded-xl leading-5 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all sm:text-sm"
-            placeholder="Buscar por nombre, teléfono o email..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-
-        {/* Filters & Actions */}
-        <div className="flex items-center gap-4 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
-          <div className="flex gap-2">
-            {[
-              { id: 'ALL', label: 'Todos' },
-              { id: 'ACTIVE', label: 'Activos' },
-              { id: 'INACTIVE', label: 'Inactivos' }
-            ].map(status => (
-              <button
-                key={status.id}
-                onClick={() => handleStatusChange(status.id)}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
-                  (currentStatus || 'ALL') === status.id 
-                    ? 'bg-brand-soft text-brand ring-1 ring-brand/20' 
-                    : 'bg-surface text-muted hover:bg-elevated border border-border'
-                }`}
-              >
-                {status.label}
-              </button>
-            ))}
+        <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center bg-surface/90 backdrop-blur-xl p-4 sm:rounded-2xl sm:border border-b sm:border-border shadow-sm">
+          
+          <div className="relative flex-1 max-w-md">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              {isPending ? <Loader2 className="h-5 w-5 text-faint animate-spin" /> : <Search className="h-5 w-5 text-faint" />}
+            </div>
+            <input
+              type="text"
+              className="block w-full pl-10 pr-3 py-2.5 bg-elevated border border-border rounded-xl leading-5 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all sm:text-sm"
+              placeholder="Buscar por nombre, teléfono o email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
 
-          <div className="w-px h-6 bg-border hidden md:block"></div>
+          {/* Filters & Actions */}
+          <div className="flex items-center gap-3 overflow-x-auto pb-2 md:pb-0 hide-scrollbar">
+            <div className="flex gap-2">
+              {[
+                { id: 'ALL', label: 'Todos' },
+                { id: 'ACTIVE', label: 'Activos' },
+                { id: 'INACTIVE', label: 'Inactivos' }
+              ].map(status => (
+                <button
+                  key={status.id}
+                  onClick={() => handleStatusChange(status.id)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap ${
+                    (currentStatus || 'ALL') === status.id 
+                      ? 'bg-brand-soft text-brand ring-1 ring-brand/20' 
+                      : 'bg-surface text-muted hover:bg-elevated border border-border'
+                  }`}
+                >
+                  {status.label}
+                </button>
+              ))}
+            </div>
 
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="btn-primary px-4 py-2 flex items-center gap-2 whitespace-nowrap shrink-0"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="hidden sm:inline">Nuevo Paciente</span>
-          </button>
-        </div>
+            <div className="w-px h-6 bg-border hidden md:block" />
+
+            {/* Toggle Selección Masiva (Chunk) */}
+            <button
+              onClick={() => {
+                setSelectionMode(!selectionMode)
+                if (selectionMode) setSelectedIds([])
+              }}
+              className={`px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shrink-0 border ${
+                selectionMode
+                  ? 'bg-brand/10 border-brand text-brand shadow-sm'
+                  : 'bg-surface border-border text-muted hover:border-brand hover:text-brand'
+              }`}
+              title="Selección múltiple para borrado en lote (chunk)"
+            >
+              {selectionMode ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
+              <span>{selectionMode ? 'Cancelar Selección' : 'Selección Masiva'}</span>
+            </button>
+
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="btn-primary px-4 py-2 flex items-center gap-2 whitespace-nowrap shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden sm:inline">Nuevo Paciente</span>
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* BARRA FLOTANTE DE ACCIONES MASIVAS (CHUNK DELETE) */}
+      {selectionMode && (
+        <div className="bg-elevated border border-brand/40 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleSelectAll}
+              className="px-3 py-1.5 bg-surface border border-border rounded-xl text-xs font-semibold text-text hover:border-brand transition-colors flex items-center gap-2"
+            >
+              {allCurrentSelected ? <CheckSquare className="w-4 h-4 text-brand" /> : <Square className="w-4 h-4 text-muted" />}
+              {allCurrentSelected ? 'Deseleccionar Todos' : 'Seleccionar Todos en esta página'}
+            </button>
+            <span className="text-xs font-bold text-brand bg-brand-soft px-3 py-1.5 rounded-xl border border-brand/20">
+              {selectedIds.length} {selectedIds.length === 1 ? 'paciente seleccionado' : 'pacientes seleccionados'}
+            </span>
+          </div>
+
+          <button
+            disabled={selectedIds.length === 0}
+            onClick={() => setIsBulkDeleteModalOpen(true)}
+            className="px-4 py-2 bg-danger text-white text-xs font-bold rounded-xl hover:bg-danger/90 transition-all flex items-center gap-2 shadow-sm disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Trash2 className="w-4 h-4" />
+            Eliminar Seleccionados ({selectedIds.length})
+          </button>
+        </div>
+      )}
 
       {/* Grid de Tarjetas (Leaderboard) */}
       <div className="transition-opacity">
@@ -144,7 +240,14 @@ export function PatientLeaderboard({
         ) : initialPatients.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {initialPatients.map((patient) => (
-              <PatientCard key={patient.id} patient={patient} />
+              <PatientCard
+                key={patient.id}
+                patient={patient}
+                selectionMode={selectionMode}
+                isSelected={selectedIds.includes(patient.id)}
+                onToggleSelect={toggleSelectPatient}
+                onSingleDelete={(p) => setSingleDeletePatient(p)}
+              />
             ))}
           </div>
         ) : (
@@ -194,21 +297,93 @@ export function PatientLeaderboard({
         </div>
       )}
 
+      {/* Modal Nuevo Paciente */}
       <CreatePatientModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)}
         onSuccessClose={() => {
           setIsModalOpen(false)
+          setToastMessage('Paciente agregado correctamente.')
           setShowToast(true)
-          updateURL({ page: 1 }) // refresca la lista
+          updateURL({ page: 1 })
         }}
       />
+
+      {/* Modal Eliminar Individual */}
+      {singleDeletePatient && (
+        <DeletePatientModal
+          patientId={singleDeletePatient.id}
+          patientName={`${singleDeletePatient.firstName} ${singleDeletePatient.lastName}`}
+          onSuccess={() => {
+            setSingleDeletePatient(null)
+            setToastMessage('Paciente eliminado correctamente.')
+            setShowToast(true)
+            router.refresh()
+          }}
+        />
+      )}
+
+      {/* Modal Confirmación Eliminación Masiva (Chunk) */}
+      {isBulkDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onClick={() => setIsBulkDeleteModalOpen(false)} />
+
+          <div data-lenis-prevent className="relative bg-surface rounded-2xl shadow-xl w-full max-w-md p-6 border border-border animate-in zoom-in-95">
+            <button
+              onClick={() => setIsBulkDeleteModalOpen(false)}
+              className="absolute top-4 right-4 p-2 text-muted hover:text-text hover:bg-elevated rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-12 h-12 rounded-2xl bg-danger-soft text-danger flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="text-lg font-serif font-bold text-text">Eliminación Masiva en Lote</h3>
+                <p className="text-xs text-muted">Acción permanente e irreversible.</p>
+              </div>
+            </div>
+
+            {bulkError && (
+              <div className="mb-4 p-3 bg-danger-soft text-danger text-sm rounded-xl border border-danger/30">
+                {bulkError}
+              </div>
+            )}
+
+            <p className="text-sm text-muted leading-relaxed mb-6">
+              ¿Estás seguro de eliminar permanentemente los <strong className="text-text font-bold">{selectedIds.length} pacientes seleccionados</strong>? Se borrarán sus historiales clínicos, tratamientos, citas, pagos y archivos asociados.
+            </p>
+
+            <div className="flex justify-end gap-3 pt-3 border-t border-border">
+              <button
+                type="button"
+                onClick={() => setIsBulkDeleteModalOpen(false)}
+                disabled={isDeletingBulk}
+                className="px-5 py-2.5 text-muted font-medium hover:bg-elevated rounded-xl transition-colors text-sm disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleBulkDelete}
+                disabled={isDeletingBulk}
+                className="px-5 py-2.5 bg-danger text-white font-medium hover:bg-danger/90 rounded-xl transition-all shadow-sm text-sm flex items-center gap-2 disabled:opacity-50"
+              >
+                {isDeletingBulk ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                {isDeletingBulk ? 'Eliminando lote...' : `Eliminar ${selectedIds.length} Pacientes`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Toast */}
       {showToast && (
-        <div className="fixed bottom-6 right-6 bg-bg text-white text-sm px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-in slide-in-from-bottom-4 fade-in duration-300 z-50">
+        <div className="fixed bottom-6 right-6 bg-bg text-white text-sm px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-in slide-in-from-bottom-4 fade-in duration-300 z-50 border border-border">
           <CheckCircle2 className="w-4 h-4 text-brand" />
-          Paciente agregado correctamente
+          {toastMessage}
         </div>
       )}
     </div>
