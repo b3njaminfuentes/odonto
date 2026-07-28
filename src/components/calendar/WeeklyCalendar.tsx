@@ -2,8 +2,9 @@
 
 import React, { useState } from 'react'
 import {
-  format, addDays, isSameDay, getMonth, startOfMonth, endOfMonth,
-  startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, addMonths, subMonths,
+  format, addDays, subDays, isSameDay, getMonth, startOfMonth, endOfMonth,
+  startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, addMonths, subMonths,
+  parseISO,
 } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, Plus, Clock, User, Phone, Loader2, CalendarDays, List, Check, X } from 'lucide-react'
@@ -11,7 +12,6 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { NewAppointmentModal } from './NewAppointmentModal'
 import { StatusBadge } from '../ui/StatusBadge'
-import { toBO } from '@/lib/datetime'
 import { updateAppointmentStatus } from '@/app/admin/calendario/actions'
 
 interface AppointmentData {
@@ -33,12 +33,60 @@ const statusDot: Record<string, string> = {
   CONFIRMADO: 'bg-success', PENDIENTE: 'bg-warning', CANCELADO: 'bg-danger',
 }
 
+/**
+ * Convierte un ISO local string ("2026-07-28T16:00:00") a un Date
+ * interpretado como hora local (NO UTC).
+ * Esto es clave porque nuestras citas se guardan sin Z ni offset.
+ */
+function parseLocalISO(iso: string): Date {
+  // Si el string no tiene Z ni offset, parseISO de date-fns lo interpreta como local
+  // Pero para estar seguros, forzamos interpretación local
+  if (!iso) return new Date()
+  // Si ya tiene Z o +/- offset, devolver directo
+  if (iso.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(iso)) {
+    return new Date(iso)
+  }
+  // Interpretar como hora local: YYYY-MM-DDTHH:mm:ss
+  const [datePart, timePart] = iso.split('T')
+  const [y, m, d] = datePart.split('-').map(Number)
+  if (!timePart) return new Date(y, m - 1, d)
+  const [hh, mm, ss] = timePart.split(':').map(Number)
+  return new Date(y, m - 1, d, hh || 0, mm || 0, ss || 0)
+}
+
+/** Obtener la fecha de "hoy" en Bolivia (America/La_Paz) como Date local */
+function getTodayBolivia(): Date {
+  const now = new Date()
+  const boliviaStr = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'America/La_Paz',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(now)
+  const [y, m, d] = boliviaStr.split('-').map(Number)
+  return new Date(y, m - 1, d, 12, 0, 0) // mediodía para evitar edge cases
+}
+
+/** Comparar si una cita cae en un día específico, usando parse local */
+function isSameDayLocal(isoStr: string, day: Date): boolean {
+  const d = parseLocalISO(isoStr)
+  return d.getFullYear() === day.getFullYear() &&
+    d.getMonth() === day.getMonth() &&
+    d.getDate() === day.getDate()
+}
+
 export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const dateParam = searchParams.get('date')
 
-  const [currentDate, setCurrentDate] = useState(dateParam ? new Date(dateParam) : new Date())
+  const [currentDate, setCurrentDate] = useState(() => {
+    if (dateParam) {
+      const [y, m, d] = dateParam.split('-').map(Number)
+      return new Date(y, m - 1, d, 12, 0, 0)
+    }
+    return getTodayBolivia()
+  })
   const [view, setView] = useState<'month' | 'day'>('month')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isPending, setIsPending] = useState(false)
@@ -57,24 +105,60 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
   const goToMonthData = (newDate: Date) => {
     if (getMonth(currentDate) !== getMonth(newDate) || currentDate.getFullYear() !== newDate.getFullYear()) {
       setIsPending(true)
-      router.push(`?date=${format(newDate, 'yyyy-MM-dd')}`)
+      const yyyy = newDate.getFullYear()
+      const mm = String(newDate.getMonth() + 1).padStart(2, '0')
+      const dd = String(newDate.getDate()).padStart(2, '0')
+      router.push(`?date=${yyyy}-${mm}-${dd}`)
       setTimeout(() => setIsPending(false), 800)
     }
   }
 
-  const changeMonth = (dir: number) => {
-    const nd = dir > 0 ? addMonths(currentDate, 1) : subMonths(currentDate, 1)
-    setCurrentDate(nd); goToMonthData(nd)
+  // Navegación con flechas: en vista MES → mes anterior/siguiente; en vista DÍA → día anterior/siguiente
+  const navigateBack = () => {
+    if (view === 'day') {
+      const nd = subDays(currentDate, 1)
+      setCurrentDate(nd)
+      goToMonthData(nd)
+    } else {
+      const nd = subMonths(currentDate, 1)
+      setCurrentDate(nd)
+      goToMonthData(nd)
+    }
+  }
+
+  const navigateForward = () => {
+    if (view === 'day') {
+      const nd = addDays(currentDate, 1)
+      setCurrentDate(nd)
+      goToMonthData(nd)
+    } else {
+      const nd = addMonths(currentDate, 1)
+      setCurrentDate(nd)
+      goToMonthData(nd)
+    }
+  }
+
+  const goToToday = () => {
+    const today = getTodayBolivia()
+    setCurrentDate(today)
+    goToMonthData(today)
   }
 
   const todayAppointments = appts
-    .filter(a => isSameDay(new Date(a.startsAt), currentDate))
-    .sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime())
+    .filter(a => isSameDayLocal(a.startsAt, currentDate))
+    .sort((a, b) => parseLocalISO(a.startsAt).getTime() - parseLocalISO(b.startsAt).getTime())
 
-  const apptsOn = (day: Date) => appts.filter(a => isSameDay(new Date(a.startsAt), day))
+  const apptsOn = (day: Date) => appts.filter(a => isSameDayLocal(a.startsAt, day))
 
   const formatTime = (iso: string) => (iso ? iso.slice(11, 16) : '')
   const getStatusType = (s: string) => (s === 'CONFIRMADO' ? 'success' : s === 'PENDIENTE' ? 'warning' : s === 'CANCELADO' ? 'danger' : 'default')
+
+  // Check if a day is "today" in Bolivia
+  const todayBolivia = getTodayBolivia()
+  const isTodayBolivia = (day: Date) =>
+    day.getFullYear() === todayBolivia.getFullYear() &&
+    day.getMonth() === todayBolivia.getMonth() &&
+    day.getDate() === todayBolivia.getDate()
 
   // Días de la grilla del mes (semana empieza lunes)
   const monthStart = startOfMonth(currentDate)
@@ -89,12 +173,12 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-surface p-4 rounded-2xl border border-border shadow-sm">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1 bg-elevated rounded-lg p-1 border border-border">
-            <button onClick={() => changeMonth(-1)} className="p-2 hover:bg-surface rounded-md transition-all text-muted"><ChevronLeft className="w-5 h-5" /></button>
-            <button onClick={() => { setCurrentDate(new Date()); goToMonthData(new Date()) }} className="px-4 py-2 text-sm font-medium text-muted hover:bg-surface rounded-md transition-all">Hoy</button>
-            <button onClick={() => changeMonth(1)} className="p-2 hover:bg-surface rounded-md transition-all text-muted"><ChevronRight className="w-5 h-5" /></button>
+            <button onClick={navigateBack} className="p-2 hover:bg-surface rounded-md transition-all text-muted"><ChevronLeft className="w-5 h-5" /></button>
+            <button onClick={goToToday} className="px-4 py-2 text-sm font-medium text-muted hover:bg-surface rounded-md transition-all">Hoy</button>
+            <button onClick={navigateForward} className="p-2 hover:bg-surface rounded-md transition-all text-muted"><ChevronRight className="w-5 h-5" /></button>
           </div>
           <h2 className="text-xl font-bold text-text capitalize">
-            {view === 'month' ? format(currentDate, "MMMM yyyy", { locale: es }) : format(currentDate, "EEEE, d 'de' MMMM", { locale: es })}
+            {view === 'month' ? format(currentDate, "MMMM yyyy", { locale: es }) : format(currentDate, "EEEE, d 'de' MMMM yyyy", { locale: es })}
           </h2>
           {isPending && <Loader2 className="w-5 h-5 animate-spin text-brand ml-1" />}
         </div>
@@ -118,7 +202,7 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
             {days.map((day) => {
               const inMonth = isSameMonth(day, currentDate)
               const dayAppts = apptsOn(day)
-              const today = isToday(day)
+              const today = isTodayBolivia(day)
               return (
                 <button
                   key={day.toISOString()}

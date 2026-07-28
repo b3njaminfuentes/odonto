@@ -25,19 +25,44 @@ export default async function CalendarioPage({
     code: p.patientCode
   }))
 
-  // Recibimos la fecha actual de la vista, o usamos hoy por defecto
-  const queryDate = searchParams?.date ? new Date(searchParams.date as string) : new Date()
-  
-  // Calcular los límites del mes actual para la query
-  // Agregamos un buffer de 7 días antes y después para solapamientos de semanas
-  const startOfMonth = new Date(queryDate.getFullYear(), queryDate.getMonth(), 1)
-  startOfMonth.setDate(startOfMonth.getDate() - 7)
-  const endOfMonth = new Date(queryDate.getFullYear(), queryDate.getMonth() + 1, 0)
-  endOfMonth.setDate(endOfMonth.getDate() + 7)
-  
-  const startISO = startOfMonth.toISOString()
-  const endISO = endOfMonth.toISOString()
-  
+  // Determinar el mes a consultar usando la fecha recibida o "hoy en Bolivia"
+  let queryYear: number
+  let queryMonth: number // 0-indexed
+
+  if (searchParams?.date) {
+    // El parámetro viene como YYYY-MM-DD — parsearlo directo, NO como new Date()
+    const [y, m, d] = (searchParams.date as string).split('-').map(Number)
+    queryYear = y
+    queryMonth = m - 1
+  } else {
+    // Usar la fecha de hoy en hora de Bolivia (America/La_Paz)
+    const todayBO = new Intl.DateTimeFormat('sv-SE', {
+      timeZone: 'America/La_Paz',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date())
+    const [y, m] = todayBO.split('-').map(Number)
+    queryYear = y
+    queryMonth = m - 1
+  }
+
+  // Calcular los límites del mes con buffer de 7 días para la grilla del calendario.
+  // Usamos strings locales YYYY-MM-DDTHH:mm:ss porque las citas se almacenan en hora local (sin Z).
+  const startDate = new Date(queryYear, queryMonth, 1)
+  startDate.setDate(startDate.getDate() - 7)
+  const endDate = new Date(queryYear, queryMonth + 1, 0)
+  endDate.setDate(endDate.getDate() + 7)
+
+  const pad2 = (n: number) => String(n).padStart(2, '0')
+  const toLocalISO = (d: Date) =>
+    `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T00:00:00`
+  const toLocalISOEnd = (d: Date) =>
+    `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T23:59:59`
+
+  const startISO = toLocalISO(startDate)
+  const endISO = toLocalISOEnd(endDate)
+
   const { data: rawAppointments } = await supabase
     .from('Appointment')
     .select(`
