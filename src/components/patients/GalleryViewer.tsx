@@ -397,10 +397,6 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
             alt={fullscreenImage.description} 
             className="max-w-[95vw] max-h-[90vh] object-contain drop-shadow-2xl"
           />
-          
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white bg-black/50 px-5 py-2.5 rounded-full backdrop-blur-md text-sm font-medium border border-white/10 shadow-lg">
-            {fullscreenImage.description}
-          </div>
         </div>
       )}
     </div>
