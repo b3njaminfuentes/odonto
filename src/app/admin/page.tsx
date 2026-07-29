@@ -6,19 +6,31 @@ import { getClinicSettings } from './configuracion/actions'
 import { Users, Calendar, Banknote, Clock, ClipboardList, ArrowRight, CheckCircle2, User, Phone } from 'lucide-react'
 import { intlBO, toBO } from '@/lib/datetime'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { ActivityHeatmap } from '@/components/ui/ActivityHeatmap'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboardPage() {
   const supabase = createClient()
 
-  // Huso horario de Bolivia (America/La_Paz) para calcular el día de hoy exacto (YYYY-MM-DD)
+  // Huso horario de Bolivia (America/La_Paz) para calcular el día y hora exactos
   const todayBO = new Intl.DateTimeFormat('sv-SE', {
     timeZone: 'America/La_Paz',
     year: 'numeric',
     month: '2-digit',
     day: '2-digit'
   }).format(new Date())
+
+  const nowBO = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'America/La_Paz',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).format(new Date()).replace(' ', 'T')
 
   // 1. Obtener Pacientes Activos
   const { count: activePatients } = await supabase
@@ -91,6 +103,41 @@ export default async function AdminDashboardPage() {
     }
   }
 
+  // 7. Mapa de Actividad (Últimos 6 meses)
+  const sixMonthsAgo = new Date()
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
+  const sixMonthsAgoStr = sixMonthsAgo.toISOString().split('T')[0]
+
+  const { data: heatmapAppointments } = await supabase
+    .from('Appointment')
+    .select('endsAt, status')
+    .gte('endsAt', `${sixMonthsAgoStr}T00:00:00`)
+    .in('status', ['CONFIRMADO', 'FINALIZADO'])
+
+  const countsByDate: Record<string, number> = {}
+  if (heatmapAppointments) {
+    heatmapAppointments.forEach(app => {
+      const isPast = app.endsAt < nowBO
+      if (app.status === 'FINALIZADO' || isPast) {
+        const dateStr = app.endsAt.split('T')[0]
+        countsByDate[dateStr] = (countsByDate[dateStr] || 0) + 1
+      }
+    })
+  }
+
+  const heatmapData = Object.entries(countsByDate).map(([date, count]) => {
+    let level: 0 | 1 | 2 | 3 | 4 = 0
+    if (count === 1 || count === 2) level = 1
+    else if (count === 3 || count === 4) level = 2
+    else if (count >= 5 && count <= 7) level = 3
+    else if (count > 7) level = 4
+
+    return { date, count, level }
+  })
+  
+  // Sort data by date just in case
+  heatmapData.sort((a, b) => a.date.localeCompare(b.date))
+
   const formatHour = (iso: string) => (iso ? iso.slice(11, 16) : '')
 
   return (
@@ -159,7 +206,7 @@ export default async function AdminDashboardPage() {
                   : (app.notes?.split('—')[1]?.split('·')[0]?.trim() || 'Paciente sin registrar')
 
                 const isWebBooking = app.status === 'PENDIENTE' && app.notes?.startsWith('Solicitud web')
-                const isPast = app.startsAt < `${todayBO}T00:00:00` && app.status === 'CONFIRMADO'
+                const isPast = app.endsAt < nowBO && app.status === 'CONFIRMADO'
                 const displayStatus = isPast ? 'FINALIZADO' : app.status
                 
                 return (
@@ -301,6 +348,18 @@ export default async function AdminDashboardPage() {
 
         </div>
 
+      </div>
+
+      {/* HEATMAP DE ACTIVIDAD */}
+      <div className="card bg-surface p-6">
+        <h2 className="text-xl font-semibold text-text mb-6 flex items-center gap-2">
+          <svg className="w-5 h-5 text-brand" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M1.5 1.5A1.5 1.5 0 0 1 3 0h10a1.5 1.5 0 0 1 1.5 1.5v13a1.5 1.5 0 0 1-1.5 1.5H3a1.5 1.5 0 0 1-1.5-1.5V1.5ZM3 1.5v13h10v-13H3Z"></path>
+            <path d="M4.5 4a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V4Zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5V4Zm-4 4a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V8Zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5V8Zm-4 4a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5v-2Zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5v-2Z"></path>
+          </svg>
+          Historial de Productividad (6 meses)
+        </h2>
+        <ActivityHeatmap data={heatmapData} />
       </div>
     </div>
   )

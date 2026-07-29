@@ -67,6 +67,22 @@ function getTodayBolivia(): Date {
   return new Date(y, m - 1, d, 0, 0, 0) // start of the day in local time
 }
 
+/** Obtener la hora actual exacta en Bolivia (America/La_Paz) como Date local */
+function getNowBolivia(): Date {
+  const now = new Date()
+  const boliviaStr = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'America/La_Paz',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).format(now).replace(' ', 'T')
+  return parseLocalISO(boliviaStr)
+}
+
 /** Comparar si una cita cae en un día específico, usando parse local */
 function isSameDayLocal(isoStr: string, day: Date): boolean {
   const d = parseLocalISO(isoStr)
@@ -155,6 +171,7 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
 
   // Check if a day is "today" in Bolivia
   const todayBolivia = getTodayBolivia()
+  const exactNowBolivia = getNowBolivia()
   const isTodayBolivia = (day: Date) =>
     day.getFullYear() === todayBolivia.getFullYear() &&
     day.getMonth() === todayBolivia.getMonth() &&
@@ -215,7 +232,8 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
                   <div className="flex flex-col gap-1 overflow-hidden">
                     {dayAppts.slice(0, 3).map(a => {
                       const isWebBooking = a.status === 'PENDIENTE' && a.notes?.startsWith('Solicitud web')
-                      const isPast = parseLocalISO(a.startsAt) < todayBolivia && a.status === 'CONFIRMADO'
+                      // Si la cita termina antes de AHORA, ya pasó
+                      const isPast = parseLocalISO(a.endsAt) < exactNowBolivia && a.status === 'CONFIRMADO'
                       const displayStatus = isPast ? 'FINALIZADO' : a.status
                       const dotColor = isWebBooking ? 'bg-danger' : (displayStatus === 'FINALIZADO' ? 'bg-success' : (statusDot[displayStatus] || 'bg-muted'))
                       
@@ -250,7 +268,7 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
             <div className="divide-y divide-border">
               {todayAppointments.map((app) => {
                 const isWebBooking = app.status === 'PENDIENTE' && app.notes?.startsWith('Solicitud web')
-                const isPast = parseLocalISO(app.startsAt) < todayBolivia && app.status === 'CONFIRMADO'
+                const isPast = parseLocalISO(app.endsAt) < exactNowBolivia && app.status === 'CONFIRMADO'
                 const displayStatus = isPast ? 'FINALIZADO' : app.status
                 const badgeColor = isWebBooking ? 'danger' : getStatusType(displayStatus)
                 
