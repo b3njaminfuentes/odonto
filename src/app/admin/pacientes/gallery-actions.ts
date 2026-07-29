@@ -114,9 +114,11 @@ export async function deleteMediaRecord(mediaId: string, bucket: string, fileUrl
   if (!session) {
     return { error: 'No autorizado' }
   }
+  
+  const svc = serviceClient()
 
   // Delete from storage
-  const { error: storageError } = await supabase
+  const { error: storageError } = await svc
     .storage
     .from(bucket)
     .remove([fileUrl])
@@ -127,7 +129,7 @@ export async function deleteMediaRecord(mediaId: string, bucket: string, fileUrl
   }
 
   // Delete from DB
-  const { error: dbError } = await supabase
+  const { error: dbError } = await svc
     .from('CaseMedia')
     .delete()
     .eq('id', mediaId)
