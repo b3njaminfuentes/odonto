@@ -158,10 +158,14 @@ export default async function AdminDashboardPage() {
                   ? `${app.Patient.firstName} ${app.Patient.lastName}`
                   : (app.notes?.split('—')[1]?.split('·')[0]?.trim() || 'Paciente sin registrar')
 
+                const isWebBooking = app.status === 'PENDIENTE' && app.notes?.startsWith('Solicitud web')
+                const isPast = app.startsAt < `${todayBO}T00:00:00` && app.status === 'CONFIRMADO'
+                const displayStatus = isPast ? 'FINALIZADO' : app.status
+                
                 return (
                   <div
                     key={app.id}
-                    className="p-4 rounded-xl bg-elevated/60 border border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-brand/40 transition-all group"
+                    className={`p-4 rounded-xl bg-elevated/60 border ${isWebBooking ? 'border-danger bg-danger-soft/30 border-l-4' : 'border-border'} flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:border-brand/40 transition-all group`}
                   >
                     <div className="flex items-center gap-4">
                       {/* Horario de la Cita */}
@@ -176,11 +180,12 @@ export default async function AdminDashboardPage() {
 
                       {/* Info del Paciente */}
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
                           <StatusBadge
-                            status={app.status === 'CONFIRMADO' ? 'success' : app.status === 'PENDIENTE' ? 'warning' : 'default'}
-                            text={app.status}
+                            status={isWebBooking ? 'danger' : displayStatus === 'FINALIZADO' ? 'success' : displayStatus === 'CONFIRMADO' ? 'success' : displayStatus === 'PENDIENTE' ? 'warning' : 'default'}
+                            text={displayStatus}
                           />
+                          {isWebBooking && <span className="text-[10px] font-bold uppercase tracking-wider text-white bg-danger px-2 py-0.5 rounded-full animate-pulse">Reserva Web</span>}
                           <span className="text-xs font-bold text-brand bg-brand-soft px-2 py-0.5 rounded-md border border-brand/10">
                             {app.treatmentType || 'Consulta General'}
                           </span>
@@ -189,7 +194,7 @@ export default async function AdminDashboardPage() {
                           {patientName}
                         </h4>
                         {app.notes && (
-                          <p className="text-xs text-muted mt-0.5 line-clamp-1">
+                          <p className={`text-xs mt-0.5 line-clamp-1 ${isWebBooking ? 'text-danger font-medium' : 'text-muted'}`}>
                             {app.notes}
                           </p>
                         )}

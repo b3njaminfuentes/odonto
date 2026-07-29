@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
-import { X, Loader2 } from 'lucide-react'
+import React, { useState, useRef, useEffect, useMemo } from 'react'
+import { X, Loader2, Search, Check, ChevronDown } from 'lucide-react'
 import { createAppointment } from '@/app/admin/calendario/actions'
 
 interface PatientOption {
@@ -19,7 +19,34 @@ interface NewAppointmentModalProps {
 export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmentModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  
+  // Combobox states
+  const [search, setSearch] = useState('')
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const [selectedPatientId, setSelectedPatientId] = useState<string>('')
+  
   const formRef = useRef<HTMLFormElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Filter patients based on search
+  const filteredPatients = useMemo(() => {
+    if (!search.trim()) return patients
+    const s = search.toLowerCase()
+    return patients.filter(p => 
+      p.name.toLowerCase().includes(s) || p.code.toLowerCase().includes(s)
+    )
+  }, [search, patients])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden'
@@ -41,6 +68,8 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
         setError(result.error)
       } else {
         formRef.current?.reset()
+        setSearch('')
+        setSelectedPatientId('')
         onClose()
       }
     } catch (err) {
@@ -76,14 +105,65 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
           )}
 
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
-            <div>
+            <div ref={dropdownRef} className="relative">
               <label className="block text-sm font-medium text-muted mb-1">Paciente *</label>
-              <select name="patientId" required disabled={loading} className="w-full px-4 py-2.5 bg-surface border border-border rounded-xl focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all disabled:bg-elevated disabled:text-muted text-sm">
-                <option value="">Selecciona un paciente...</option>
-                {patients.map(p => (
-                  <option key={p.id} value={p.id}>{p.name} ({p.code})</option>
-                ))}
-              </select>
+              
+              {/* Hidden input to pass the selected ID to FormData */}
+              <input type="hidden" name="patientId" value={selectedPatientId} required />
+              
+              <div 
+                className={`relative w-full bg-surface border rounded-xl flex items-center transition-all ${
+                  isDropdownOpen ? 'border-brand ring-2 ring-brand/20' : 'border-border'
+                } ${loading ? 'opacity-50 pointer-events-none' : ''}`}
+                onClick={() => setIsDropdownOpen(true)}
+              >
+                <Search className="w-4 h-4 text-faint ml-4 shrink-0" />
+                <input
+                  type="text"
+                  placeholder="Buscar paciente..."
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value)
+                    setIsDropdownOpen(true)
+                  }}
+                  onFocus={() => setIsDropdownOpen(true)}
+                  className="w-full bg-transparent px-3 py-2.5 text-sm text-text outline-none"
+                />
+                <ChevronDown className="w-4 h-4 text-faint mr-4 shrink-0" />
+              </div>
+
+              {isDropdownOpen && (
+                <div className="absolute z-20 w-full mt-2 bg-surface border border-border rounded-xl shadow-lg max-h-60 overflow-y-auto">
+                  {filteredPatients.length > 0 ? (
+                    <div className="p-1">
+                      {filteredPatients.map(p => {
+                        const isSelected = selectedPatientId === p.id
+                        return (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedPatientId(p.id)
+                              setSearch(p.name)
+                              setIsDropdownOpen(false)
+                            }}
+                            className={`w-full text-left px-3 py-2 text-sm rounded-lg flex items-center justify-between transition-colors ${
+                              isSelected ? 'bg-brand-soft text-brand font-semibold' : 'hover:bg-elevated text-text'
+                            }`}
+                          >
+                            <span>{p.name} <span className="text-muted text-xs font-normal">({p.code})</span></span>
+                            {isSelected && <Check className="w-4 h-4 text-brand" />}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-sm text-muted">
+                      No se encontraron pacientes.
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

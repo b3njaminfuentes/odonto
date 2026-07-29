@@ -213,12 +213,21 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
                 >
                   <span className={`text-sm font-semibold ${today ? 'text-brand' : inMonth ? 'text-text' : 'text-faint'}`}>{format(day, 'd')}</span>
                   <div className="flex flex-col gap-1 overflow-hidden">
-                    {dayAppts.slice(0, 3).map(a => (
-                      <span key={a.id} className="flex items-center gap-1 text-[10px] sm:text-[11px] text-muted truncate">
-                        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${statusDot[a.status] || 'bg-muted'}`} />
-                        <span className="truncate">{formatTime(a.startsAt)} {a.patient.firstName}</span>
-                      </span>
-                    ))}
+                    {dayAppts.slice(0, 3).map(a => {
+                      const isWebBooking = a.status === 'PENDIENTE' && a.notes?.startsWith('Solicitud web')
+                      const isPast = parseLocalISO(a.startsAt) < todayBolivia && a.status === 'CONFIRMADO'
+                      const displayStatus = isPast ? 'FINALIZADO' : a.status
+                      const dotColor = isWebBooking ? 'bg-danger' : (displayStatus === 'FINALIZADO' ? 'bg-success' : (statusDot[displayStatus] || 'bg-muted'))
+                      
+                      return (
+                        <span key={a.id} className="flex items-center gap-1 text-[10px] sm:text-[11px] text-muted truncate">
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor} ${isWebBooking ? 'animate-pulse' : ''}`} />
+                          <span className={`truncate ${isWebBooking ? 'font-bold text-danger' : ''}`}>
+                            {formatTime(a.startsAt)} {a.patient.firstName || 'Web'}
+                          </span>
+                        </span>
+                      )
+                    })}
                     {dayAppts.length > 3 && <span className="text-[10px] font-medium text-brand">+{dayAppts.length - 3} más</span>}
                   </div>
                 </button>
@@ -239,8 +248,14 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
             </div>
           ) : (
             <div className="divide-y divide-border">
-              {todayAppointments.map((app) => (
-                <div key={app.id} className="p-6 flex flex-col sm:flex-row gap-6 hover:bg-elevated/50 transition-colors group">
+              {todayAppointments.map((app) => {
+                const isWebBooking = app.status === 'PENDIENTE' && app.notes?.startsWith('Solicitud web')
+                const isPast = parseLocalISO(app.startsAt) < todayBolivia && app.status === 'CONFIRMADO'
+                const displayStatus = isPast ? 'FINALIZADO' : app.status
+                const badgeColor = isWebBooking ? 'danger' : getStatusType(displayStatus)
+                
+                return (
+                <div key={app.id} className={`p-6 flex flex-col sm:flex-row gap-6 hover:bg-elevated/50 transition-colors group ${isWebBooking ? 'bg-danger-soft/30 border-l-4 border-danger' : ''}`}>
                   <div className="flex-shrink-0 w-32 flex flex-col items-start sm:items-end sm:border-r sm:border-border sm:pr-6">
                     <span className="text-xl font-bold text-text">{formatTime(app.startsAt)}</span>
                     <span className="text-sm text-muted">{formatTime(app.endsAt)}</span>
@@ -249,15 +264,16 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <div className="flex items-center gap-3 mb-2">
-                          <StatusBadge status={getStatusType(app.status)} text={app.status} />
+                          <StatusBadge status={badgeColor as any} text={displayStatus} />
+                          {isWebBooking && <span className="text-[10px] font-bold uppercase tracking-wider text-white bg-danger px-2 py-0.5 rounded-full animate-pulse">Reserva Web</span>}
                           <span className="text-xs font-semibold text-brand bg-brand-soft border border-brand-soft px-2 py-0.5 rounded-md">{app.type}</span>
                         </div>
                         <div className="flex items-center gap-2 text-lg font-semibold text-text mb-2">
                           <User className="w-5 h-5 text-faint" />
-                          {app.patient.firstName} {app.patient.lastName}
+                          {app.patient.firstName} {app.patient.lastName !== 'Desconocido' ? app.patient.lastName : ''}
                         </div>
                         {app.patient.phone && <div className="flex items-center gap-2 text-sm text-muted mb-3"><Phone className="w-4 h-4 text-faint" />{app.patient.phone}</div>}
-                        {app.notes && <p className="text-sm text-muted bg-elevated p-3 rounded-xl border border-border mt-2">{app.notes}</p>}
+                        {app.notes && <p className={`text-sm p-3 rounded-xl border mt-2 ${isWebBooking ? 'bg-danger-soft text-danger border-danger/20 font-medium' : 'bg-elevated text-muted border-border'}`}>{app.notes}</p>}
 
                         <div className="flex flex-wrap items-center gap-2 mt-4">
                           {updatingId === app.id ? (
@@ -267,9 +283,11 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
                               {app.status === 'PENDIENTE' && (
                                 <button
                                   onClick={() => changeStatus(app.id, 'CONFIRMADO')}
-                                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-success/10 text-success hover:bg-success/20 transition-colors"
+                                  className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
+                                    isWebBooking ? 'bg-danger text-white hover:bg-danger/90 shadow-md ring-2 ring-danger/30' : 'bg-success/10 text-success hover:bg-success/20'
+                                  }`}
                                 >
-                                  <Check className="w-3.5 h-3.5" /> Confirmar
+                                  <Check className="w-3.5 h-3.5" /> {isWebBooking ? 'Confirmar por WhatsApp' : 'Confirmar'}
                                 </button>
                               )}
                               {(app.status === 'PENDIENTE' || app.status === 'CONFIRMADO') && (
@@ -292,7 +310,7 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           )}
         </div>

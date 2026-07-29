@@ -18,3 +18,23 @@ export async function getPatientAppointments(patientId: string) {
 
   return data
 }
+
+export async function saveClinicalNotes(appointmentId: string, clinicalNotes: string) {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('Appointment')
+    .update({ 
+      clinicalNotes,
+      status: 'FINALIZADO'
+    })
+    .eq('id', appointmentId)
+    .select()
+
+  if (error) {
+    console.error('Error saving clinical notes:', error)
+    return { error: 'No se pudieron guardar las notas clínicas.' }
+  }
+
+  revalidatePath('/admin/pacientes/[id]')
+  return { success: true, data }
+}
