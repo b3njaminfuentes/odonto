@@ -125,6 +125,16 @@ export default async function AdminDashboardPage() {
     })
   }
 
+  // Garantizar que la fecha de hace 6 meses y la de hoy existan en el diccionario
+  // para que el mapa de calor siempre renderice el ancho completo de 6 meses
+  if (!(sixMonthsAgoStr in countsByDate)) {
+    countsByDate[sixMonthsAgoStr] = 0
+  }
+  const todayStr = nowBO.split('T')[0]
+  if (!(todayStr in countsByDate)) {
+    countsByDate[todayStr] = 0
+  }
+
   const heatmapData = Object.entries(countsByDate).map(([date, count]) => {
     let level: 0 | 1 | 2 | 3 | 4 = 0
     if (count === 1 || count === 2) level = 1
