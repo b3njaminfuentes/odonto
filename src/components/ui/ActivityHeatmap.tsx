@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import ActivityCalendar, { ThemeInput } from 'react-activity-calendar'
+import { ActivityCalendar, ThemeInput } from 'react-activity-calendar'
 
 export interface ActivityHeatmapProps {
   data: { date: string; count: number; level: 0 | 1 | 2 | 3 | 4 }[]
