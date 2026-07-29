@@ -42,6 +42,7 @@ export function ActivityHeatmap({ data }: ActivityHeatmapProps) {
           renderBlock={(block, activity) => {
             return React.cloneElement(block as React.ReactElement, {
               title: `${activity.count} pacientes atendidos el ${activity.date}`,
+              onClick: () => alert(`${activity.count} pacientes atendidos el ${activity.date}`)
             })
           }}
         />

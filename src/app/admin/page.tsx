@@ -103,15 +103,14 @@ export default async function AdminDashboardPage() {
     }
   }
 
-  // 7. Mapa de Actividad (Últimos 6 meses)
-  const sixMonthsAgo = new Date()
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
-  const sixMonthsAgoStr = sixMonthsAgo.toISOString().split('T')[0]
+  // 7. Mapa de Actividad (Año Actual)
+  const currentYear = new Date().getFullYear()
+  const startOfYearStr = `${currentYear}-01-01`
 
   const { data: heatmapAppointments } = await supabase
     .from('Appointment')
     .select('endsAt, status')
-    .gte('endsAt', `${sixMonthsAgoStr}T00:00:00`)
+    .gte('endsAt', `${startOfYearStr}T00:00:00`)
     .in('status', ['CONFIRMADO', 'FINALIZADO'])
 
   const countsByDate: Record<string, number> = {}
@@ -125,10 +124,10 @@ export default async function AdminDashboardPage() {
     })
   }
 
-  // Garantizar que la fecha de hace 6 meses y la de hoy existan en el diccionario
-  // para que el mapa de calor siempre renderice el ancho completo de 6 meses
-  if (!(sixMonthsAgoStr in countsByDate)) {
-    countsByDate[sixMonthsAgoStr] = 0
+  // Garantizar que la fecha de inicio de año y la de hoy existan en el diccionario
+  // para que el mapa de calor siempre renderice el ancho completo del año hasta hoy
+  if (!(startOfYearStr in countsByDate)) {
+    countsByDate[startOfYearStr] = 0
   }
   const todayStr = nowBO.split('T')[0]
   if (!(todayStr in countsByDate)) {
@@ -362,13 +361,16 @@ export default async function AdminDashboardPage() {
 
       {/* HEATMAP DE ACTIVIDAD */}
       <div className="card bg-surface p-6">
-        <h2 className="text-xl font-semibold text-text mb-6 flex items-center gap-2">
-          <svg className="w-5 h-5 text-brand" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M1.5 1.5A1.5 1.5 0 0 1 3 0h10a1.5 1.5 0 0 1 1.5 1.5v13a1.5 1.5 0 0 1-1.5 1.5H3a1.5 1.5 0 0 1-1.5-1.5V1.5ZM3 1.5v13h10v-13H3Z"></path>
-            <path d="M4.5 4a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V4Zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5V4Zm-4 4a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V8Zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5V8Zm-4 4a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5v-2Zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5v-2Z"></path>
-          </svg>
-          Historial de Productividad (6 meses)
-        </h2>
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold text-text flex items-center gap-2">
+            <svg className="w-5 h-5 text-brand" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M1.5 1.5A1.5 1.5 0 0 1 3 0h10a1.5 1.5 0 0 1 1.5 1.5v13a1.5 1.5 0 0 1-1.5 1.5H3a1.5 1.5 0 0 1-1.5-1.5V1.5ZM3 1.5v13h10v-13H3Z"></path>
+              <path d="M4.5 4a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V4Zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5V4Zm-4 4a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5V8Zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5V8Zm-4 4a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H5a.5.5 0 0 1-.5-.5v-2Zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5H9a.5.5 0 0 1-.5-.5v-2Z"></path>
+            </svg>
+            Historial de Pacientes {currentYear}
+          </h2>
+          <p className="text-sm text-muted mt-1">Mapa donde más pintado verde significa más pacientes atendidos.</p>
+        </div>
         <ActivityHeatmap data={heatmapData} />
       </div>
     </div>
