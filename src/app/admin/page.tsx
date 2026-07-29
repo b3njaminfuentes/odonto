@@ -7,6 +7,7 @@ import { Users, Calendar, Banknote, Clock, ClipboardList, ArrowRight, CheckCircl
 import { intlBO, toBO } from '@/lib/datetime'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { ActivityHeatmap } from '@/components/ui/ActivityHeatmap'
+import { RemindersPanel } from '@/components/dashboard/RemindersPanel'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,6 +49,7 @@ export default async function AdminDashboardPage() {
       treatmentType,
       status,
       notes,
+      reminderSentAt,
       patientId,
       Patient:patientId (
         id,
@@ -148,6 +150,17 @@ export default async function AdminDashboardPage() {
   heatmapData.sort((a, b) => a.date.localeCompare(b.date))
 
   const formatHour = (iso: string) => (iso ? iso.slice(11, 16) : '')
+
+  // Preparar datos para el Panel de Recordatorios
+  const reminderApps = todayAppointmentsList
+    ?.filter(app => !app.reminderSentAt && (app.status === 'CONFIRMADO' || app.status === 'PENDIENTE') && app.Patient?.phone)
+    .map(app => ({
+      id: app.id,
+      startsAt: app.startsAt,
+      treatmentType: app.treatmentType,
+      patientName: `${app.Patient.firstName} ${app.Patient.lastName}`,
+      phone: app.Patient.phone
+    })) || []
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -291,6 +304,8 @@ export default async function AdminDashboardPage() {
         {/* COLUMNA SECUNDARIA: RECORDATORIOS Y SOLICITUDES PENDIENTES */}
         <div className="space-y-6">
           
+          <RemindersPanel appointments={reminderApps} />
+
           {/* Recordatorios de Citas Web por Confirmar */}
           <div className="card bg-brand-soft border-brand-soft p-6">
             <h2 className="text-lg font-bold text-brand mb-4 flex items-center gap-2">

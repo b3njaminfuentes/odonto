@@ -94,13 +94,44 @@ export async function requestAppointment(input: {
     }
     if (clash && clash.length >= 2) return { error: 'Ese horario acaba de ocuparse. Elegí otro, por favor.' }
 
+    // Conciliación de paciente: buscar por teléfono
+    let patientIdToLink: string | null = null
+    const { data: existingPatient } = await sb
+      .from('Patient')
+      .select('id')
+      .eq('phone', phone.trim())
+      .single()
+
+    if (existingPatient) {
+      patientIdToLink = existingPatient.id
+    } else {
+      // Crear pre-perfil automáticamente
+      const newPatientCode = `PT-${Math.floor(100000 + Math.random() * 900000)}`
+      const [fName, ...lNameArr] = name.trim().split(' ')
+      const { data: newPatient, error: createError } = await sb
+        .from('Patient')
+        .insert({
+          patientCode: newPatientCode,
+          firstName: fName || 'Paciente',
+          lastName: lNameArr.join(' ') || 'Web',
+          phone: phone.trim(),
+          status: 'ACTIVE'
+        })
+        .select('id')
+        .single()
+      
+      if (!createError && newPatient) {
+        patientIdToLink = newPatient.id
+      }
+    }
+
     const { error } = await sb.from('Appointment').insert({
-      patientId: null,
+      patientId: patientIdToLink,
       treatmentType: service,
       startsAt: startsAtStr,
       endsAt: endsAtStr,
       status: 'PENDIENTE',
-      notes: `Solicitud web — ${name.trim()} · Tel: ${phone.trim()}`,
+      notes: `Solicitud web automática`,
     })
 
     if (error) {

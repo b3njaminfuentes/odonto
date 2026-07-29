@@ -211,6 +211,7 @@ model Appointment {
   status        AppointmentStatus @default(DISPONIBLE)
   notes         String?
   clinicalNotes String?
+  reminderSentAt DateTime?
   createdAt     DateTime          @default(now())
 
   patient Patient? @relation(fields: [patientId], references: [id])
