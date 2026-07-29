@@ -39,6 +39,11 @@ export function ActivityHeatmap({ data }: ActivityHeatmapProps) {
           showWeekdayLabels={true}
           hideColorLegend={false}
           hideMonthLabels={false}
+          renderBlock={(block, activity) => {
+            return React.cloneElement(block as React.ReactElement, {
+              title: `${activity.count} pacientes atendidos el ${activity.date}`,
+            })
+          }}
         />
       </div>
     </div>
