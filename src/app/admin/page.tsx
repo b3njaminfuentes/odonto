@@ -117,10 +117,18 @@ export default async function AdminDashboardPage() {
 
   const countsByDate: Record<string, number> = {}
   if (heatmapAppointments) {
+    const now = new Date()
     heatmapAppointments.forEach(app => {
-      const isPast = app.endsAt < nowBO
+      const endsAtDate = new Date(app.endsAt)
+      const isPast = endsAtDate < now
       if (app.status === 'FINALIZADO' || isPast) {
-        const dateStr = app.endsAt.split('T')[0]
+        const dateStr = new Intl.DateTimeFormat('sv-SE', {
+          timeZone: 'America/La_Paz',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }).format(endsAtDate)
+        
         countsByDate[dateStr] = (countsByDate[dateStr] || 0) + 1
       }
     })

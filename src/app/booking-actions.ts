@@ -96,11 +96,13 @@ export async function requestAppointment(input: {
 
     // Conciliación de paciente: buscar por teléfono
     let patientIdToLink: string | null = null
-    const { data: existingPatient } = await sb
+    const { data: existingPatientData } = await sb
       .from('Patient')
       .select('id')
       .eq('phone', phone.trim())
-      .single()
+      .limit(1)
+      
+    const existingPatient = existingPatientData?.[0]
 
     if (existingPatient) {
       patientIdToLink = existingPatient.id
