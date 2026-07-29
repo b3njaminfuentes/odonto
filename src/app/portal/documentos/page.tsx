@@ -1,9 +1,18 @@
 import React from 'react'
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { FileText, AlertCircle, File, ImageIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toBO } from '@/lib/datetime'
+
+function serviceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -40,7 +49,8 @@ export default async function DocumentosPage() {
 
   // Firmar URLs
   const docsWithUrls = documents ? await Promise.all(documents.map(async (doc) => {
-    const { data: urlData } = await supabase
+    const svc = serviceClient()
+    const { data: urlData } = await svc
       .storage
       .from(doc.bucket)
       .createSignedUrl(doc.fileUrl, 3600) // 1 hora
@@ -67,10 +77,14 @@ export default async function DocumentosPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {docsWithUrls.map((doc) => (
+          {docsWithUrls.map((doc) => {
+            const isHeic = doc.fileUrl?.toLowerCase().endsWith('.heic')
+            const isDoc = doc.category === 'document' || isHeic
+            
+            return (
             <div key={doc.id} className="group bg-surface rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col">
               <div className="aspect-[4/3] bg-elevated relative flex items-center justify-center overflow-hidden">
-                {doc.category === 'document' ? (
+                {isDoc ? (
                   <File className="w-16 h-16 text-muted" />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -88,7 +102,7 @@ export default async function DocumentosPage() {
                       {doc.description}
                     </h4>
                     <span className="text-[10px] font-bold uppercase tracking-wider text-brand bg-brand-soft px-2 py-0.5 rounded-md flex-shrink-0">
-                      {doc.category === 'document' ? 'PDF' : 'IMG'}
+                      {isDoc ? 'PDF' : 'IMG'}
                     </span>
                   </div>
                   <p className="text-xs font-medium text-muted capitalize">
@@ -106,7 +120,8 @@ export default async function DocumentosPage() {
                 </a>
               </div>
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
 

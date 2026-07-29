@@ -1,10 +1,19 @@
 import React from 'react'
 import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { FileText, File, ImageIcon, ArrowRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { toBO } from '@/lib/datetime'
+
+function serviceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
 
 export const dynamic = 'force-dynamic'
 
@@ -18,11 +27,15 @@ export default async function DocumentosPage() {
     .limit(60)
 
   const withUrls = media ? await Promise.all(media.map(async (m: any) => {
-    const { data } = await supabase.storage.from(m.bucket).createSignedUrl(m.fileUrl, 3600)
+    const svc = serviceClient()
+    const { data } = await svc.storage.from(m.bucket).createSignedUrl(m.fileUrl, 3600)
     return { ...m, signedUrl: data?.signedUrl }
   })) : []
 
-  const isImage = (m: any) => (m.mimeType || '').startsWith('image') || m.bucket?.includes('image') || m.category === 'Antes' || m.category === 'Después'
+  const isImage = (m: any) => {
+    if (m.fileUrl?.toLowerCase().endsWith('.heic')) return false
+    return (m.mimeType || '').startsWith('image') || m.bucket?.includes('image') || m.category === 'Antes' || m.category === 'Después'
+  }
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">

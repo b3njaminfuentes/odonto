@@ -134,16 +134,20 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
   const casePhotos = images.filter(i => i.category === 'case-photo' || i.category === 'image')
   const documents = images.filter(i => i.category === 'document')
 
-  const renderMediaCard = (img: any) => (
+  const renderMediaCard = (img: any) => {
+    const isHeic = img.fileUrl.toLowerCase().endsWith('.heic')
+    const treatAsDocument = img.category === 'document' || isHeic
+
+    return (
     <div 
       key={img.id} 
       className="group relative bg-surface rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col"
     >
       <div 
         className="aspect-[4/3] bg-elevated relative flex items-center justify-center overflow-hidden cursor-pointer"
-        onClick={() => img.category === 'document' ? window.open(img.signedUrl, '_blank') : setFullscreenImage(img)}
+        onClick={() => treatAsDocument ? window.open(img.signedUrl, '_blank') : setFullscreenImage(img)}
       >
-        {img.category === 'document' ? (
+        {treatAsDocument ? (
           <File className="w-16 h-16 text-muted" />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
@@ -199,7 +203,7 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
           </p>
         </div>
         
-        {img.category === 'document' && (
+        {treatAsDocument && (
           <a 
             href={img.signedUrl} 
             target="_blank" 
@@ -207,12 +211,13 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
             onClick={(e) => e.stopPropagation()}
             className="text-brand text-xs font-semibold hover:underline mt-3 inline-block"
           >
-            Abrir documento
+            Abrir archivo
           </a>
         )}
       </div>
     </div>
-  )
+    )
+  }
 
   const renderUploadCard = (category: MediaCategory, label: string) => (
     <div 
