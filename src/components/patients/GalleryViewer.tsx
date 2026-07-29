@@ -56,12 +56,30 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
     fileInputRef.current?.click()
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     
-    setPendingFile(file)
-    setMediaForm({ description: file.name, visibleToPatient: false, category: uploadCategory })
+    let finalFile = file
+    const isHeic = file.name.toLowerCase().endsWith('.heic') || file.type === 'image/heic'
+    
+    if (isHeic) {
+      try {
+        setIsLoading(true)
+        const heic2any = (await import('heic2any')).default
+        const convertedBlob = await heic2any({ blob: file, toType: 'image/jpeg', quality: 0.85 }) as Blob
+        const newName = file.name.replace(/\.heic$/i, '.jpg')
+        finalFile = new File([convertedBlob], newName, { type: 'image/jpeg' })
+      } catch (err) {
+        console.error('Error converting HEIC:', err)
+        alert('Error al convertir HEIC. Se subirá el original.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    
+    setPendingFile(finalFile)
+    setMediaForm({ description: finalFile.name, visibleToPatient: false, category: uploadCategory })
     setEditingMedia(null)
     setIsModalOpen(true)
     
