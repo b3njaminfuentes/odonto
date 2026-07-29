@@ -36,6 +36,9 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [mediaForm, setMediaForm] = useState({ description: '', visibleToPatient: false, category: 'case-photo' as MediaCategory })
   const [error, setError] = useState<string | null>(null)
+  
+  // Fullscreen Viewer state
+  const [fullscreenImage, setFullscreenImage] = useState<any | null>(null)
 
   const loadMedia = async () => {
     setIsLoading(true)
@@ -134,10 +137,12 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
   const renderMediaCard = (img: any) => (
     <div 
       key={img.id} 
-      onClick={() => openEditModal(img)}
-      className="group relative bg-surface rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer flex flex-col"
+      className="group relative bg-surface rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col"
     >
-      <div className="aspect-[4/3] bg-elevated relative flex items-center justify-center overflow-hidden">
+      <div 
+        className="aspect-[4/3] bg-elevated relative flex items-center justify-center overflow-hidden cursor-pointer"
+        onClick={() => img.category === 'document' ? window.open(img.signedUrl, '_blank') : setFullscreenImage(img)}
+      >
         {img.category === 'document' ? (
           <File className="w-16 h-16 text-muted" />
         ) : (
@@ -156,6 +161,14 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
         >
           <X className="w-4 h-4" />
         </button>
+
+        <button 
+          onClick={(e) => { e.stopPropagation(); openEditModal(img) }}
+          className="absolute top-3 right-12 p-1.5 bg-brand/90 text-white rounded-lg opacity-0 group-hover:opacity-100 hover:bg-brand transition-all shadow-sm"
+          title="Editar detalles"
+        >
+          <Edit2 className="w-4 h-4" />
+        </button>
         
         <button
           onClick={(e) => toggleVisibilityDirect(e, img)}
@@ -171,7 +184,10 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
         </button>
       </div>
 
-      <div className="p-4 flex-1 flex flex-col justify-between">
+      <div 
+        className="p-4 flex-1 flex flex-col justify-between cursor-pointer"
+        onClick={() => openEditModal(img)}
+      >
         <div>
           <div className="flex justify-between items-start mb-1.5 gap-2">
             <h4 className="font-bold text-text text-sm line-clamp-2 leading-snug group-hover:text-brand transition-colors" title={img.description}>
@@ -357,6 +373,28 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox / Fullscreen Viewer */}
+      {fullscreenImage && (
+        <div 
+          className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-[100] animate-in fade-in duration-200" 
+          onClick={() => setFullscreenImage(null)}
+        >
+          <button className="absolute top-6 right-6 p-2 text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded-full transition-all backdrop-blur-sm z-50">
+            <X className="w-6 h-6" />
+          </button>
+          
+          <img 
+            src={fullscreenImage.signedUrl} 
+            alt={fullscreenImage.description} 
+            className="max-w-[95vw] max-h-[90vh] object-contain drop-shadow-2xl"
+          />
+          
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white bg-black/50 px-5 py-2.5 rounded-full backdrop-blur-md text-sm font-medium border border-white/10 shadow-lg">
+            {fullscreenImage.description}
           </div>
         </div>
       )}
