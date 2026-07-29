@@ -140,7 +140,7 @@ export function PatientAppointments({ patientId }: PatientAppointmentsProps) {
                         <div>
                           <div className="flex items-center gap-2 mb-1">
                             <h4 className="font-bold text-text text-base">{a.treatmentType || 'Consulta General'}</h4>
-                            <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ring-1 ring-inset ${getStatusColor(a.status)}`}>
+                            <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ring-1 ring-inset ${getStatusColor(a.status === 'CONFIRMADO' ? 'FINALIZADO' : a.status)}`}>
                               {a.status === 'CONFIRMADO' ? 'FINALIZADO' : a.status}
                             </span>
                           </div>

@@ -30,7 +30,7 @@ interface WeeklyCalendarProps {
 }
 
 const statusDot: Record<string, string> = {
-  CONFIRMADO: 'bg-success', PENDIENTE: 'bg-warning', CANCELADO: 'bg-danger',
+  CONFIRMADO: 'bg-success', FINALIZADO: 'bg-success', PENDIENTE: 'bg-warning', CANCELADO: 'bg-danger',
 }
 
 /**
@@ -64,7 +64,7 @@ function getTodayBolivia(): Date {
     day: '2-digit',
   }).format(now)
   const [y, m, d] = boliviaStr.split('-').map(Number)
-  return new Date(y, m - 1, d, 12, 0, 0) // mediodía para evitar edge cases
+  return new Date(y, m - 1, d, 0, 0, 0) // start of the day in local time
 }
 
 /** Comparar si una cita cae en un día específico, usando parse local */
@@ -151,7 +151,7 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
   const apptsOn = (day: Date) => appts.filter(a => isSameDayLocal(a.startsAt, day))
 
   const formatTime = (iso: string) => (iso ? iso.slice(11, 16) : '')
-  const getStatusType = (s: string) => (s === 'CONFIRMADO' ? 'success' : s === 'PENDIENTE' ? 'warning' : s === 'CANCELADO' ? 'danger' : 'default')
+  const getStatusType = (s: string) => (s === 'CONFIRMADO' || s === 'FINALIZADO' ? 'success' : s === 'PENDIENTE' ? 'warning' : s === 'CANCELADO' ? 'danger' : 'default')
 
   // Check if a day is "today" in Bolivia
   const todayBolivia = getTodayBolivia()
