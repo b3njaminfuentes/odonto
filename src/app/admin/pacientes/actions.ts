@@ -152,7 +152,7 @@ export async function deletePatient(patientId: string): Promise<{ success: true 
 
     if (mediaFiles && mediaFiles.length > 0) {
       for (const m of mediaFiles) {
-        await svc.storage.from(m.bucket).remove([m.fileUrl]).catch(() => {})
+        await svc.storage.from(m.bucket).remove([m.fileUrl])
       }
     }
 
@@ -160,7 +160,7 @@ export async function deletePatient(patientId: string): Promise<{ success: true 
     await svc.from('ToothMoldChart').delete().eq('patientId', patientId)
     await svc.from('Cephalometry').delete().eq('patientId', patientId)
     await svc.from('CaseMedia').delete().eq('patientId', patientId)
-    await svc.from('TimelineEvent').delete().eq('patientId', patientId).catch(() => {})
+    await svc.from('TimelineEvent').delete().eq('patientId', patientId)
     await svc.from('Diagnosis').delete().eq('patientId', patientId)
     await svc.from('Payment').delete().eq('patientId', patientId)
     await svc.from('Treatment').delete().eq('patientId', patientId)
@@ -209,7 +209,7 @@ export async function deletePatients(patientIds: string[]): Promise<{ success: t
 
     if (mediaFiles && mediaFiles.length > 0) {
       for (const m of mediaFiles) {
-        await svc.storage.from(m.bucket).remove([m.fileUrl]).catch(() => {})
+        await svc.storage.from(m.bucket).remove([m.fileUrl])
       }
     }
 
