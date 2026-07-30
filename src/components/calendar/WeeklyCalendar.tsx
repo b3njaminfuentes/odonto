@@ -9,6 +9,7 @@ import {
 import { es } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, Plus, Clock, User, Phone, Loader2, CalendarDays, List, Check, X } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { NewAppointmentModal } from './NewAppointmentModal'
 import { EditAppointmentModal } from './EditAppointmentModal'
 import { StatusBadge } from '../ui/StatusBadge'
