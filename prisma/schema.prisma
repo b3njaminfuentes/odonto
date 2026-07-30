@@ -53,6 +53,7 @@ model Profile {
   patient Patient?
   appointments Appointment[]
   historyVersions ClinicalHistoryVersion[]
+  paymentsReceived DoctorPayment[]
 
   @@index([email])
 }
@@ -242,6 +243,7 @@ model Payment {
   method      String?
   notes       String?
   receiptUrl  String?
+  signatureUrl String? // Base64 png data
   date        DateTime      @default(now())
 
   patient   Patient    @relation(fields: [patientId], references: [id])
@@ -249,6 +251,22 @@ model Payment {
 
   @@index([patientId])
   @@index([treatmentId])
+}
+
+model DoctorPayment {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  doctorId    String   @db.Uuid
+  amount      Decimal  @db.Decimal(10, 2)
+  currency    String   @default("BOB")
+  description String?
+  date        DateTime @default(now())
+  signatureUrl String? // Base64 png data
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  doctor      Profile  @relation(fields: [doctorId], references: [id])
+
+  @@index([doctorId])
 }
 
 model TimelineEvent {

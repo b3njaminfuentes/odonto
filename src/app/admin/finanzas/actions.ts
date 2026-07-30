@@ -11,6 +11,7 @@ export async function createPayment(formData: FormData) {
   const amountStr = formData.get('amount') as string
   const method = formData.get('method') as string
   const notes = formData.get('concept') as string // Using 'concept' from form input as 'notes' in DB
+  const signatureUrl = formData.get('signatureUrl') as string | null
 
   const amount = parseFloat(amountStr)
 
@@ -27,7 +28,8 @@ export async function createPayment(formData: FormData) {
       method,
       notes,
       date: new Date().toISOString(),
-      status: 'COMPLETADO' // Para el MVP asumimos que el pago se registra al concretarse
+      status: 'COMPLETADO', // Para el MVP asumimos que el pago se registra al concretarse
+      signatureUrl
     })
     .select()
     .single()

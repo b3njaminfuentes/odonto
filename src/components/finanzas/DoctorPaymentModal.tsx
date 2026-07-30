@@ -1,27 +1,27 @@
 'use client'
 
 import React, { useState, useRef, useEffect } from 'react'
-import { X, Loader2, DollarSign, PenTool } from 'lucide-react'
-import { createPayment } from '@/app/admin/finanzas/actions'
+import { X, Loader2, UserMinus, PenTool } from 'lucide-react'
+import { createDoctorPayment } from '@/app/admin/finanzas/doctor-actions'
 import { SignaturePad } from '@/components/ui/SignaturePad'
 
-interface PatientOption {
+interface DoctorOption {
   id: string
-  name: string
-  code: string
+  firstName: string
+  lastName: string
 }
 
-interface NewPaymentModalProps {
+interface DoctorPaymentModalProps {
   isOpen: boolean
   onClose: () => void
-  patients: PatientOption[]
+  doctors: DoctorOption[]
+  onSuccess: () => void
 }
 
-export function NewPaymentModal({ isOpen, onClose, patients }: NewPaymentModalProps) {
+export function DoctorPaymentModal({ isOpen, onClose, doctors, onSuccess }: DoctorPaymentModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [signatureData, setSignatureData] = useState<string | null>(null)
-  const [requireSignature, setRequireSignature] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
@@ -34,14 +34,18 @@ export function NewPaymentModal({ isOpen, onClose, patients }: NewPaymentModalPr
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (!signatureData) {
+      setError('La firma digital del doctor es obligatoria para registrar el pago.')
+      return
+    }
+
     setLoading(true)
     setError(null)
     
     const formData = new FormData(e.currentTarget)
-    if (signatureData) {
-      formData.append('signatureUrl', signatureData)
-    }
-    const result = await createPayment(formData)
+    formData.append('signatureUrl', signatureData)
+
+    const result = await createDoctorPayment(formData)
     
     if (result.error) {
       setError(result.error)
@@ -50,7 +54,7 @@ export function NewPaymentModal({ isOpen, onClose, patients }: NewPaymentModalPr
       setLoading(false)
       formRef.current?.reset()
       setSignatureData(null)
-      setRequireSignature(false)
+      onSuccess()
       onClose()
     }
   }
@@ -62,8 +66,8 @@ export function NewPaymentModal({ isOpen, onClose, patients }: NewPaymentModalPr
       <div data-lenis-prevent className="relative bg-surface rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
         <div className="bg-surface/80 backdrop-blur-md border-b border-border px-6 py-4 flex items-center justify-between">
           <h2 className="text-xl font-semibold text-text font-serif flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-success" />
-            Registrar Pago
+            <UserMinus className="w-5 h-5 text-warning" />
+            Registrar Pago a Doctor
           </h2>
           <button onClick={onClose} className="p-2 text-muted hover:text-muted hover:bg-elevated rounded-full transition-colors">
             <X className="w-5 h-5" />
@@ -79,20 +83,20 @@ export function NewPaymentModal({ isOpen, onClose, patients }: NewPaymentModalPr
 
           <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-muted mb-1">Paciente *</label>
-              <select name="patientId" required className="w-full px-4 py-2.5 bg-surface border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-brand outline-none transition-all">
-                <option value="">Selecciona un paciente...</option>
-                {patients.map(p => (
-                  <option key={p.id} value={p.id}>{p.name} ({p.code})</option>
+              <label className="block text-sm font-medium text-muted mb-1">Doctor *</label>
+              <select name="doctorId" required className="w-full px-4 py-2.5 bg-surface border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-brand outline-none transition-all">
+                <option value="">Selecciona un doctor...</option>
+                {doctors.map(d => (
+                  <option key={d.id} value={d.id}>Dra. {d.firstName} {d.lastName}</option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-muted mb-1">Monto ($) *</label>
+              <label className="block text-sm font-medium text-muted mb-1">Monto Pagado (Bs) *</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <DollarSign className="h-5 w-5 text-muted" />
+                  <span className="text-muted font-bold text-sm">Bs</span>
                 </div>
                 <input 
                   type="number" 
@@ -107,58 +111,38 @@ export function NewPaymentModal({ isOpen, onClose, patients }: NewPaymentModalPr
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-muted mb-1">Método de Pago *</label>
-              <select name="method" required className="w-full px-4 py-2.5 bg-surface border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-brand outline-none transition-all">
-                <option value="EFECTIVO">Efectivo</option>
-                <option value="TRANSFERENCIA">Transferencia Bancaria</option>
-                <option value="TARJETA">Tarjeta de Débito/Crédito</option>
-                <option value="QR">Código QR</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-muted mb-1">Concepto *</label>
+              <label className="block text-sm font-medium text-muted mb-1">Descripción / Notas</label>
               <input 
                 type="text" 
-                name="concept" 
-                required 
+                name="description" 
                 className="w-full px-4 py-2.5 border border-border rounded-xl focus:ring-2 focus:ring-primary focus:border-brand outline-none transition-all"
-                placeholder="Ej. Abono por tratamiento de conducto"
+                placeholder="Ej. Pago por comisiones de ortodoncia mes Julio"
               />
             </div>
 
             <div className="bg-surface/50 border border-border p-4 rounded-xl">
-              <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-text mb-3">
-                <input 
-                  type="checkbox" 
-                  checked={requireSignature}
-                  onChange={(e) => setRequireSignature(e.target.checked)}
-                  className="rounded text-brand focus:ring-brand accent-brand" 
-                />
-                <PenTool className="w-4 h-4 text-muted" />
-                Añadir Firma Digital del Paciente
+              <label className="flex items-center gap-2 text-sm font-bold text-text mb-3">
+                <PenTool className="w-4 h-4 text-brand" />
+                Firma Digital Requerida *
               </label>
-
-              {requireSignature && (
-                <div className="mt-2 animate-in fade-in slide-in-from-top-2">
-                  <SignaturePad 
-                    onSave={setSignatureData} 
-                    disabled={loading} 
-                  />
-                  <p className="text-xs text-muted mt-2 text-center">
-                    El paciente debe firmar dentro del recuadro para validar el comprobante.
-                  </p>
-                </div>
-              )}
+              <div className="animate-in fade-in slide-in-from-top-2">
+                <SignaturePad 
+                  onSave={setSignatureData} 
+                  disabled={loading} 
+                />
+                <p className="text-xs text-muted mt-2 text-center">
+                  El doctor debe firmar aquí como constancia de recepción.
+                </p>
+              </div>
             </div>
 
             <div className="pt-4 flex justify-end gap-3">
               <button type="button" onClick={onClose} disabled={loading} className="px-5 py-2.5 text-muted font-medium hover:bg-elevated rounded-xl transition-colors disabled:opacity-50">
                 Cancelar
               </button>
-              <button type="submit" disabled={loading} className="px-6 py-2.5 bg-success text-white font-medium hover:bg-success/90 rounded-xl transition-colors shadow-sm disabled:opacity-70 flex items-center gap-2">
+              <button type="submit" disabled={loading} className="px-6 py-2.5 bg-warning text-white font-medium hover:bg-warning/90 rounded-xl transition-colors shadow-sm disabled:opacity-70 flex items-center gap-2">
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-                Registrar Ingreso
+                Registrar Pago y Firma
               </button>
             </div>
           </form>

@@ -29,12 +29,14 @@
     "react-activity-calendar": "^3.2.1",
     "react-day-picker": "^10.0.1",
     "react-dom": "^18",
+    "react-signature-canvas": "^1.1.0-alpha.2",
     "ws": "^8.21.1"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/react-signature-canvas": "^1.0.7",
     "dotenv": "^17.4.2",
     "eslint": "^8",
     "eslint-config-next": "14.2.35",

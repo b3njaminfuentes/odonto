@@ -291,16 +291,9 @@ export function ToothMoldChartForm({ patientId }: ToothMoldChartFormProps) {
                             isHigh ? 'bg-rose-100 dark:bg-rose-950/60 ring-1 ring-rose-400' : ''
                           }`}
                         >
-                          <input
-                            type="text"
-                            value={val}
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e) => handleUpperChange(line, tooth, e.target.value)}
-                            placeholder="0.0"
-                            className={`w-full text-center bg-transparent outline-none font-semibold text-xs py-1 rounded transition-all ${
-                              isHigh ? 'text-rose-900 dark:text-rose-200 font-bold' : 'text-text focus:bg-surface focus:ring-1 focus:ring-brand'
-                            }`}
-                          />
+                          <span className={`block w-full text-center font-semibold text-xs py-1 transition-all ${isHigh ? 'text-rose-900 dark:text-rose-200 font-bold' : 'text-text'}`}>
+                            {val || '0.0'}
+                          </span>
                         </td>
                       )
                     })}
@@ -349,16 +342,9 @@ export function ToothMoldChartForm({ patientId }: ToothMoldChartFormProps) {
                             isHigh ? 'bg-rose-100 dark:bg-rose-950/60 ring-1 ring-rose-400' : ''
                           }`}
                         >
-                          <input
-                            type="text"
-                            value={val}
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e) => handleLowerChange(line, tooth, e.target.value)}
-                            placeholder="0.0"
-                            className={`w-full text-center bg-transparent outline-none font-semibold text-xs py-1 rounded transition-all ${
-                              isHigh ? 'text-rose-900 dark:text-rose-200 font-bold' : 'text-text focus:bg-surface focus:ring-1 focus:ring-brand'
-                            }`}
-                          />
+                          <span className={`block w-full text-center font-semibold text-xs py-1 transition-all ${isHigh ? 'text-rose-900 dark:text-rose-200 font-bold' : 'text-text'}`}>
+                            {val || '0.0'}
+                          </span>
                         </td>
                       )
                     })}

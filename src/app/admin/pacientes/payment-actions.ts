@@ -58,6 +58,7 @@ export async function createPayment(formData: FormData) {
       amount,
       method,
       notes: notes || null,
+      signatureUrl: signatureUrl || null,
       status: 'COMPLETADO',
       date: new Date().toISOString()
     })

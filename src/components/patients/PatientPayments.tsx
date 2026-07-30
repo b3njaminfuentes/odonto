@@ -1,9 +1,10 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { DollarSign, Plus, Loader2, FileText, CheckCircle, XCircle, Pencil } from 'lucide-react'
+import { DollarSign, Plus, Loader2, FileText, CheckCircle, XCircle, Pencil, PenTool } from 'lucide-react'
 import { getPatientPayments, getPatientActiveTreatments, createPayment, updatePayment, updatePaymentStatus, getAccountStatement, type AccountStatement as Statement } from '@/app/admin/pacientes/payment-actions'
 import { AccountStatement } from './AccountStatement'
+import { SignaturePad } from '@/components/ui/SignaturePad'
 import { intlBO, toBO } from '@/lib/datetime'
 
 interface PatientPaymentsProps {
@@ -20,6 +21,8 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
   const [isSaving, setIsSaving] = useState(false)
   const [amount, setAmount] = useState('')
   const [selectedTreatmentId, setSelectedTreatmentId] = useState('')
+  const [signatureData, setSignatureData] = useState<string | null>(null)
+  const [requireSignature, setRequireSignature] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const isFormOpen = isAdding || !!editingPayment
 
@@ -48,6 +51,10 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
     const formData = new FormData(e.currentTarget)
     formData.append('patientId', patientId)
 
+    if (signatureData) {
+      formData.append('signatureUrl', signatureData)
+    }
+
     if (editingPayment) {
       await updatePayment(editingPayment.id, patientId, formData)
     } else {
@@ -63,6 +70,8 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
     setEditingPayment(null)
     setAmount('')
     setSelectedTreatmentId('')
+    setSignatureData(null)
+    setRequireSignature(false)
     setIsAdding(true)
   }
 
@@ -78,6 +87,8 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
     setEditingPayment(null)
     setAmount('')
     setSelectedTreatmentId('')
+    setSignatureData(null)
+    setRequireSignature(false)
   }
 
   const handleStatus = async (id: string, status: string) => {
@@ -181,6 +192,33 @@ export function PatientPayments({ patientId }: PatientPaymentsProps) {
                 className="input w-full px-4 py-2.5 bg-surface"
               />
             </div>
+
+            {!editingPayment && (
+              <div className="bg-surface/50 border border-border p-4 rounded-xl">
+                <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-text mb-3">
+                  <input 
+                    type="checkbox" 
+                    checked={requireSignature}
+                    onChange={(e) => setRequireSignature(e.target.checked)}
+                    className="rounded text-brand focus:ring-brand accent-brand" 
+                  />
+                  <PenTool className="w-4 h-4 text-muted" />
+                  Añadir Firma Digital del Paciente
+                </label>
+
+                {requireSignature && (
+                  <div className="mt-2 animate-in fade-in slide-in-from-top-2">
+                    <SignaturePad 
+                      onSave={setSignatureData} 
+                      disabled={isSaving} 
+                    />
+                    <p className="text-xs text-muted mt-2 text-center">
+                      El paciente debe firmar dentro del recuadro para validar el comprobante.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="flex justify-end gap-3 pt-4 border-t border-border">
               <button

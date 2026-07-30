@@ -6,7 +6,8 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 
 // Cliente
-import { NewPaymentModal } from '@/components/finanzas/NewPaymentModal'
+import FinanzasInteractivityWrapper from './FinanzasWrapper'
+import { getDoctorPayments, getDoctorsList } from './doctor-actions'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,6 +70,24 @@ export default async function FinanzasPage({
     }
   }))
 
+  // Traer pagos a doctores y lista de doctores
+  const doctorPaymentsRaw = await getDoctorPayments()
+  const doctorsList = await getDoctorsList()
+
+  const doctorPayments = (doctorPaymentsRaw || []).map((p: any) => ({
+    id: p.id,
+    amount: p.amount,
+    date: p.date,
+    description: p.description,
+    signatureUrl: p.signatureUrl,
+    doctorId: p.doctorId,
+    doctor: {
+      firstName: p.doctor?.firstName || 'Doctor',
+      lastName: p.doctor?.lastName || '',
+      color: p.doctor?.color || 'brand'
+    }
+  }))
+
   // KPIs sobre TODO el historial (no solo los últimos 50 que se listan abajo).
   // Solo los pagos COMPLETADOS cuentan como ingreso real (los anulados no).
   const { data: allCompleted } = await supabase
@@ -79,13 +98,6 @@ export default async function FinanzasPage({
   const totalIngresos = (allCompleted || []).reduce((acc, curr) => acc + Number(curr.amount), 0)
   const completedCount = (allCompleted || []).length
   const patientsWithPayments = new Set((allCompleted || []).map((p) => p.patientId)).size
-
-  // Un pequeño componente cliente para manejar el modal sin ensuciar la página SSR principal
-  const FinanzasClientWrapper = () => {
-    // Usaremos un truco con query parameters si queremos o podemos extraer el modal a un client component Wrapper.
-    // Para no complicarlo, crearemos un pequeño componente envolvente inline o en un archivo separado.
-    // Para simplificar aquí, lo importaremos pero lo abriremos desde un 'use client' pequeño que envuelva el header.
-  }
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -144,11 +156,13 @@ export default async function FinanzasPage({
       </div>
 
       {/* Lista de Transacciones y Modal Wrapper */}
-      <FinanzasInteractivityWrapper patients={patientsForSelect} payments={payments} />
+      <FinanzasInteractivityWrapper 
+        patients={patientsForSelect} 
+        payments={payments} 
+        doctors={doctorsList}
+        doctorPayments={doctorPayments}
+      />
 
     </div>
   )
 }
-
-// Componente Cliente inyectado en el mismo archivo para manejar el estado del Modal
-import FinanzasInteractivityWrapper from './FinanzasWrapper'
