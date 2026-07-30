@@ -14,9 +14,10 @@ import { ToothMoldChartForm } from './ToothMoldChartForm'
 interface PatientTabsProps {
   patientId: string
   summaryData: any
+  userRole?: string
 }
 
-export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
+export function PatientTabs({ patientId, summaryData, userRole = 'admin' }: PatientTabsProps) {
   const [activeTab, setActiveTab] = useState<'resumen' | 'historial' | 'odontograma' | 'ortodoncia' | 'tratamientos' | 'galeria' | 'pagos' | 'citas'>('resumen')
 
   return (
@@ -90,17 +91,18 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
           <ImageIcon className="w-4 h-4" />
           Documentos y Fotos
         </button>
-        {/* Placeholder for Pagos & Citas tabs to be built in later phases */}
-        <button
-          onClick={() => setActiveTab('pagos')}
-          className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
-            activeTab === 'pagos' 
-            ? 'border-brand text-brand bg-brand-soft/50' 
-            : 'border-transparent text-muted hover:text-muted hover:bg-elevated'
-          }`}
-        >
-          Pagos
-        </button>
+        {userRole !== 'doctor' && (
+          <button
+            onClick={() => setActiveTab('pagos')}
+            className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
+              activeTab === 'pagos' 
+              ? 'border-brand text-brand bg-brand-soft/50' 
+              : 'border-transparent text-muted hover:text-muted hover:bg-elevated'
+            }`}
+          >
+            Pagos
+          </button>
+        )}
         <button
           onClick={() => setActiveTab('citas')}
           className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
@@ -138,7 +140,7 @@ export function PatientTabs({ patientId, summaryData }: PatientTabsProps) {
 
         {activeTab === 'tratamientos' && (
           <div className="bg-surface rounded-xl shadow-sm border border-border p-6 md:p-8">
-            <PatientTreatments patientId={patientId} />
+            <PatientTreatments patientId={patientId} userRole={userRole} />
           </div>
         )}
 

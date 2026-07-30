@@ -7,9 +7,10 @@ import { intlBO, toBO } from '@/lib/datetime'
 
 interface PatientTreatmentsProps {
   patientId: string
+  userRole?: string
 }
 
-export function PatientTreatments({ patientId }: PatientTreatmentsProps) {
+export function PatientTreatments({ patientId, userRole = 'admin' }: PatientTreatmentsProps) {
   const [treatments, setTreatments] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -140,11 +141,15 @@ export function PatientTreatments({ patientId }: PatientTreatmentsProps) {
                 </span>
                 
                 <div className="flex flex-col items-end">
-                  {t.budget != null && (
-                    <span className="text-muted">Presupuesto: Bs {Number(t.budget).toFixed(2)}</span>
-                  )}
-                  {t.finalCost != null && (
-                    <span className="text-text font-bold">Costo Real: Bs {Number(t.finalCost).toFixed(2)}</span>
+                  {userRole !== 'doctor' && (
+                    <>
+                      {t.budget != null && (
+                        <span className="text-muted">Presupuesto: Bs {Number(t.budget).toFixed(2)}</span>
+                      )}
+                      {t.finalCost != null && (
+                        <span className="text-text font-bold">Costo Real: Bs {Number(t.finalCost).toFixed(2)}</span>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -208,32 +213,34 @@ export function PatientTreatments({ patientId }: PatientTreatmentsProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-muted">Presupuesto Inicial (Bs)</label>
-                  <input 
-                    type="number"
-                    name="budget"
-                    step="0.01"
-                    min="0"
-                    defaultValue={editingTreatment?.budget}
-                    placeholder="0.00"
-                    className="input w-full px-4 py-2.5"
-                  />
+              {userRole !== 'doctor' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-muted">Presupuesto Inicial (Bs)</label>
+                    <input 
+                      type="number"
+                      name="budget"
+                      step="0.01"
+                      min="0"
+                      defaultValue={editingTreatment?.budget}
+                      placeholder="0.00"
+                      className="input w-full px-4 py-2.5"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-medium text-muted">Costo Final Cobrado (Bs)</label>
+                    <input 
+                      type="number"
+                      name="finalCost"
+                      step="0.01"
+                      min="0"
+                      defaultValue={editingTreatment?.finalCost}
+                      placeholder="0.00"
+                      className="input w-full px-4 py-2.5"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-muted">Costo Final Cobrado (Bs)</label>
-                  <input 
-                    type="number"
-                    name="finalCost"
-                    step="0.01"
-                    min="0"
-                    defaultValue={editingTreatment?.finalCost}
-                    placeholder="0.00"
-                    className="input w-full px-4 py-2.5"
-                  />
-                </div>
-              </div>
+              )}
 
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-muted">Descripción / Notas</label>

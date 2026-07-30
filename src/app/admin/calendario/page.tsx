@@ -25,6 +25,18 @@ export default async function CalendarioPage({
     code: p.patientCode
   }))
 
+  const { data: doctors } = await supabase
+    .from('Profile')
+    .select('id, firstName, lastName, specialty')
+    .in('role', ['admin', 'doctor'])
+    .eq('isActive', true)
+    
+  const doctorsForSelect = (doctors || []).map(d => ({
+    id: d.id,
+    name: `${d.firstName || ''} ${d.lastName || ''}`.trim() || 'Doctor',
+    specialty: d.specialty
+  }))
+
   // Determinar el mes a consultar usando la fecha recibida o "hoy en Bolivia"
   let queryYear: number
   let queryMonth: number // 0-indexed
@@ -73,11 +85,17 @@ export default async function CalendarioPage({
       treatmentType,
       notes,
       patientId,
+      doctorId,
       Patient:patientId (
         id,
         firstName,
         lastName,
         phone
+      ),
+      doctor:doctorId (
+        id,
+        firstName,
+        lastName
       )
     `)
     .gte('startsAt', startISO)
@@ -98,7 +116,10 @@ export default async function CalendarioPage({
       firstName: app.Patient?.firstName || 'Paciente',
       lastName: app.Patient?.lastName || 'Desconocido',
       phone: app.Patient?.phone
-    }
+    },
+    doctor: app.doctor ? {
+      name: `${app.doctor.firstName || ''} ${app.doctor.lastName || ''}`.trim()
+    } : null
   }))
 
   return (
@@ -113,6 +134,7 @@ export default async function CalendarioPage({
       <WeeklyCalendar 
         initialAppointments={appointments} 
         patients={patientsForSelect} 
+        doctors={doctorsForSelect}
       />
     </div>
   )

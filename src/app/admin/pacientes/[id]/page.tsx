@@ -1,6 +1,6 @@
 import React from 'react'
 import { notFound } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { createClient, getAuthProfile } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { ArrowLeft, FileText } from 'lucide-react'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -16,6 +16,8 @@ export const dynamic = 'force-dynamic'
 
 export default async function PatientProfilePage({ params }: { params: { id: string } }) {
   const supabase = createClient()
+  const { profile: authProfile } = await getAuthProfile()
+  const isAdmin = authProfile?.role === 'admin'
 
   // Buscar el paciente con todo lo necesario para el resumen completo (línea de tiempo)
   const { data: patient, error } = await supabase
@@ -73,13 +75,15 @@ export default async function PatientProfilePage({ params }: { params: { id: str
           Volver a pacientes
         </Link>
         <div className="flex gap-2">
-          <Link
-            href={`/admin/pacientes/${patient.id}/cotizacion`}
-            className="px-4 py-2 bg-surface border border-border text-muted font-medium rounded-xl hover:border-brand hover:text-brand transition-colors flex items-center gap-2 shadow-sm text-sm"
-          >
-            <FileText className="w-4 h-4" />
-            Cotización
-          </Link>
+          {isAdmin && (
+            <Link
+              href={`/admin/pacientes/${patient.id}/cotizacion`}
+              className="px-4 py-2 bg-surface border border-border text-muted font-medium rounded-xl hover:border-brand hover:text-brand transition-colors flex items-center gap-2 shadow-sm text-sm"
+            >
+              <FileText className="w-4 h-4" />
+              Cotización
+            </Link>
+          )}
           <EditPatientModal patient={patient} />
           <PatientAccessButton patientId={patient.id} hasAccess={!!patient.profileId} />
           <DeletePatientModal
@@ -120,6 +124,7 @@ export default async function PatientProfilePage({ params }: { params: { id: str
       {/* Tabs Layout */}
       <PatientTabs 
         patientId={patient.id} 
+        userRole={authProfile?.role || 'doctor'}
         summaryData={{
           appointments: patient.appointments || [],
           history: patient.history,

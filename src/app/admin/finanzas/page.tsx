@@ -1,5 +1,6 @@
 import React from 'react'
-import { createClient } from '@/utils/supabase/server'
+import { createClient, getAuthProfile } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
 import { DollarSign, TrendingUp, Users, ArrowUpRight, Plus } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -15,6 +16,11 @@ export default async function FinanzasPage({
   searchParams?: { [key: string]: string | undefined }
 }) {
   const supabase = createClient()
+  const { profile } = await getAuthProfile()
+
+  if (profile?.role === 'doctor') {
+    redirect('/admin')
+  }
 
   // Traer pacientes para el select del Modal
   const { data: rawPatients } = await supabase

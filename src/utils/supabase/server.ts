@@ -44,3 +44,18 @@ export function createAdminClient() {
     }
   )
 }
+
+export async function getAuthProfile() {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  
+  if (!session) return { session: null, profile: null }
+
+  const { data: profile } = await supabase
+    .from('Profile')
+    .select('*')
+    .eq('id', session.user.id)
+    .single()
+
+  return { session, profile }
+}

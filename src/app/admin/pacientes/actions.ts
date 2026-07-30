@@ -164,6 +164,11 @@ export async function deletePatient(patientId: string): Promise<{ success: true 
     await svc.from('Diagnosis').delete().eq('patientId', patientId)
     await svc.from('Payment').delete().eq('patientId', patientId)
     await svc.from('Treatment').delete().eq('patientId', patientId)
+
+    const { data: historyData } = await svc.from('ClinicalHistory').select('id').eq('patientId', patientId).single()
+    if (historyData) {
+      await svc.from('ClinicalHistoryVersion').delete().eq('clinicalHistoryId', historyData.id)
+    }
     await svc.from('ClinicalHistory').delete().eq('patientId', patientId)
     await svc.from('Odontogram').delete().eq('patientId', patientId)
     await svc.from('Appointment').delete().eq('patientId', patientId)
@@ -220,6 +225,12 @@ export async function deletePatients(patientIds: string[]): Promise<{ success: t
     await svc.from('Diagnosis').delete().in('patientId', patientIds)
     await svc.from('Payment').delete().in('patientId', patientIds)
     await svc.from('Treatment').delete().in('patientId', patientIds)
+    
+    const { data: histories } = await svc.from('ClinicalHistory').select('id').in('patientId', patientIds)
+    if (histories && histories.length > 0) {
+      const historyIds = histories.map(h => h.id)
+      await svc.from('ClinicalHistoryVersion').delete().in('clinicalHistoryId', historyIds)
+    }
     await svc.from('ClinicalHistory').delete().in('patientId', patientIds)
     await svc.from('Odontogram').delete().in('patientId', patientIds)
     await svc.from('Appointment').delete().in('patientId', patientIds)

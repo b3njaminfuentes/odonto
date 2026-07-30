@@ -9,12 +9,13 @@ import {
 } from 'lucide-react'
 
 const navigation = [
-  { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
+  { name: 'Inicio', href: '/admin', icon: LayoutDashboard },
   { name: 'Pacientes', href: '/admin/pacientes', icon: Users },
   { name: 'Calendario', href: '/admin/calendario', icon: Calendar },
   { name: 'Tratamientos', href: '/admin/tratamientos', icon: Stethoscope },
   { name: 'Pagos', href: '/admin/finanzas', icon: CreditCard },
   { name: 'Documentos', href: '/admin/documentos', icon: FolderOpen },
+  { name: 'Equipo', href: '/admin/equipo', icon: Users },
   { name: 'Configuración', href: '/admin/configuracion', icon: Settings },
 ]
 
@@ -23,12 +24,20 @@ interface AdminShellProps {
   doctorName: string
   initials: string
   specialty: string
+  userRole: string
   signOutAction: () => Promise<void>
 }
 
-export function AdminShell({ children, doctorName, initials, specialty, signOutAction }: AdminShellProps) {
+export function AdminShell({ children, doctorName, initials, specialty, userRole, signOutAction }: AdminShellProps) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const filteredNavigation = navigation.filter(item => {
+    if (userRole === 'doctor') {
+      return item.name !== 'Pagos' && item.name !== 'Configuración' && item.name !== 'Equipo'
+    }
+    return true
+  })
 
   // Cerrar sidebar automáticamente al navegar en móvil
   useEffect(() => {
@@ -116,7 +125,7 @@ export function AdminShell({ children, doctorName, initials, specialty, signOutA
 
         {/* Navigation Links */}
         <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
-          {navigation.map((item) => {
+          {filteredNavigation.map((item) => {
             const isActive = item.href === '/admin'
               ? pathname === '/admin'
               : pathname?.startsWith(item.href)

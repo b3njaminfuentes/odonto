@@ -17,7 +17,11 @@ export async function getClinicalHistory(patientId: string) {
         dentalBackground,
         observations,
         changedBy,
-        createdAt
+        createdAt,
+        author:changedBy(
+          firstName,
+          lastName
+        )
       )
     `)
     .eq('patientId', patientId)

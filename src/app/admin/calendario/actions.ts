@@ -23,6 +23,7 @@ async function createAppointmentInner(formData: FormData) {
   const duration = parseInt(formData.get('duration') as string) || 30
   const treatmentType = formData.get('type') as string
   const notes = formData.get('notes') as string
+  const doctorId = formData.get('doctorId') as string || null
 
   let startISO: string
   let endISO: string
@@ -84,6 +85,7 @@ async function createAppointmentInner(formData: FormData) {
     .from('Appointment')
     .insert({
       patientId,
+      doctorId,
       startsAt: startISO,
       endsAt: endISO,
       status: 'CONFIRMADO', // Para este MVP, asumimos que se confirma al agendar

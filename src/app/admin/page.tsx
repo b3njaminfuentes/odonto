@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/utils/supabase/server'
 import { KPICard } from '@/components/ui/KPICard'
 import { getClinicSettings } from './configuracion/actions'
+import { getAuthProfile } from '@/utils/supabase/server'
 import { Users, Calendar, Banknote, Clock, ClipboardList, ArrowRight, CheckCircle2, User, Phone } from 'lucide-react'
 import { intlBO, toBO } from '@/lib/datetime'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -63,13 +64,20 @@ export default async function AdminDashboardPage() {
     .not('status', 'eq', 'CANCELADO')
     .order('startsAt', { ascending: true })
 
-  // 3. Obtener Pagos Pendientes (Cantidad y Suma)
-  const { data: pendingPaymentsData } = await supabase
-    .from('Payment')
-    .select('amount')
-    .eq('status', 'PENDIENTE')
-
-  const totalPendingMoney = pendingPaymentsData?.reduce((acc, curr) => acc + Number(curr.amount), 0) || 0
+  // 3. Obtener Pagos Pendientes (Cantidad y Suma) solo si es admin
+  const { profile } = await getAuthProfile()
+  const isAdmin = profile?.role === 'admin'
+  let pendingPaymentsData = null
+  let totalPendingMoney = 0
+  
+  if (isAdmin) {
+    const { data: pd } = await supabase
+      .from('Payment')
+      .select('amount')
+      .eq('status', 'PENDIENTE')
+    pendingPaymentsData = pd
+    totalPendingMoney = pd?.reduce((acc, curr) => acc + Number(curr.amount), 0) || 0
+  }
 
   // 4. Citas por confirmar (futuras, en estado PENDIENTE)
   const { data: pendingAppointments, count: pendingCount } = await supabase
@@ -191,12 +199,14 @@ export default async function AdminDashboardPage() {
           icon={Calendar}
           description="Agendadas para el día de hoy"
         />
-        <KPICard
-          title="Pagos Pendientes"
-          value={`Bs ${totalPendingMoney.toFixed(2)}`}
-          icon={Banknote}
-          description={`${pendingPaymentsData?.length || 0} pagos por cobrar`}
-        />
+        {isAdmin && (
+          <KPICard
+            title="Pagos Pendientes"
+            value={`Bs ${totalPendingMoney.toFixed(2)}`}
+            icon={Banknote}
+            description={`${pendingPaymentsData?.length || 0} pagos por cobrar`}
+          />
+        )}
         <KPICard
           title="Citas por Confirmar"
           value={pendingCount || 0}

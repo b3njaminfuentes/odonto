@@ -40,11 +40,18 @@ enum PaymentStatus {
 
 model Profile {
   id        String   @id @db.Uuid // Referencia a auth.users.id
-  role      String   @default("patient") // 'admin' | 'patient'
+  role      String   @default("patient") // 'admin' | 'doctor' | 'patient'
   email     String   @unique
+  firstName String?
+  lastName  String?
+  specialty String?
+  phone     String?
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
   patient Patient?
+  appointments Appointment[]
+  historyVersions ClinicalHistoryVersion[]
 
   @@index([email])
 }
@@ -154,6 +161,7 @@ model ClinicalHistoryVersion {
   createdAt         DateTime @default(now())
 
   clinicalHistory ClinicalHistory @relation(fields: [clinicalHistoryId], references: [id])
+  author          Profile         @relation(fields: [changedBy], references: [id])
 
   @@index([clinicalHistoryId])
 }
@@ -205,6 +213,7 @@ model CaseMedia {
 model Appointment {
   id            String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   patientId     String?           @db.Uuid
+  doctorId      String?           @db.Uuid
   treatmentType String?
   startsAt      DateTime
   endsAt        DateTime
@@ -215,6 +224,7 @@ model Appointment {
   createdAt     DateTime          @default(now())
 
   patient Patient? @relation(fields: [patientId], references: [id])
+  doctor  Profile? @relation(fields: [doctorId], references: [id])
 
   @@index([patientId])
   @@index([startsAt])

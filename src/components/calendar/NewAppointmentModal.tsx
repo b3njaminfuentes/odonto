@@ -14,9 +14,10 @@ interface NewAppointmentModalProps {
   isOpen: boolean
   onClose: () => void
   patients: PatientOption[]
+  doctors?: { id: string; name: string; specialty: string | null }[]
 }
 
-export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmentModalProps) {
+export function NewAppointmentModal({ isOpen, onClose, patients, doctors = [] }: NewAppointmentModalProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -199,17 +200,29 @@ export function NewAppointmentModal({ isOpen, onClose, patients }: NewAppointmen
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-muted mb-1">Tipo de Cita *</label>
-              <select name="type" required disabled={loading} className="w-full px-4 py-2.5 bg-surface border border-border rounded-xl focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all disabled:bg-elevated disabled:text-muted text-sm">
-                <option value="Consulta General">Consulta General</option>
-                <option value="Limpieza">Limpieza Profunda</option>
-                <option value="Curación">Curación</option>
-                <option value="Extracción">Extracción</option>
-                <option value="Control Ortodoncia">Control Ortodoncia</option>
-                <option value="Implante">Cirugía / Implante</option>
-                <option value="Emergencia">Emergencia</option>
-              </select>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-muted mb-1">Tipo de Cita *</label>
+                <select name="type" required disabled={loading} className="w-full px-4 py-2.5 bg-surface border border-border rounded-xl focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all disabled:bg-elevated disabled:text-muted text-sm">
+                  <option value="Consulta General">Consulta General</option>
+                  <option value="Limpieza">Limpieza Profunda</option>
+                  <option value="Curación">Curación</option>
+                  <option value="Extracción">Extracción</option>
+                  <option value="Control Ortodoncia">Control Ortodoncia</option>
+                  <option value="Implante">Cirugía / Implante</option>
+                  <option value="Emergencia">Emergencia</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-muted mb-1">Doctor (Opcional)</label>
+                <select name="doctorId" disabled={loading} className="w-full px-4 py-2.5 bg-surface border border-border rounded-xl focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all disabled:bg-elevated disabled:text-muted text-sm">
+                  <option value="">Cualquiera / Sin asignar</option>
+                  {doctors.map(d => (
+                    <option key={d.id} value={d.id}>{d.name} {d.specialty ? `(${d.specialty})` : ''}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div>

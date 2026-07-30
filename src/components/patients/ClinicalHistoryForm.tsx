@@ -204,7 +204,7 @@ export function ClinicalHistoryForm({ patientId }: ClinicalHistoryFormProps) {
                     </span>
                     <span className="text-xs font-medium text-muted bg-elevated px-2.5 py-1 rounded-full flex items-center gap-1.5">
                       <User className="w-3 h-3" />
-                      Doctor
+                      {version.author ? `${version.author.firstName} ${version.author.lastName || ''}`.trim() : 'Doctor'}
                     </span>
                   </div>
                   <p className="text-muted text-sm whitespace-pre-wrap leading-relaxed">

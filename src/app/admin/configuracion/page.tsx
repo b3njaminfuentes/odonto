@@ -1,10 +1,17 @@
 import React from 'react'
 import { getClinicSettings } from './actions'
+import { getAuthProfile } from '@/utils/supabase/server'
+import { redirect } from 'next/navigation'
 import { ConfiguracionTabs } from './ConfiguracionTabs'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ConfiguracionPage() {
+  const { profile } = await getAuthProfile()
+  if (profile?.role === 'doctor') {
+    redirect('/admin')
+  }
+
   const settings = await getClinicSettings()
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">

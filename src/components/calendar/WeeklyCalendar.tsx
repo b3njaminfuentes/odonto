@@ -22,11 +22,13 @@ interface AppointmentData {
   type: string
   notes?: string
   patient: { id: string; firstName: string; lastName: string; phone?: string }
+  doctor: { name: string } | null
 }
 
 interface WeeklyCalendarProps {
   initialAppointments: AppointmentData[]
   patients: { id: string; name: string; code: string }[]
+  doctors?: { id: string; name: string; specialty: string | null }[]
 }
 
 const statusDot: Record<string, string> = {
@@ -91,7 +93,7 @@ function isSameDayLocal(isoStr: string, day: Date): boolean {
     d.getDate() === day.getDate()
 }
 
-export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendarProps) {
+export function WeeklyCalendar({ initialAppointments, patients, doctors = [] }: WeeklyCalendarProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const dateParam = searchParams.get('date')
@@ -291,6 +293,12 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
                           {app.patient.firstName} {app.patient.lastName !== 'Desconocido' ? app.patient.lastName : ''}
                         </div>
                         {app.patient.phone && <div className="flex items-center gap-2 text-sm text-muted mb-3"><Phone className="w-4 h-4 text-faint" />{app.patient.phone}</div>}
+                        {app.doctor?.name && (
+                          <div className="flex items-center gap-2 text-sm text-brand font-medium mb-3">
+                            <span className="w-4 h-4 flex items-center justify-center bg-brand/10 rounded-full text-[10px]">DR</span>
+                            {app.doctor.name}
+                          </div>
+                        )}
                         {app.notes && <p className={`text-sm p-3 rounded-xl border mt-2 ${isWebBooking ? 'bg-danger-soft text-danger border-danger/20 font-medium' : 'bg-elevated text-muted border-border'}`}>{app.notes}</p>}
 
                         <div className="flex flex-wrap items-center gap-2 mt-4">
@@ -334,7 +342,7 @@ export function WeeklyCalendar({ initialAppointments, patients }: WeeklyCalendar
         </div>
       )}
 
-      <NewAppointmentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} patients={sortedPatients} />
+      <NewAppointmentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} patients={sortedPatients} doctors={doctors} />
     </div>
   )
 }
