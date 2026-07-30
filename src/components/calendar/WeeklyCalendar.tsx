@@ -8,9 +8,9 @@ import {
 } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight, Plus, Clock, User, Phone, Loader2, CalendarDays, List, Check, X } from 'lucide-react'
-import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { NewAppointmentModal } from './NewAppointmentModal'
+import { EditAppointmentModal } from './EditAppointmentModal'
 import { StatusBadge } from '../ui/StatusBadge'
 import { updateAppointmentStatus } from '@/app/admin/calendario/actions'
 
@@ -22,7 +22,7 @@ interface AppointmentData {
   type: string
   notes?: string
   patient: { id: string; firstName: string; lastName: string; phone?: string }
-  doctor: { name: string } | null
+  doctor: { name: string, color?: string | null } | null
 }
 
 interface WeeklyCalendarProps {
@@ -107,6 +107,7 @@ export function WeeklyCalendar({ initialAppointments, patients, doctors = [] }: 
   })
   const [view, setView] = useState<'month' | 'day'>('month')
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingAppointment, setEditingAppointment] = useState<AppointmentData | null>(null)
   const [isPending, setIsPending] = useState(false)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
 
@@ -242,7 +243,7 @@ export function WeeklyCalendar({ initialAppointments, patients, doctors = [] }: 
                       return (
                         <span key={a.id} className="flex items-center gap-1 text-[10px] sm:text-[11px] text-muted truncate">
                           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor} ${isWebBooking ? 'animate-pulse' : ''}`} />
-                          <span className={`truncate ${isWebBooking ? 'font-bold text-danger' : ''}`}>
+                          <span className={`truncate ${isWebBooking ? 'font-bold text-danger' : ''} ${a.doctor?.color ? a.doctor.color : ''}`}>
                             {formatTime(a.startsAt)} {a.patient.firstName || 'Web'}
                           </span>
                         </span>
@@ -294,8 +295,8 @@ export function WeeklyCalendar({ initialAppointments, patients, doctors = [] }: 
                         </div>
                         {app.patient.phone && <div className="flex items-center gap-2 text-sm text-muted mb-3"><Phone className="w-4 h-4 text-faint" />{app.patient.phone}</div>}
                         {app.doctor?.name && (
-                          <div className="flex items-center gap-2 text-sm text-brand font-medium mb-3">
-                            <span className="w-4 h-4 flex items-center justify-center bg-brand/10 rounded-full text-[10px]">DR</span>
+                          <div className={`flex items-center gap-2 text-sm font-medium mb-3 ${app.doctor.color ? app.doctor.color : 'text-brand'}`}>
+                            <span className={`w-4 h-4 flex items-center justify-center rounded-full text-[10px] ${app.doctor.color ? 'opacity-90' : 'bg-brand/10'}`}>DR</span>
                             {app.doctor.name}
                           </div>
                         )}
@@ -314,6 +315,14 @@ export function WeeklyCalendar({ initialAppointments, patients, doctors = [] }: 
                                   }`}
                                 >
                                   <Check className="w-3.5 h-3.5" /> {isWebBooking ? 'Confirmar por WhatsApp' : 'Confirmar'}
+                                </button>
+                              )}
+                              {(app.status === 'PENDIENTE' || app.status === 'CONFIRMADO') && (
+                                <button
+                                  onClick={() => setEditingAppointment(app)}
+                                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-info-soft/50 text-info hover:bg-info-soft transition-colors"
+                                >
+                                  Editar
                                 </button>
                               )}
                               {(app.status === 'PENDIENTE' || app.status === 'CONFIRMADO') && (
@@ -343,6 +352,14 @@ export function WeeklyCalendar({ initialAppointments, patients, doctors = [] }: 
       )}
 
       <NewAppointmentModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} patients={sortedPatients} doctors={doctors} />
+      
+      {/* Edit Modal */}
+      <EditAppointmentModal 
+        isOpen={!!editingAppointment} 
+        onClose={() => setEditingAppointment(null)} 
+        appointment={editingAppointment} 
+        doctors={doctors} 
+      />
     </div>
   )
 }

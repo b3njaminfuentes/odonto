@@ -7,7 +7,7 @@ export async function getPatientAppointments(patientId: string) {
   const supabase = createClient()
   const { data, error } = await supabase
     .from('Appointment')
-    .select('*')
+    .select('*, doctor:doctorId(id, firstName, lastName, color)')
     .eq('patientId', patientId)
     .order('startsAt', { ascending: false })
 

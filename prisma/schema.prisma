@@ -46,6 +46,7 @@ model Profile {
   lastName  String?
   specialty String?
   phone     String?
+  color     String?  @default("brand")
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 

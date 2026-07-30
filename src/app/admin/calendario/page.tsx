@@ -25,17 +25,31 @@ export default async function CalendarioPage({
     code: p.patientCode
   }))
 
+  const { data: { session } } = await supabase.auth.getSession()
+  const { data: currentUser } = await supabase
+    .from('Profile')
+    .select('role, id')
+    .eq('id', session?.user?.id)
+    .single()
+
   const { data: doctors } = await supabase
     .from('Profile')
-    .select('id, firstName, lastName, specialty')
+    .select('id, firstName, lastName, specialty, color')
     .in('role', ['admin', 'doctor'])
     .eq('isActive', true)
     
-  const doctorsForSelect = (doctors || []).map(d => ({
-    id: d.id,
-    name: `${d.firstName || ''} ${d.lastName || ''}`.trim() || 'Doctor',
-    specialty: d.specialty
-  }))
+  const isDoctor = currentUser?.role === 'doctor'
+
+  const doctorsForSelect = (doctors || [])
+    .filter(d => isDoctor ? d.id === currentUser?.id : true)
+    .map(d => ({
+      id: d.id,
+      name: `${d.firstName || ''} ${d.lastName || ''}`.trim() || 'Doctor',
+      specialty: d.specialty,
+      color: d.color
+    }))
+
+
 
   // Determinar el mes a consultar usando la fecha recibida o "hoy en Bolivia"
   let queryYear: number
@@ -75,7 +89,7 @@ export default async function CalendarioPage({
   const startISO = toLocalISO(startDate)
   const endISO = toLocalISOEnd(endDate)
 
-  const { data: rawAppointments } = await supabase
+  let query = supabase
     .from('Appointment')
     .select(`
       id,
@@ -95,13 +109,19 @@ export default async function CalendarioPage({
       doctor:doctorId (
         id,
         firstName,
-        lastName
+        lastName,
+        color
       )
     `)
     .gte('startsAt', startISO)
     .lte('startsAt', endISO)
     .not('status', 'eq', 'CANCELADO')
-    .order('startsAt', { ascending: true })
+
+  if (isDoctor && currentUser?.id) {
+    query = query.eq('doctorId', currentUser.id)
+  }
+
+  const { data: rawAppointments } = await query.order('startsAt', { ascending: true })
 
   // Mapeamos para aplanar el join de Supabase y adaptarlo a la interfaz
   const appointments = (rawAppointments || []).map((app: any) => ({
@@ -118,7 +138,8 @@ export default async function CalendarioPage({
       phone: app.Patient?.phone
     },
     doctor: app.doctor ? {
-      name: `${app.doctor.firstName || ''} ${app.doctor.lastName || ''}`.trim()
+      name: `${app.doctor.firstName || ''} ${app.doctor.lastName || ''}`.trim(),
+      color: app.doctor.color
     } : null
   }))
 

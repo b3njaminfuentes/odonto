@@ -202,8 +202,8 @@ export function ClinicalHistoryForm({ patientId }: ClinicalHistoryFormProps) {
                         timeStyle: 'short' 
                       }).format(toBO(version.createdAt))}
                     </span>
-                    <span className="text-xs font-medium text-muted bg-elevated px-2.5 py-1 rounded-full flex items-center gap-1.5">
-                      <User className="w-3 h-3" />
+                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1.5 ${version.author?.color ? version.author.color : 'text-muted bg-elevated'}`}>
+                      <span className={`w-3 h-3 flex items-center justify-center rounded-full text-[8px] ${version.author?.color ? 'bg-black/10' : ''}`}><User className="w-2.5 h-2.5" /></span>
                       {version.author ? `${version.author.firstName} ${version.author.lastName || ''}`.trim() : 'Doctor'}
                     </span>
                   </div>

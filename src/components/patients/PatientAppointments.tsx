@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { Calendar, Clock, Loader2, CalendarPlus, AlertCircle, FileText, Check, X } from 'lucide-react'
 import { getPatientAppointments, saveClinicalNotes } from '@/app/admin/pacientes/appointment-actions'
+import { EditAppointmentModal } from '@/components/calendar/EditAppointmentModal'
 import Link from 'next/link'
 import { intlBO, toBO } from '@/lib/datetime'
 
@@ -18,6 +19,9 @@ export function PatientAppointments({ patientId }: PatientAppointmentsProps) {
   const [editingNotesId, setEditingNotesId] = useState<string | null>(null)
   const [currentNotes, setCurrentNotes] = useState('')
   const [isSavingNotes, setIsSavingNotes] = useState(false)
+
+  // States for editing appointment
+  const [editingAppointment, setEditingAppointment] = useState<any | null>(null)
 
   const loadData = async () => {
     const data = await getPatientAppointments(patientId)
@@ -99,7 +103,15 @@ export function PatientAppointments({ patientId }: PatientAppointmentsProps) {
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between items-start mb-1">
-                        <h4 className="font-bold text-text">{a.treatmentType || 'Consulta General'}</h4>
+                        <div>
+                          <h4 className="font-bold text-text">{a.treatmentType || 'Consulta General'}</h4>
+                          {a.doctor && (
+                            <div className={`flex items-center gap-1 text-[11px] font-semibold mt-0.5 ${a.doctor.color || 'text-brand'}`}>
+                              <span className={`w-3.5 h-3.5 flex items-center justify-center rounded-full text-[8px] ${a.doctor.color ? 'opacity-90' : 'bg-brand/10'}`}>DR</span>
+                              {a.doctor.firstName} {a.doctor.lastName}
+                            </div>
+                          )}
+                        </div>
                         <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md ring-1 ring-inset ${getStatusColor(a.status)}`}>
                           {a.status}
                         </span>
@@ -109,6 +121,23 @@ export function PatientAppointments({ patientId }: PatientAppointmentsProps) {
                         {intlBO({ timeStyle: 'short' }).format(toBO(a.startsAt))} - 
                         {intlBO({ timeStyle: 'short' }).format(toBO(a.endsAt))}
                       </div>
+                      {(a.status === 'PENDIENTE' || a.status === 'CONFIRMADO') && (
+                        <div className="mt-3">
+                          <button
+                            onClick={() => setEditingAppointment({
+                               ...a, 
+                               patient: { 
+                                 id: patientId, 
+                                 firstName: appointments[0]?.patient?.firstName || 'Paciente', 
+                                 lastName: appointments[0]?.patient?.lastName || '' 
+                               }
+                            })}
+                            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-info-soft/50 text-info hover:bg-info-soft transition-colors inline-flex items-center gap-1"
+                          >
+                            Editar Cita
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -144,6 +173,12 @@ export function PatientAppointments({ patientId }: PatientAppointmentsProps) {
                               {a.status === 'CONFIRMADO' ? 'FINALIZADO' : a.status}
                             </span>
                           </div>
+                          {a.doctor && (
+                            <div className={`flex items-center gap-1.5 text-xs font-semibold mb-1 ${a.doctor.color || 'text-brand'}`}>
+                              <span className={`w-3.5 h-3.5 flex items-center justify-center rounded-full text-[8px] ${a.doctor.color ? 'opacity-90' : 'bg-brand/10'}`}>DR</span>
+                              {a.doctor.firstName} {a.doctor.lastName}
+                            </div>
+                          )}
                           <div className="flex items-center gap-2 text-xs font-medium text-muted">
                             <Clock className="w-3.5 h-3.5" />
                             {intlBO({ dateStyle: 'long' }).format(toBO(a.startsAt))} · {intlBO({ timeStyle: 'short' }).format(toBO(a.startsAt))}
@@ -219,6 +254,19 @@ export function PatientAppointments({ patientId }: PatientAppointmentsProps) {
             </div>
           )}
         </>
+      )}
+
+      {/* Edit Modal */}
+      {editingAppointment && (
+        <EditAppointmentModal 
+          isOpen={!!editingAppointment} 
+          onClose={() => {
+            setEditingAppointment(null)
+            loadData() // Recargar datos si se modificó
+          }} 
+          appointment={editingAppointment} 
+          doctors={[]} // En la ficha del paciente no mostramos cambio de doctor por simplicidad (o podríamos cargarlos si quisiéramos)
+        />
       )}
     </div>
   )

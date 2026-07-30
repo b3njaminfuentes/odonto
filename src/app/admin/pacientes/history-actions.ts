@@ -20,7 +20,8 @@ export async function getClinicalHistory(patientId: string) {
         createdAt,
         author:changedBy(
           firstName,
-          lastName
+          lastName,
+          color
         )
       )
     `)

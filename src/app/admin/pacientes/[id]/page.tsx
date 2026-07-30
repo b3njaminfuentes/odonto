@@ -24,7 +24,7 @@ export default async function PatientProfilePage({ params }: { params: { id: str
     .from('Patient')
     .select(`
       *,
-      appointments:Appointment(id, startsAt, endsAt, treatmentType, status),
+      appointments:Appointment(id, startsAt, endsAt, treatmentType, status, doctor:doctorId(id, firstName, lastName, color)),
       history:ClinicalHistory(medicalHistory, updatedAt),
       treatments:Treatment(id, name, status, startDate, budget, finalCost),
       payments:Payment(id, amount, status, date, method),

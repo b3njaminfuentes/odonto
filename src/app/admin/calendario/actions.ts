@@ -107,6 +107,91 @@ async function createAppointmentInner(formData: FormData) {
   return { success: true, appointment: data }
 }
 
+export async function updateAppointment(appointmentId: string, formData: FormData) {
+  try {
+    const supabase = createClient()
+    const patientId = formData.get('patientId') as string
+    const date = formData.get('date') as string
+    const time = formData.get('time') as string
+    const duration = parseInt(formData.get('duration') as string) || 30
+    const treatmentType = formData.get('type') as string
+    const notes = formData.get('notes') as string
+    const doctorId = formData.get('doctorId') as string || null
+
+    if (!date || !time || !patientId || !treatmentType) {
+      return { error: 'Faltan campos obligatorios.' }
+    }
+
+    const startISO = `${date}T${time}:00`
+    const [h, m] = time.split(':').map(Number)
+    const totalMinutes = h * 60 + m + duration
+    const endH = String(Math.floor(totalMinutes / 60)).padStart(2, '0')
+    const endM = String(totalMinutes % 60).padStart(2, '0')
+    const endISO = `${date}T${endH}:${endM}:00`
+
+    // Validación anti-pasado en hora local de Bolivia
+    const nowBO = new Intl.DateTimeFormat('sv-SE', {
+      timeZone: 'America/La_Paz',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(new Date()).replace(' ', 'T')
+
+    if (startISO.slice(0, 16) < nowBO) {
+      return { error: 'No se puede agendar en una fecha u hora que ya pasó.' }
+    }
+
+    // 1. Lógica de prevención de choques (Overlap check) excluyendo esta cita
+    const { data: overlapping, error: overlapError } = await supabase
+      .from('Appointment')
+      .select('id')
+      .neq('id', appointmentId)
+      .not('status', 'eq', 'CANCELADO')
+      .lt('startsAt', endISO)
+      .gt('endsAt', startISO)
+      
+    if (overlapError) {
+      console.error('Error checking overlaps:', overlapError)
+      return { error: 'Error interno validando disponibilidad.' }
+    }
+
+    if (overlapping && overlapping.length >= 2) {
+      return { error: '¡El horario seleccionado ya tiene el máximo de 2 turnos asignados!' }
+    }
+
+    // 2. Actualizar la cita
+    const { data, error } = await supabase
+      .from('Appointment')
+      .update({
+        doctorId,
+        startsAt: startISO,
+        endsAt: endISO,
+        treatmentType,
+        notes: notes || null
+      })
+      .eq('id', appointmentId)
+      .select()
+      .single()
+
+    if (error) {
+      if (error.code === '23P01') return { error: '¡El horario seleccionado ya tiene el máximo de turnos asignados!' }
+      console.error('Error updating appointment:', error)
+      return { error: 'No se pudo actualizar la cita.' }
+    }
+
+    revalidatePath('/admin/calendario')
+    revalidatePath(`/admin/pacientes/${patientId}`)
+    
+    return { success: true, appointment: data }
+  } catch (e: any) {
+    console.error('Unexpected error in updateAppointment:', e)
+    return { error: 'Ocurrió un error inesperado al editar la cita.' }
+  }
+}
+
 // Acción para cancelar o actualizar el estado de una cita
 export async function updateAppointmentStatus(appointmentId: string, status: 'CONFIRMADO' | 'PENDIENTE' | 'CANCELADO') {
   const supabase = createClient()
