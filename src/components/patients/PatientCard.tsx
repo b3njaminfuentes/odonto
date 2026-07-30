@@ -11,7 +11,7 @@ export interface Patient {
   firstName: string
   lastName: string
   dob: string
-  status: 'ACTIVE' | 'INACTIVE' | 'ARCHIVED'
+  status: 'ACTIVE' | 'INACTIVE'
   phone?: string | null
   email?: string | null
   avatarUrl?: string | null
@@ -115,7 +115,7 @@ export function PatientCard({
             <div className="flex items-center gap-2 mb-3">
               <StatusBadge
                 status={getStatusColor(patient.status)}
-                text={patient.status === 'ACTIVE' ? 'Activo' : patient.status === 'INACTIVE' ? 'Inactivo' : 'Archivado'}
+                text={patient.status === 'ACTIVE' ? 'Activo' : 'Inactivo'}
                 className="scale-90 origin-left"
               />
               <span className="text-xs text-muted">{age !== null ? `${age} años` : 'Edad —'}</span>

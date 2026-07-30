@@ -101,7 +101,7 @@ export default async function PatientProfilePage({ params }: { params: { id: str
             </h1>
             <StatusBadge 
               status={getStatusColor(patient.status)} 
-              text={patient.status === 'ACTIVE' ? 'Activo' : patient.status === 'INACTIVE' ? 'Inactivo' : patient.status === 'ARCHIVED' ? 'Archivado' : patient.status} 
+              text={patient.status === 'ACTIVE' ? 'Activo' : 'Inactivo'} 
             />
             <span className="text-xs font-mono bg-elevated text-muted px-2 py-1 rounded-md">
               {patient.patientCode}

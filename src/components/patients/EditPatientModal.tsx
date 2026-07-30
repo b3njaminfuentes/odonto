@@ -92,10 +92,7 @@ export function EditPatientModal({ patient }: { patient: EditablePatient }) {
                   <label className="block text-sm font-medium text-muted mb-1.5">Estado</label>
                   <select name="status" disabled={loading} defaultValue={patient.status} className="input w-full px-4 py-2.5">
                     <option value="ACTIVE">Activo</option>
-                    <option value="IN_TREATMENT">En tratamiento</option>
-                    <option value="CONTROL">Control</option>
                     <option value="INACTIVE">Inactivo</option>
-                    <option value="ARCHIVED">Archivado</option>
                   </select>
                 </div>
                 <div>
