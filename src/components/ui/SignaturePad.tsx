@@ -39,7 +39,7 @@ export function SignaturePad({ onSave, disabled = false }: SignaturePadProps) {
           onEnd={handleEnd}
           penColor="#000000"
           canvasProps={{
-            className: 'w-full h-[150px] sm:h-[200px] cursor-crosshair'
+            className: 'w-full h-[150px] sm:h-[200px] cursor-crosshair touch-none'
           }}
         />
         {isEmpty && (

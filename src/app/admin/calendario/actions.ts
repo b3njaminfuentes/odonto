@@ -63,10 +63,10 @@ async function createAppointmentInner(formData: FormData) {
   }
 
   // 1. Lógica de prevención de choques (Overlap check)
-  // Un choque ocurre si: (Existente_Start < Nuevo_End) AND (Existente_End > Nuevo_Start)
+  // Límite de la clínica: máximo 2 citas al mismo tiempo (2 sillones)
   const { data: overlapping, error: overlapError } = await supabase
     .from('Appointment')
-    .select('id')
+    .select('id, doctorId')
     .not('status', 'eq', 'CANCELADO')
     .lt('startsAt', endISO)
     .gt('endsAt', startISO)
@@ -77,7 +77,16 @@ async function createAppointmentInner(formData: FormData) {
   }
 
   if (overlapping && overlapping.length >= 2) {
-    return { error: '¡El horario seleccionado ya tiene el máximo de 2 turnos asignados!' }
+    return { error: '¡El horario seleccionado ya tiene el máximo de 2 turnos asignados (Sillones llenos)!' }
+  }
+
+  // 1.b Validación estricta para el mismo doctor
+  // Un doctor no puede atender a dos pacientes a la misma vez.
+  if (doctorId) {
+    const doctorOverlaps = overlapping?.filter(app => app.doctorId === doctorId) || []
+    if (doctorOverlaps.length >= 1) {
+      return { error: '¡El especialista ya tiene una cita asignada en ese horario!' }
+    }
   }
 
   // 2. Crear la cita
@@ -147,7 +156,7 @@ export async function updateAppointment(appointmentId: string, formData: FormDat
     // 1. Lógica de prevención de choques (Overlap check) excluyendo esta cita
     const { data: overlapping, error: overlapError } = await supabase
       .from('Appointment')
-      .select('id')
+      .select('id, doctorId')
       .neq('id', appointmentId)
       .not('status', 'eq', 'CANCELADO')
       .lt('startsAt', endISO)
@@ -159,7 +168,15 @@ export async function updateAppointment(appointmentId: string, formData: FormDat
     }
 
     if (overlapping && overlapping.length >= 2) {
-      return { error: '¡El horario seleccionado ya tiene el máximo de 2 turnos asignados!' }
+      return { error: '¡El horario seleccionado ya tiene el máximo de 2 turnos asignados (Sillones llenos)!' }
+    }
+
+    // 1.b Validación estricta para el mismo doctor
+    if (doctorId) {
+      const doctorOverlaps = overlapping?.filter(app => app.doctorId === doctorId) || []
+      if (doctorOverlaps.length >= 1) {
+        return { error: '¡El especialista ya tiene una cita asignada en ese horario!' }
+      }
     }
 
     // 2. Actualizar la cita
