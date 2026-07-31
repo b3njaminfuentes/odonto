@@ -12,7 +12,7 @@ import { saveCephalometricCase, signAndCompleteCase } from '@/lib/cephalometry/a
 import { AnalysisEngine } from '@/lib/cephalometry/analyses'
 import { Point } from '@/lib/cephalometry/geometry'
 import { LandmarkKey } from '@/lib/cephalometry/landmarks'
-import SignaturePad from '@/components/ui/SignaturePad'
+import { SignaturePad } from '@/components/ui/SignaturePad'
 import { CephPrintReport } from '@/components/cephalometry/CephPrintReport'
 
 interface CephOrchestratorClientProps {
@@ -301,7 +301,7 @@ export function CephOrchestratorClient({ patientId, initialCase, currentUserId }
               </p>
               
               <div className="bg-elevated rounded-2xl border border-border p-2">
-                <SignaturePad onSignatureCapture={setSignatureData} />
+                <SignaturePad onSave={setSignatureData} />
               </div>
 
               <div className="flex justify-end gap-3 mt-8">
