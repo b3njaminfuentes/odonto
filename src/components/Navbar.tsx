@@ -49,7 +49,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           <Link
             href="/login"
-            className="hidden sm:inline-flex text-sm font-medium text-brand hover:bg-brand-soft px-4 py-2 rounded-full transition-all"
+            className="inline-flex text-sm font-medium text-brand hover:bg-brand-soft px-3 sm:px-4 py-2 rounded-full transition-all"
           >
             Ingresar
           </Link>
