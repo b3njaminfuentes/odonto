@@ -54,6 +54,7 @@ model Profile {
   appointments Appointment[]
   historyVersions ClinicalHistoryVersion[]
   paymentsReceived DoctorPayment[]
+  cephalometricCases CephalometricCase[]
 
   @@index([email])
 }
@@ -90,6 +91,7 @@ model Patient {
   media        CaseMedia[]
   cephalometrics Cephalometry[]
   moldCharts   ToothMoldChart[]
+  cephalometricCases CephalometricCase[]
 
   @@index([dni])
   @@index([phone])
@@ -343,4 +345,45 @@ model ToothMoldMeasurement {
   chart ToothMoldChart @relation(fields: [chartId], references: [id], onDelete: Cascade)
 
   @@index([chartId])
+}
+
+model CephalometricCase {
+  id                  String   @id @default(cuid())
+  patientId           String   @db.Uuid
+  patient             Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId            String   @db.Uuid
+  doctor              Profile  @relation(fields: [doctorId], references: [id])
+  imageUrl            String
+  imageWidth          Int
+  imageHeight         Int
+  pixelsPerMm         Float?
+  landmarks           Json     // [{ key: "N", x: 0.42, y: 0.31 }, ...] superset de puntos marcados
+  analysisResults     Json?    // { steiner: { version: "1.0.0", generatedAt: "...", measurements: {...} } }
+  primaryAnalysis     String   @default("steiner") // que analisis se muestra por defecto
+  reportTemplateVersion String? // que version del layout de reporte se uso
+  exportedReportUrl   String?  // PDF exportado guardado en Storage
+  duplicatedFromId    String?  // referencia al original si nacio de "Duplicar caso"
+  doctorSignatureUrl  String?  // firma del doctor al cerrar el caso
+  reportContentHash   String?  // hash del contenido al firmar
+  signedAt            DateTime?
+  status              String   @default("draft") // draft | completed
+  notes               String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  events              CephalometricCaseEvent[]
+
+  @@index([patientId])
+  @@index([doctorId])
+}
+
+model CephalometricCaseEvent {
+  id        String   @id @default(cuid())
+  caseId    String
+  case      CephalometricCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  action    String   // "created" | "landmarks_updated" | "analysis_run" | "report_exported" | "duplicated" | "completed"
+  doctorId  String   @db.Uuid
+  createdAt DateTime @default(now())
+
+  @@index([caseId])
 }

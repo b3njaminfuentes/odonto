@@ -10,6 +10,7 @@ import { PatientSummaryTab } from './PatientSummaryTab'
 import { PatientPayments } from './PatientPayments'
 import { PatientAppointments } from './PatientAppointments'
 import { ToothMoldChartForm } from './ToothMoldChartForm'
+import { CephalometryList } from '../cephalometry/CephalometryList'
 
 interface PatientTabsProps {
   patientId: string
@@ -18,7 +19,7 @@ interface PatientTabsProps {
 }
 
 export function PatientTabs({ patientId, summaryData, userRole = 'admin' }: PatientTabsProps) {
-  const [activeTab, setActiveTab] = useState<'resumen' | 'historial' | 'odontograma' | 'ortodoncia' | 'tratamientos' | 'galeria' | 'pagos' | 'citas'>('resumen')
+  const [activeTab, setActiveTab] = useState<'resumen' | 'historial' | 'odontograma' | 'ortodoncia' | 'cefalometria' | 'tratamientos' | 'galeria' | 'pagos' | 'citas'>('resumen')
 
   return (
     <div className="bg-surface rounded-2xl shadow-sm border border-border overflow-hidden flex flex-col min-h-[500px]">
@@ -68,6 +69,17 @@ export function PatientTabs({ patientId, summaryData, userRole = 'admin' }: Pati
         >
           <Sparkles className="w-4 h-4" />
           Ortodoncia (Moldes)
+        </button>
+        <button
+          onClick={() => setActiveTab('cefalometria')}
+          className={`whitespace-nowrap py-4 px-6 text-sm font-medium flex items-center gap-2 border-b-2 transition-colors ${
+            activeTab === 'cefalometria' 
+            ? 'border-brand text-brand bg-brand-soft/50' 
+            : 'border-transparent text-muted hover:text-muted hover:bg-elevated'
+          }`}
+        >
+          <Activity className="w-4 h-4" />
+          Cefalometría
         </button>
         <button
           onClick={() => setActiveTab('tratamientos')}
@@ -136,6 +148,10 @@ export function PatientTabs({ patientId, summaryData, userRole = 'admin' }: Pati
           <div className="bg-surface rounded-xl shadow-sm border border-border p-6 md:p-8">
             <ToothMoldChartForm patientId={patientId} />
           </div>
+        )}
+
+        {activeTab === 'cefalometria' && (
+          <CephalometryList patientId={patientId} />
         )}
 
         {activeTab === 'tratamientos' && (
