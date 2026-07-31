@@ -53,7 +53,10 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
 
   const handleUploadClick = (category: MediaCategory) => {
     setUploadCategory(category)
-    fileInputRef.current?.click()
+    // Usamos setTimeout para que React actualice el atributo 'accept' antes de abrir el diálogo nativo
+    setTimeout(() => {
+      fileInputRef.current?.click()
+    }, 0)
   }
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -256,7 +259,7 @@ export function GalleryViewer({ patientId }: GalleryViewerProps) {
         type="file" 
         ref={fileInputRef} 
         className="hidden" 
-        accept="image/*,application/pdf"
+        accept={uploadCategory === 'document' ? "application/pdf,image/*" : "image/*"}
         onChange={handleFileChange}
       />
 
