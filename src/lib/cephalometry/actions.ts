@@ -1,8 +1,55 @@
 'use server'
 
 import { createClient } from '@/utils/supabase/server'
+import { createClient as createServiceClient } from '@supabase/supabase-js'
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
+
+function serviceClient() {
+  return createServiceClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    { auth: { autoRefreshToken: false, persistSession: false } }
+  )
+}
+
+export async function uploadCephImage(formData: FormData): Promise<{ success: true; url: string; width: number; height: number } | { error: string }> {
+  const supabase = createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'No autorizado' }
+
+  const file = formData.get('file') as File | null
+  const patientId = formData.get('patientId') as string
+  const widthStr = formData.get('width') as string
+  const heightStr = formData.get('height') as string
+
+  if (!file || !patientId) return { error: 'Archivo o paciente faltante.' }
+
+  const width = parseInt(widthStr, 10) || 0
+  const height = parseInt(heightStr, 10) || 0
+
+  const ext = (file.name.split('.').pop() || 'jpg').toLowerCase()
+  const path = `cephalometry/${patientId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+
+  const svc = serviceClient()
+  const buffer = Buffer.from(await file.arrayBuffer())
+  const { error: upErr } = await svc.storage.from('cases-images').upload(path, buffer, {
+    contentType: file.type || 'image/jpeg',
+    upsert: false,
+  })
+
+  if (upErr) {
+    return { error: `No se pudo subir la imagen: ${upErr.message}` }
+  }
+
+  const { data: urlData } = await svc.storage.from('cases-images').createSignedUrl(path, 60 * 60 * 24 * 365 * 5)
+
+  if (!urlData?.signedUrl) {
+    return { error: 'No se pudo generar la URL de la imagen.' }
+  }
+
+  return { success: true, url: urlData.signedUrl, width, height }
+}
 
 export async function getCasesByPatient(patientId: string) {
   const supabase = createClient()

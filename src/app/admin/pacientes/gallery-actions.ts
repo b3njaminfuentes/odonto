@@ -23,7 +23,7 @@ export async function uploadPatientMedia(formData: FormData): Promise<{ success:
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'No autorizado.' }
   const { data: caller } = await supabase.from('Profile').select('role').eq('id', user.id).single()
-  if (caller?.role !== 'admin') return { error: 'Solo la administradora puede subir archivos.' }
+  if (caller?.role !== 'admin' && caller?.role !== 'doctor') return { error: 'Solo la administradora o doctores pueden subir archivos.' }
 
   const file = formData.get('file') as File | null
   const patientId = formData.get('patientId') as string

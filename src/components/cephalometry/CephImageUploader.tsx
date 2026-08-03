@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from 'react'
 import { Upload, Image as ImageIcon, Loader2 } from 'lucide-react'
-import { createClient } from '@/utils/supabase/client'
+import { uploadCephImage } from '@/lib/cephalometry/actions'
 
 interface CephImageUploaderProps {
   patientId: string
@@ -32,29 +32,20 @@ export function CephImageUploader({ patientId, onUploadComplete }: CephImageUplo
       const width = img.naturalWidth
       const height = img.naturalHeight
 
-      // 2. Subir a Supabase Storage (bucket: cases-images o uno dedicado)
-      const supabase = createClient()
-      const ext = file.name.split('.').pop() || 'jpg'
-      const path = `cephalometry/${patientId}/${Date.now()}.${ext}`
+      // 2. Subir vía Server Action segura con service-role
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('patientId', patientId)
+      formData.append('width', String(width))
+      formData.append('height', String(height))
 
-      const { data, error: uploadError } = await supabase.storage
-        .from('cases-images')
-        .upload(path, file)
+      const res = await uploadCephImage(formData)
 
-      if (uploadError) {
-        throw uploadError
+      if ('error' in res) {
+        throw new Error(res.error)
       }
 
-      // Obtener URL pública o firmada
-      const { data: urlData } = await supabase.storage
-        .from('cases-images')
-        .createSignedUrl(path, 60 * 60 * 24 * 365) // 1 año temporalmente, luego se asienta en DB
-
-      if (!urlData?.signedUrl) {
-        throw new Error("No se pudo generar la URL de la imagen")
-      }
-
-      onUploadComplete(urlData.signedUrl, width, height)
+      onUploadComplete(res.url, res.width, res.height)
     } catch (err: any) {
       console.error("Upload error:", err)
       setError(err.message || 'Error al subir la imagen')

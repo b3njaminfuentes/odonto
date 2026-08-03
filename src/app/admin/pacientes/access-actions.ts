@@ -37,7 +37,7 @@ export async function generatePatientAccess(patientId: string): Promise<
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'No autorizado.' }
   const { data: caller } = await supabase.from('Profile').select('role').eq('id', user.id).single()
-  if (caller?.role !== 'admin') return { error: 'Solo la administradora puede generar accesos.' }
+  if (caller?.role !== 'admin' && caller?.role !== 'doctor') return { error: 'Solo la administradora o doctores pueden generar accesos.' }
 
   const admin = adminAuth()
 

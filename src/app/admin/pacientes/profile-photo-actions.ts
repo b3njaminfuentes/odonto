@@ -20,7 +20,7 @@ async function requireAdmin(): Promise<{ ok: true; userId: string } | { ok: fals
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { ok: false, error: 'No autorizado.' }
   const { data: caller } = await supabase.from('Profile').select('role').eq('id', user.id).single()
-  if (caller?.role !== 'admin') return { ok: false, error: 'Solo la administradora puede hacer esto.' }
+  if (caller?.role !== 'admin' && caller?.role !== 'doctor') return { ok: false, error: 'Solo la administradora o doctor puede hacer esto.' }
   return { ok: true, userId: user.id }
 }
 

@@ -52,15 +52,15 @@ export async function updateSession(request: NextRequest) {
 
     const role = profile?.role || 'patient'
 
-    if (isAdminRoute && role !== 'admin') {
+    if (isAdminRoute && role !== 'admin' && role !== 'doctor') {
       // Paciente intentando entrar al admin
       const url = request.nextUrl.clone()
       url.pathname = '/portal'
       return NextResponse.redirect(url)
     }
 
-    if (isPortalRoute && role === 'admin') {
-      // Admin intentando entrar al portal del paciente
+    if (isPortalRoute && (role === 'admin' || role === 'doctor')) {
+      // Admin o Doctor intentando entrar al portal del paciente
       const url = request.nextUrl.clone()
       url.pathname = '/admin'
       return NextResponse.redirect(url)
