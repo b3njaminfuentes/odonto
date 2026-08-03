@@ -207,6 +207,7 @@ export function NewAppointmentModal({ isOpen, onClose, patients, doctors = [] }:
                   <option value="Consulta General">Consulta General</option>
                   <option value="Limpieza">Limpieza Profunda</option>
                   <option value="Curación">Curación</option>
+                  <option value="Endodoncia">Endodoncia</option>
                   <option value="Extracción">Extracción</option>
                   <option value="Control Ortodoncia">Control Ortodoncia</option>
                   <option value="Implante">Cirugía / Implante</option>
