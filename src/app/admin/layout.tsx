@@ -12,7 +12,7 @@ export default async function AdminLayout({
 }) {
   const { profile } = await getAuthProfile()
   if (!profile || (profile.role !== 'admin' && profile.role !== 'doctor')) {
-    redirect('/auth/login')
+    redirect('/login')
   }
 
   const settings = await getClinicSettings()

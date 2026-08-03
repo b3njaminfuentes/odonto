@@ -85,8 +85,9 @@ export async function createPayment(formData: FormData) {
 
 /** Corrige un pago ya registrado (monto, método, tratamiento o notas) cuando se cargó mal. */
 export async function updatePayment(paymentId: string, patientId: string, formData: FormData) {
-  const supabase = createClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { session } } = await userClient.auth.getSession()
   if (!session) return { error: 'No autorizado' }
 
   const treatmentId = formData.get('treatmentId') as string

@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { logAuditAction } from '@/utils/audit'
@@ -16,10 +16,11 @@ function serviceClient() {
 }
 
 async function requireAdmin(): Promise<{ ok: true; userId: string } | { ok: false; error: string }> {
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userClient = createClient()
+  const adminDb = createAdminClient()
+  const { data: { user } } = await userClient.auth.getUser()
   if (!user) return { ok: false, error: 'No autorizado.' }
-  const { data: caller } = await supabase.from('Profile').select('role').eq('id', user.id).single()
+  const { data: caller } = await adminDb.from('Profile').select('role').eq('id', user.id).single()
   if (caller?.role !== 'admin' && caller?.role !== 'doctor') return { ok: false, error: 'Solo la administradora o doctor puede hacer esto.' }
   return { ok: true, userId: user.id }
 }

@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export interface ClinicSettings {
@@ -14,8 +14,9 @@ export interface ClinicSettings {
 }
 
 async function requireAdmin() {
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { user } } = await userClient.auth.getUser()
   if (!user) return { supabase, user: null, error: 'No autorizado.' as const }
   const { data: caller } = await supabase.from('Profile').select('role').eq('id', user.id).single()
   if (caller?.role !== 'admin') return { supabase, user: null, error: 'Solo la administradora puede cambiar la configuración.' as const }
@@ -23,7 +24,7 @@ async function requireAdmin() {
 }
 
 export async function getClinicSettings(): Promise<ClinicSettings> {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { data } = await supabase.from('ClinicSettings').select('*').eq('id', 'main').single()
   return {
     clinicName: data?.clinicName ?? 'Clínica Odontológica Villarroel',

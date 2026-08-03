@@ -1,11 +1,11 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { logAuditAction } from '@/utils/audit'
 
 export async function getDoctorPayments() {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   
   const { data, error } = await supabase
     .from('DoctorPayment')
@@ -24,8 +24,9 @@ export async function getDoctorPayments() {
 }
 
 export async function createDoctorPayment(formData: FormData) {
-  const supabase = createClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { session } } = await userClient.auth.getSession()
   if (!session) return { error: 'No autorizado' }
 
   const doctorId = formData.get('doctorId') as string
@@ -67,7 +68,7 @@ export async function createDoctorPayment(formData: FormData) {
 }
 
 export async function getDoctorsList() {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('Profile')
     .select('id, firstName, lastName')

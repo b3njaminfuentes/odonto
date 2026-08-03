@@ -1,5 +1,5 @@
 import React from 'react'
-import { createClient, getAuthProfile } from '@/utils/supabase/server'
+import { createAdminClient, getAuthProfile } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { DollarSign, TrendingUp, Users, ArrowUpRight, Plus } from 'lucide-react'
 import { format } from 'date-fns'
@@ -16,7 +16,7 @@ export default async function FinanzasPage({
 }: {
   searchParams?: { [key: string]: string | undefined }
 }) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { profile } = await getAuthProfile()
 
   if (profile?.role === 'doctor') {

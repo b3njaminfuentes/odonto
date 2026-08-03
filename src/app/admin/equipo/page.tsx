@@ -1,5 +1,5 @@
 import React from 'react'
-import { createClient, getAuthProfile } from '@/utils/supabase/server'
+import { createAdminClient, getAuthProfile } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import { Users, Plus, ShieldCheck, Mail, CheckCircle, XCircle } from 'lucide-react'
 import { NewTeamMemberModal } from '@/components/admin/NewTeamMemberModal'
@@ -8,7 +8,7 @@ import { StatusBadge } from '@/components/ui/StatusBadge'
 export const dynamic = 'force-dynamic'
 
 export default async function EquipoPage() {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { profile } = await getAuthProfile()
 
   if (profile?.role === 'doctor') {

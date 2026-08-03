@@ -1,11 +1,12 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { logAuditAction } from '@/utils/audit'
 
 export async function createPayment(formData: FormData) {
-  const supabase = createClient()
+  const userClient = createClient()
+  const supabase = createAdminClient()
   
   const patientId = formData.get('patientId') as string
   const amountStr = formData.get('amount') as string
@@ -40,7 +41,7 @@ export async function createPayment(formData: FormData) {
   }
 
   // Get current user id to log action
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { session } } = await userClient.auth.getSession()
 
   if (session?.user?.id) {
     await logAuditAction({

@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { createClient as createAdminJsClient } from '@supabase/supabase-js'
 import { revalidatePath } from 'next/cache'
 import { logAuditAction } from '@/utils/audit'
@@ -33,10 +33,11 @@ export async function generatePatientAccess(patientId: string): Promise<
   | { success: true; code: string; regenerated: boolean }
 > {
   // 1. Autorización: quien llama debe ser admin.
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userClient = createClient()
+  const adminDb = createAdminClient()
+  const { data: { user } } = await userClient.auth.getUser()
   if (!user) return { error: 'No autorizado.' }
-  const { data: caller } = await supabase.from('Profile').select('role').eq('id', user.id).single()
+  const { data: caller } = await adminDb.from('Profile').select('role').eq('id', user.id).single()
   if (caller?.role !== 'admin' && caller?.role !== 'doctor') return { error: 'Solo la administradora o doctores pueden generar accesos.' }
 
   const admin = adminAuth()
