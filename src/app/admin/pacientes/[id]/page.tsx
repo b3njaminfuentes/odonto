@@ -1,6 +1,6 @@
 import React from 'react'
 import { notFound } from 'next/navigation'
-import { createClient, getAuthProfile } from '@/utils/supabase/server'
+import { createClient, createAdminClient, getAuthProfile } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { ArrowLeft, FileText } from 'lucide-react'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -15,7 +15,7 @@ import { getProfilePhotoUrl } from '@/app/admin/pacientes/profile-photo-actions'
 export const dynamic = 'force-dynamic'
 
 export default async function PatientProfilePage({ params }: { params: { id: string } }) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { profile: authProfile } = await getAuthProfile()
   const isAdmin = authProfile?.role === 'admin'
 

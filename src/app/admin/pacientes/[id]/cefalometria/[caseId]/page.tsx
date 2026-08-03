@@ -1,14 +1,15 @@
 import React from 'react'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { getCaseById } from '@/lib/cephalometry/actions'
 import { CephOrchestratorClient } from './CephOrchestratorClient'
 
 export const dynamic = 'force-dynamic'
 
 export default async function CephalometryPage({ params }: { params: { id: string, caseId: string } }) {
-  const supabase = createClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { session } } = await userClient.auth.getSession()
 
   if (!session) {
     redirect('/login')

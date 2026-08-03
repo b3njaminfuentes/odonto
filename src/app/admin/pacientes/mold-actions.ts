@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { logAuditAction } from '@/utils/audit'
 
@@ -14,7 +14,7 @@ interface MoldMeasurementItem {
 }
 
 export async function getPatientMoldCharts(patientId: string) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('ToothMoldChart')
     .select(`
@@ -43,8 +43,9 @@ export async function saveMoldChart(payload: {
   notes?: string | null
   measurements: MoldMeasurementItem[]
 }): Promise<{ success: true; chartId: string } | { error: string }> {
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { user } } = await userClient.auth.getUser()
   if (!user) return { error: 'No autorizado.' }
 
   const { patientId, treatmentId, notes, measurements } = payload
@@ -104,8 +105,9 @@ export async function saveMoldChart(payload: {
 }
 
 export async function deleteMoldChart(chartId: string, patientId: string) {
-  const supabase = createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { user } } = await userClient.auth.getUser()
   if (!user) return { error: 'No autorizado.' }
 
   const { error } = await supabase

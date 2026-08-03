@@ -1,12 +1,13 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function markReminderAsSent(appointmentId: string) {
   try {
-    const supabase = createClient()
-    const { data: { session } } = await supabase.auth.getSession()
+    const userClient = createClient()
+    const supabase = createAdminClient()
+    const { data: { session } } = await userClient.auth.getSession()
     if (!session) return { error: 'No autorizado' }
 
     const { error } = await supabase

@@ -1,11 +1,11 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { logAuditAction } from '@/utils/audit'
 
 export async function getPatientTreatments(patientId: string) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('Treatment')
     .select('*')
@@ -21,8 +21,9 @@ export async function getPatientTreatments(patientId: string) {
 }
 
 export async function createTreatment(formData: FormData) {
-  const supabase = createClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { session } } = await userClient.auth.getSession()
 
   if (!session) {
     return { error: 'No autorizado' }
@@ -81,7 +82,7 @@ export async function createTreatment(formData: FormData) {
 }
 
 export async function updateTreatmentStatus(treatmentId: string, status: 'ACTIVO' | 'COMPLETADO' | 'PAUSADO' | 'CANCELADO', patientId: string) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   
   const { error } = await supabase
     .from('Treatment')
@@ -100,8 +101,9 @@ export async function updateTreatmentStatus(treatmentId: string, status: 'ACTIVO
 }
 
 export async function updateTreatment(treatmentId: string, formData: FormData) {
-  const supabase = createClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { session } } = await userClient.auth.getSession()
 
   if (!session) {
     return { error: 'No autorizado' }

@@ -21,6 +21,7 @@ const generatePatientCode = () => `PT-${Math.floor(100000 + Math.random() * 9000
 export async function createPatient(formData: FormData) {
   try {
     const supabase = createClient()
+    const svc = serviceClient()
 
     const firstName = formData.get('firstName') as string
     const lastName = formData.get('lastName') as string
@@ -38,8 +39,8 @@ export async function createPatient(formData: FormData) {
       return { error: 'Nombre y Apellido son obligatorios.' }
     }
 
-    // Insertar en Supabase usando el cliente autenticado normal
-    const { data, error } = await supabase
+    // Insertar en Supabase usando el serviceClient para evitar bloqueos por RLS
+    const { data, error } = await svc
       .from('Patient')
       .insert({
         patientCode: generatePatientCode(),
@@ -96,7 +97,7 @@ export async function createPatient(formData: FormData) {
 
 export async function updatePatient(patientId: string, formData: FormData) {
   try {
-    const supabase = createClient()
+    const svc = serviceClient()
 
     const firstName = (formData.get('firstName') as string)?.trim()
     const lastName = (formData.get('lastName') as string)?.trim()
@@ -105,7 +106,7 @@ export async function updatePatient(patientId: string, formData: FormData) {
       return { error: 'Nombre y Apellido son obligatorios.' }
     }
 
-    const { error } = await supabase
+    const { error } = await svc
       .from('Patient')
       .update({
         firstName,

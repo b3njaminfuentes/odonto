@@ -1,10 +1,10 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function getPatientAppointments(patientId: string) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('Appointment')
     .select('*, doctor:doctorId(id, firstName, lastName, color)')
@@ -20,7 +20,7 @@ export async function getPatientAppointments(patientId: string) {
 }
 
 export async function saveClinicalNotes(appointmentId: string, clinicalNotes: string) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('Appointment')
     .update({ 

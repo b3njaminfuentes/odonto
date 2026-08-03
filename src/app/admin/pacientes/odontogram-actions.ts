@@ -1,11 +1,11 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { logAuditAction } from '@/utils/audit'
 
 export async function getOdontogram(patientId: string) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('Odontogram')
     .select('*')
@@ -20,8 +20,9 @@ export async function getOdontogram(patientId: string) {
 }
 
 export async function saveOdontogram(patientId: string, chartData: any) {
-  const supabase = createClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { session } } = await userClient.auth.getSession()
 
   if (!session) {
     return { error: 'No autorizado' }

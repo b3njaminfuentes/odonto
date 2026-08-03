@@ -1,11 +1,11 @@
 import React from 'react'
-import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/server'
 import { TreatmentsTable } from '@/components/patients/TreatmentsTable'
 
 export const dynamic = 'force-dynamic'
 
 export default async function TratamientosGlobalPage() {
-  const supabase = createClient()
+  const supabase = createAdminClient()
 
   const { data: treatments } = await supabase
     .from('Treatment')

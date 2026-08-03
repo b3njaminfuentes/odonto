@@ -1,5 +1,5 @@
 import React from 'react'
-import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/server'
 import { PatientLeaderboard } from '@/components/patients/PatientLeaderboard'
 import { Patient } from '@/components/patients/PatientCard'
 import { intlBO, toBO } from '@/lib/datetime'
@@ -24,7 +24,7 @@ export default async function PacientesPage({
 }: {
   searchParams?: { q?: string; page?: string; status?: string }
 }) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   
   const q = searchParams?.q || ''
   const page = Number(searchParams?.page || '1')

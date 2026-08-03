@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import { FileText, File, ImageIcon, ArrowRight } from 'lucide-react'
 import { format } from 'date-fns'
@@ -18,7 +18,7 @@ function serviceClient() {
 export const dynamic = 'force-dynamic'
 
 export default async function DocumentosPage() {
-  const supabase = createClient()
+  const supabase = createAdminClient()
 
   const { data: media } = await supabase
     .from('CaseMedia')

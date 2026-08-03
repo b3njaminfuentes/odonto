@@ -1,11 +1,11 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { logAuditAction } from '@/utils/audit'
 
 export async function getPatientPayments(patientId: string) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('Payment')
     .select(`
@@ -24,7 +24,7 @@ export async function getPatientPayments(patientId: string) {
 }
 
 export async function getPatientActiveTreatments(patientId: string) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { data, error } = await supabase
     .from('Treatment')
     .select('id, name, toothNumber, budget, finalCost')
@@ -37,8 +37,9 @@ export async function getPatientActiveTreatments(patientId: string) {
 }
 
 export async function createPayment(formData: FormData) {
-  const supabase = createClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { session } } = await userClient.auth.getSession()
   if (!session) return { error: 'No autorizado' }
 
   const patientId = formData.get('patientId') as string
@@ -146,7 +147,7 @@ export interface AccountStatement {
  * y saldo. Devuelve también los totales del paciente.
  */
 export async function getAccountStatement(patientId: string): Promise<AccountStatement> {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const [{ data: treatments }, { data: payments }] = await Promise.all([
     supabase.from('Treatment').select('id, name, toothNumber, budget, finalCost, status').eq('patientId', patientId).neq('status', 'CANCELADO'),
     supabase.from('Payment').select('amount, status, treatmentId').eq('patientId', patientId).eq('status', 'COMPLETADO'),
@@ -184,8 +185,9 @@ export async function getAccountStatement(patientId: string): Promise<AccountSta
 }
 
 export async function updatePaymentStatus(paymentId: string, status: string, patientId: string) {
-  const supabase = createClient()
-  const { data: { session } } = await supabase.auth.getSession()
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { session } } = await userClient.auth.getSession()
   if (!session) return { error: 'No autorizado' }
 
   const { error } = await supabase

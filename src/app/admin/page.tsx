@@ -1,9 +1,8 @@
 import React from 'react'
 import Link from 'next/link'
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient, getAuthProfile } from '@/utils/supabase/server'
 import { KPICard } from '@/components/ui/KPICard'
 import { getClinicSettings } from './configuracion/actions'
-import { getAuthProfile } from '@/utils/supabase/server'
 import { Users, Calendar, Banknote, Clock, ClipboardList, ArrowRight, CheckCircle2, User, Phone } from 'lucide-react'
 import { intlBO, toBO } from '@/lib/datetime'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -13,7 +12,7 @@ import { RemindersPanel } from '@/components/dashboard/RemindersPanel'
 export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboardPage() {
-  const supabase = createClient()
+  const supabase = createAdminClient()
 
   // Huso horario de Bolivia (America/La_Paz) para calcular el día y hora exactos
   const todayBO = new Intl.DateTimeFormat('sv-SE', {

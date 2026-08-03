@@ -1,5 +1,5 @@
 import React from 'react'
-import { createClient } from '@/utils/supabase/server'
+import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { WeeklyCalendar } from '@/components/calendar/WeeklyCalendar'
 
 export const dynamic = 'force-dynamic'
@@ -9,7 +9,7 @@ export default async function CalendarioPage({
 }: {
   searchParams?: { date?: string }
 }) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
 
   // Traer pacientes para el select del Modal (id, nombre, código)
   const { data: rawPatients } = await supabase
@@ -25,7 +25,8 @@ export default async function CalendarioPage({
     code: p.patientCode
   }))
 
-  const { data: { session } } = await supabase.auth.getSession()
+  const userClient = createClient()
+  const { data: { session } } = await userClient.auth.getSession()
   const { data: currentUser } = await supabase
     .from('Profile')
     .select('role, id')
@@ -37,19 +38,14 @@ export default async function CalendarioPage({
     .select('id, firstName, lastName, specialty, color')
     .in('role', ['admin', 'doctor'])
     .eq('isActive', true)
-    
-  const isDoctor = currentUser?.role === 'doctor'
 
   const doctorsForSelect = (doctors || [])
-    .filter(d => isDoctor ? d.id === currentUser?.id : true)
     .map(d => ({
       id: d.id,
       name: `${d.firstName || ''} ${d.lastName || ''}`.trim() || 'Doctor',
       specialty: d.specialty,
       color: d.color
     }))
-
-
 
   // Determinar el mes a consultar usando la fecha recibida o "hoy en Bolivia"
   let queryYear: number
@@ -116,10 +112,6 @@ export default async function CalendarioPage({
     .gte('startsAt', startISO)
     .lte('startsAt', endISO)
     .not('status', 'eq', 'CANCELADO')
-
-  if (isDoctor && currentUser?.id) {
-    query = query.eq('doctorId', currentUser.id)
-  }
 
   const { data: rawAppointments } = await query.order('startsAt', { ascending: true })
 

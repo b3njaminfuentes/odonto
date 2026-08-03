@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
-import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/server'
 import { getAccountStatement } from '@/app/admin/pacientes/payment-actions'
 import { getClinicSettings } from '@/app/admin/configuracion/actions'
 import { CotizacionDoc } from '@/components/patients/CotizacionDoc'
@@ -10,7 +10,7 @@ import { CotizacionDoc } from '@/components/patients/CotizacionDoc'
 export const dynamic = 'force-dynamic'
 
 export default async function CotizacionPage({ params }: { params: { id: string } }) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   const { data: patient } = await supabase
     .from('Patient')
     .select('id, firstName, lastName, patientCode, dni, phone, email')

@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function createAppointment(formData: FormData) {
@@ -13,7 +13,7 @@ export async function createAppointment(formData: FormData) {
 }
 
 async function createAppointmentInner(formData: FormData) {
-  const supabase = createClient()
+  const supabase = createAdminClient()
 
   const patientId = formData.get('patientId') as string
   // Aceptamos startsAt directo, o date + time por separado (UI más simple).
@@ -118,7 +118,7 @@ async function createAppointmentInner(formData: FormData) {
 
 export async function updateAppointment(appointmentId: string, formData: FormData) {
   try {
-    const supabase = createClient()
+    const supabase = createAdminClient()
     const patientId = formData.get('patientId') as string
     const date = formData.get('date') as string
     const time = formData.get('time') as string
@@ -211,7 +211,7 @@ export async function updateAppointment(appointmentId: string, formData: FormDat
 
 // Acción para cancelar o actualizar el estado de una cita
 export async function updateAppointmentStatus(appointmentId: string, status: 'CONFIRMADO' | 'PENDIENTE' | 'CANCELADO') {
-  const supabase = createClient()
+  const supabase = createAdminClient()
   
   const { error } = await supabase
     .from('Appointment')
