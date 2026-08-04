@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo, useState, useRef } from 'react'
-import { Printer, Download, FileWarning, Share2, Check, Loader2, FileCheck, Stethoscope, Phone, MapPin, Calendar, Hash } from 'lucide-react'
+import { Printer, Download, FileWarning, Share2, Loader2, FileCheck, Stethoscope, CheckSquare, Square } from 'lucide-react'
 
 interface TreatmentRow {
   id: string
@@ -64,7 +64,7 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
   const surgeryTreatments = chosen.filter((t) => isSurgery(t.name))
   const hasSurgery = surgeryTreatments.length > 0
 
-  // Generador de PDF oficial y descarga directa
+  // Generador de PDF oficial y descarga directa al dispositivo móvil/escritorio
   const handleDownloadPdf = async () => {
     if (!printAreaRef.current) return
     setIsGeneratingPdf(true)
@@ -84,6 +84,7 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
+        windowWidth: 800, // Fijar ancho virtual para consistencia en móviles
       })
 
       // Restaurar controles
@@ -150,45 +151,46 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
   }
 
   return (
-    <>
+    <div className="w-full max-w-4xl mx-auto pb-12">
       {/* ── BARRA DE HERRAMIENTAS (PANTALLA - OCULTA EN IMPRESIÓN) ── */}
       <div className="no-print bg-surface border border-border rounded-2xl p-4 sm:p-5 mb-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div>
+        <div className="w-full md:w-auto">
           <h2 className="text-base font-semibold text-text flex items-center gap-2">
-            <FileCheck className="w-5 h-5 text-brand" />
-            Cotización y Presupuesto Oficial
+            <FileCheck className="w-5 h-5 text-brand shrink-0" />
+            Cotización y Presupuesto
           </h2>
           <p className="text-xs text-muted mt-0.5">
-            Marcá o desmarcá tratamientos para personalizar la cotización antes de exportar.
+            Seleccioná tratamientos y exportá el documento oficial listo para el paciente.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5 w-full md:w-auto">
+        {/* Botones de acción optimizados para mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full md:w-auto">
           <button
             onClick={handleShareWhatsApp}
             type="button"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 text-emerald-500 font-medium px-4 py-2.5 text-xs transition-colors border border-emerald-600/20 shadow-sm flex-1 sm:flex-initial"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600/10 hover:bg-emerald-600/20 active:scale-[0.98] text-emerald-500 font-medium px-4 py-2.5 text-xs transition-all border border-emerald-600/20 shadow-sm"
             title="Enviar cotización vía WhatsApp"
           >
-            <Share2 className="w-4 h-4" />
-            WhatsApp
+            <Share2 className="w-4 h-4 shrink-0" />
+            <span>WhatsApp</span>
           </button>
 
           <button
             onClick={handleDownloadPdf}
             disabled={isGeneratingPdf || chosen.length === 0}
             type="button"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand text-brand-fg font-semibold px-4 py-2.5 text-xs shadow-soft hover:bg-brand-hover transition-all disabled:opacity-50 flex-1 sm:flex-initial"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand text-brand-fg font-semibold px-4 py-2.5 text-xs shadow-soft hover:bg-brand-hover active:scale-[0.98] transition-all disabled:opacity-50"
           >
             {isGeneratingPdf ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Generando PDF...
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                <span>Generando...</span>
               </>
             ) : (
               <>
-                <Download className="w-4 h-4" />
-                Descargar PDF
+                <Download className="w-4 h-4 shrink-0" />
+                <span>Descargar PDF</span>
               </>
             )}
           </button>
@@ -196,10 +198,10 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
           <button
             onClick={() => window.print()}
             type="button"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-elevated hover:bg-border text-text font-medium px-4 py-2.5 text-xs transition-colors border border-border shadow-sm flex-1 sm:flex-initial"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-elevated hover:bg-border active:scale-[0.98] text-text font-medium px-4 py-2.5 text-xs transition-all border border-border shadow-sm"
           >
-            <Printer className="w-4 h-4 text-muted" />
-            Imprimir
+            <Printer className="w-4 h-4 text-muted shrink-0" />
+            <span>Imprimir</span>
           </button>
         </div>
       </div>
@@ -220,34 +222,39 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
       <div ref={printAreaRef} id="cotizacion-print-area" className="w-full">
         
         {/* DOCUMENTO: COTIZACIÓN (PÁGINA 1) */}
-        <div className="print-doc mx-auto max-w-3xl bg-white text-gray-900 rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-10 mb-8">
+        <div className="print-doc mx-auto w-full bg-white text-gray-900 rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-8 md:p-10 mb-8">
           
           {/* Encabezado Clínica */}
-          <div className="flex items-start justify-between border-b-2 border-gray-200 pb-5 mb-5">
-            <div>
+          <div className="flex flex-col sm:flex-row items-start justify-between border-b-2 border-gray-200 pb-4 sm:pb-5 mb-5 gap-3">
+            <div className="w-full sm:w-auto">
               <div className="flex items-center gap-2.5 mb-1">
-                <div className="w-7 h-7 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold text-xs">
+                <div className="w-7 h-7 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold text-xs shrink-0">
                   <Stethoscope className="w-4 h-4" />
                 </div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 font-serif tracking-tight">
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-900 font-serif tracking-tight">
                   {clinic.clinicName || 'Clínica Odontológica Villarroel'}
                 </h1>
               </div>
-              <p className="text-xs font-semibold text-emerald-800 tracking-wide uppercase">
+              <p className="text-[11px] sm:text-xs font-semibold text-emerald-800 tracking-wide uppercase">
                 {clinic.specialty || 'Ortodoncia · Ortopedia Funcional · Rehabilitación Oral'}
               </p>
-              <div className="text-xs text-gray-500 mt-1.5 space-y-0.5">
+              <div className="text-[11px] sm:text-xs text-gray-500 mt-1.5 space-y-0.5">
                 {clinic.address && <p>📍 {clinic.address}</p>}
-                {clinic.phone && <p>📞 {clinic.phone}</p>}
+                <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                  {clinic.phone && <p>📞 {clinic.phone}</p>}
+                  <p>✉️ villarroelodontologia@hotmail.com</p>
+                </div>
               </div>
             </div>
             
-            <div className="text-right">
-              <span className="inline-block px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md text-[11px] font-bold uppercase tracking-widest mb-1.5">
+            <div className="text-left sm:text-right w-full sm:w-auto flex sm:flex-col justify-between items-end border-t sm:border-t-0 pt-2 sm:pt-0 border-gray-100">
+              <span className="inline-block px-2.5 py-0.5 sm:px-3 sm:py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-md text-[10px] sm:text-[11px] font-bold uppercase tracking-widest mb-1">
                 Cotización
               </span>
-              <p className="text-xs text-gray-600 font-medium">{today}</p>
-              <p className="text-xs font-mono text-gray-400 mt-0.5">#{patient.patientCode}</p>
+              <div className="text-right">
+                <p className="text-xs text-gray-600 font-medium">{today}</p>
+                <p className="text-xs font-mono text-gray-400 mt-0.5">#{patient.patientCode}</p>
+              </div>
             </div>
           </div>
 
@@ -255,16 +262,16 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
           <div className="mb-5 p-3.5 rounded-xl bg-gray-50 border border-gray-200">
             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">Datos del Paciente</p>
             <p className="text-base font-bold text-gray-900">{patient.firstName} {patient.lastName}</p>
-            <div className="text-xs text-gray-600 flex flex-wrap gap-x-5 gap-y-1 mt-1">
+            <div className="text-xs text-gray-600 flex flex-wrap gap-x-4 gap-y-1 mt-1">
               {patient.dni && <span><strong>DNI/CI:</strong> {patient.dni}</span>}
-              {patient.phone && <span><strong>Teléfono:</strong> {patient.phone}</span>}
+              {patient.phone && <span><strong>Tel:</strong> {patient.phone}</span>}
               {patient.email && <span><strong>Email:</strong> {patient.email}</span>}
             </div>
           </div>
 
-          {/* Tabla de Tratamientos */}
-          <div className="mb-5">
-            <table className="w-full text-xs sm:text-sm border-collapse">
+          {/* Tabla de Tratamientos con soporte responsive */}
+          <div className="mb-5 overflow-x-auto">
+            <table className="w-full text-xs sm:text-sm border-collapse min-w-[320px]">
               <thead>
                 <tr className="border-b-2 border-gray-300 text-gray-600 text-[11px] uppercase tracking-wider">
                   <th className="no-print-in-pdf no-print text-left font-semibold py-2 w-7">
@@ -272,13 +279,13 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
                       type="checkbox"
                       checked={treatments.length > 0 && chosen.length === treatments.length}
                       onChange={toggleAll}
-                      className="w-3.5 h-3.5 rounded text-emerald-600 cursor-pointer"
+                      className="w-4 h-4 rounded text-emerald-600 cursor-pointer"
                       title="Seleccionar todos"
                     />
                   </th>
-                  <th className="text-left font-semibold py-2">Tratamiento / Procedimiento</th>
+                  <th className="text-left font-semibold py-2">Tratamiento</th>
                   <th className="text-right font-semibold py-2">Presupuesto</th>
-                  <th className="text-right font-semibold py-2">Saldo a Pagar</th>
+                  <th className="text-right font-semibold py-2">Saldo</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -298,28 +305,28 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
                         type="checkbox" 
                         checked={!!selected[t.id]} 
                         onChange={() => toggle(t.id)} 
-                        className="w-3.5 h-3.5 rounded text-emerald-600 cursor-pointer" 
+                        className="w-4 h-4 rounded text-emerald-600 cursor-pointer" 
                       />
                     </td>
-                    <td className="py-2.5 text-gray-900 font-medium align-middle">
-                      <div className="flex items-center gap-2 flex-wrap">
+                    <td className="py-2.5 text-gray-900 font-medium align-middle pr-2">
+                      <div className="flex items-center gap-1.5 flex-wrap">
                         <span>{t.name}</span>
                         {t.toothNumber && (
-                          <span className="text-[10px] font-semibold bg-gray-100 text-gray-700 px-1.5 py-0.5 rounded border border-gray-200">
-                            Pieza {t.toothNumber}
+                          <span className="text-[10px] font-semibold bg-gray-100 text-gray-700 px-1.5 py-0.2 rounded border border-gray-200">
+                            Pza {t.toothNumber}
                           </span>
                         )}
                         {isSurgery(t.name) && (
-                          <span className="text-[9px] uppercase tracking-wide bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded">
+                          <span className="text-[9px] uppercase tracking-wide bg-amber-100 text-amber-800 font-bold px-1.5 py-0.2 rounded">
                             Cirugía
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="py-2.5 text-right text-gray-700 tabular-nums align-middle">
+                    <td className="py-2.5 text-right text-gray-700 tabular-nums align-middle whitespace-nowrap">
                       {money(t.cost)}
                     </td>
-                    <td className="py-2.5 text-right font-bold text-gray-900 tabular-nums align-middle">
+                    <td className="py-2.5 text-right font-bold text-gray-900 tabular-nums align-middle whitespace-nowrap">
                       {money(t.balance)}
                     </td>
                   </tr>
@@ -352,10 +359,10 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
           </div>
 
           {/* Firmas de Autorización */}
-          <div className="avoid-break mt-8 pt-4 border-t border-gray-200 grid grid-cols-2 gap-8 text-center">
+          <div className="avoid-break mt-8 pt-4 border-t border-gray-200 grid grid-cols-2 gap-4 sm:gap-8 text-center">
             <div>
               <div className="h-12 flex items-end justify-center">
-                <div className="w-40 border-b border-gray-400" />
+                <div className="w-32 sm:w-40 border-b border-gray-400" />
               </div>
               <p className="text-xs font-semibold text-gray-800 mt-1.5">
                 {clinic.doctorName || 'Dra. Marisol Villarroel'}
@@ -367,12 +374,12 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
 
             <div>
               <div className="h-12 flex items-end justify-center">
-                <div className="w-40 border-b border-gray-400" />
+                <div className="w-32 sm:w-40 border-b border-gray-400" />
               </div>
               <p className="text-xs font-semibold text-gray-800 mt-1.5">
                 {patient.firstName} {patient.lastName}
               </p>
-              <p className="text-[10px] text-gray-500">Firma del Paciente / Tutor</p>
+              <p className="text-[10px] text-gray-500">Firma Paciente / Tutor</p>
             </div>
           </div>
 
@@ -384,16 +391,16 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
 
         {/* DOCUMENTO: CONSENTIMIENTO INFORMADO (PÁGINA 2 - SOLO SI HAY CIRUGÍA) */}
         {hasSurgery && (
-          <div className="print-doc consent-doc page-break-before mx-auto max-w-3xl bg-white text-gray-900 rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-10">
+          <div className="print-doc consent-doc page-break-before mx-auto w-full bg-white text-gray-900 rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-8 md:p-10">
             
             <div className="border-b-2 border-gray-200 pb-4 mb-4">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                 <div>
-                  <h2 className="text-lg font-bold text-gray-900 font-serif">
+                  <h2 className="text-base sm:text-lg font-bold text-gray-900 font-serif">
                     {clinic.clinicName || 'Clínica Odontológica Villarroel'}
                   </h2>
-                  <p className="text-xs font-bold uppercase tracking-wider text-amber-700 mt-0.5">
-                    Consentimiento Informado para Procedimiento Quirúrgico
+                  <p className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-amber-700 mt-0.5">
+                    Consentimiento Informado Quirúrgico
                   </p>
                 </div>
                 <div className="text-right text-xs text-gray-500">
@@ -434,20 +441,20 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
             </div>
 
             {/* Firmas Consentimiento */}
-            <div className="avoid-break mt-10 pt-4 border-t border-gray-200 grid grid-cols-2 gap-8 text-center">
+            <div className="avoid-break mt-10 pt-4 border-t border-gray-200 grid grid-cols-2 gap-4 sm:gap-8 text-center">
               <div>
                 <div className="h-12 flex items-end justify-center">
-                  <div className="w-40 border-b border-gray-400" />
+                  <div className="w-32 sm:w-40 border-b border-gray-400" />
                 </div>
                 <p className="text-xs font-semibold text-gray-800 mt-1.5">
-                  Firma del Paciente / Tutor
+                  Firma Paciente / Tutor
                 </p>
                 <p className="text-[10px] text-gray-500">DNI: {patient.dni || '.....................'}</p>
               </div>
 
               <div>
                 <div className="h-12 flex items-end justify-center">
-                  <div className="w-40 border-b border-gray-400" />
+                  <div className="w-32 sm:w-40 border-b border-gray-400" />
                 </div>
                 <p className="text-xs font-semibold text-gray-800 mt-1.5">
                   Firma y Sello Profesional
@@ -459,6 +466,6 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
         )}
 
       </div>
-    </>
+    </div>
   )
 }

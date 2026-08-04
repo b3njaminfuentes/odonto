@@ -5,7 +5,7 @@ import ReviewsSlider from "@/components/ReviewsSlider";
 import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import BookingCalendar from "@/components/BookingCalendar";
 import CertificatesGallery from "@/components/CertificatesGallery";
-import { Star, CheckCircle, Clock, MapPin, Phone, Award, ArrowRight, ShieldCheck, Smile, Stethoscope, Sparkles } from "lucide-react";
+import { Star, CheckCircle, Clock, MapPin, Phone, Mail, Award, ArrowRight, ShieldCheck, Smile, Stethoscope, Sparkles } from "lucide-react";
 import { getTenantConfig } from "@/lib/tenant";
 
 // Lucide no incluye logos de marcas por diseño: usamos SVGs propios para redes sociales.
@@ -296,6 +296,7 @@ export default async function Home() {
             <p className="text-muted mb-8">{address}</p>
             <div className="space-y-6 mb-10">
               <ContactRow icon={<Phone size={18} />} title="WhatsApp directo" value={phone} />
+              <ContactRow icon={<Mail size={18} />} title="Correo electrónico" value={<a href="mailto:villarroelodontologia@hotmail.com" className="hover:text-brand transition-colors">villarroelodontologia@hotmail.com</a>} />
               <ContactRow icon={<Clock size={18} />} title="Horarios de atención" value={<>Lunes a Viernes<br />Mañana: hasta 12:00 · Tarde: 15:00 a 20:00<br />Sábados: previa cita</>} />
             </div>
             <BookingCalendar />
@@ -367,6 +368,7 @@ export default async function Home() {
             <h4 className="text-brand-fg font-medium mb-4">Contacto</h4>
             <ul className="space-y-3">
               <li>{phone}</li>
+              <li><a href="mailto:villarroelodontologia@hotmail.com" className="hover:text-brand-fg transition-colors">villarroelodontologia@hotmail.com</a></li>
               <li>{address}</li>
               <li>Lunes a Viernes de 09:00 a 20:00<br/>(Sábados previa cita)</li>
             </ul>
