@@ -34,6 +34,20 @@ function OnboardingContent() {
     plan: searchParams?.get('plan') || 'Profesional'
   })
 
+  // Sync with searchParams when client hydrates
+  React.useEffect(() => {
+    if (searchParams) {
+      setFormData(prev => ({
+        ...prev,
+        clinicName: searchParams.get('clinica') || prev.clinicName,
+        doctorName: searchParams.get('nombre') || prev.doctorName,
+        phone: searchParams.get('whatsapp') || prev.phone,
+        email: searchParams.get('email') || prev.email,
+        plan: searchParams.get('plan') || prev.plan,
+      }))
+    }
+  }, [searchParams])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
     setError(null)
