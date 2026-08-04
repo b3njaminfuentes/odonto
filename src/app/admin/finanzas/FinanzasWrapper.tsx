@@ -1,11 +1,12 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Plus, ArrowUpRight, ArrowDownRight, XCircle, Users, UserMinus, Receipt } from 'lucide-react'
+import { Plus, ArrowUpRight, ArrowDownRight, XCircle, Users, UserMinus, Receipt, Calculator } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { NewPaymentModal } from '@/components/finanzas/NewPaymentModal'
 import { DoctorPaymentModal } from '@/components/finanzas/DoctorPaymentModal'
+import { SimuladorFinanciero } from '@/components/finanzas/SimuladorFinanciero'
 import { toBO } from '@/lib/datetime'
 import { updatePaymentStatus } from '@/app/admin/pacientes/payment-actions'
 
@@ -44,7 +45,7 @@ export default function FinanzasInteractivityWrapper({ patients, payments: initi
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isDoctorModalOpen, setIsDoctorModalOpen] = useState(false)
   const [payments, setPayments] = useState(initialPayments)
-  const [activeTab, setActiveTab] = useState<'ingresos' | 'egresos'>('ingresos')
+  const [activeTab, setActiveTab] = useState<'ingresos' | 'egresos' | 'simulador'>('ingresos')
 
   const cancelPayment = async (id: string, patientId: string) => {
     if (!confirm('¿Anular este pago? Dejará de contar en los ingresos.')) return
@@ -77,9 +78,22 @@ export default function FinanzasInteractivityWrapper({ patients, payments: initi
             Pagos a Doctores
           </div>
         </button>
+        <button
+          onClick={() => setActiveTab('simulador')}
+          className={`pb-3 px-4 font-semibold text-sm transition-colors border-b-2 ${
+            activeTab === 'simulador' ? 'border-brand text-brand' : 'border-transparent text-muted hover:text-text'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            <Calculator className="w-4 h-4" />
+            Simulador de Rentabilidad
+          </div>
+        </button>
       </div>
 
-      {activeTab === 'ingresos' ? (
+      {activeTab === 'simulador' ? (
+        <SimuladorFinanciero />
+      ) : activeTab === 'ingresos' ? (
         <div className="bg-surface rounded-2xl shadow-sm border border-border overflow-hidden">
           <div className="p-6 border-b border-border flex flex-col sm:flex-row justify-between items-center gap-4">
             <h2 className="text-xl font-bold text-text">Últimos Ingresos</h2>
