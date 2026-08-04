@@ -307,9 +307,23 @@ function OnboardingContent() {
                   />
                 </div>
 
+                <div className="space-y-2 pt-1">
+                  <label className="flex items-start gap-2.5 text-xs text-slate-300 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      required 
+                      defaultChecked 
+                      className="mt-0.5 accent-emerald-500 rounded border-slate-700 bg-slate-900"
+                    />
+                    <span>
+                      Acepto los <span className="text-emerald-400 underline">Términos de Servicio</span> y la <span className="text-emerald-400 underline">Política de Privacidad</span>. Acepto que ClinicOS aloja la plataforma de forma segura y la clínica es la titular y responsable de los datos de sus pacientes.
+                    </span>
+                  </label>
+                </div>
+
                 <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 flex items-start gap-2">
                   <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                  <span>Se te enviará una copia de tus accesos a tu correo electrónico.</span>
+                  <span>Prueba gratuita de 7 días activa. Tus accesos se enviarán a tu correo.</span>
                 </div>
 
                 <div className="pt-4 flex gap-3">
