@@ -156,7 +156,7 @@ export async function getTenantConfig(clinicId?: string) {
       phone: '+591 70000000',
       address: 'Cochabamba, Bolivia',
       currency: 'BOB',
-      doctorName: 'Dra. Solange Villarroel',
+      doctorName: 'Dra. Marisol Villarroel',
       specialty: 'Ortodoncia y Estética Dental',
     },
     testimonials: testimonialsRes.data || [],
