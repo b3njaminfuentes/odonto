@@ -177,38 +177,60 @@
 @media print {
   @page {
     size: A4 portrait;
-    margin: 12mm 15mm;
+    margin: 8mm 10mm;
   }
   
   *, *::before, *::after {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
   }
 
   html, body {
     background: #ffffff !important;
+    background-color: #ffffff !important;
     color: #111827 !important;
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
-    min-height: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
   }
 
-  /* Ocultar elementos de interfaz y navegación */
+  /* Ocultar absolutamente todo lo que no sea el área de impresión */
   .no-print,
   aside,
   header,
-  nav {
+  nav,
+  footer,
+  button,
+  [role="dialog"] {
     display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 
-  /* Desactivar scroll containers oscuros y anchos de la app */
-  .dark {
+  /* Desactivar scroll containers oscuros y forzar flujo natural */
+  .dark,
+  div[class*="min-h-screen"],
+  div[class*="bg-bg"] {
     background: #ffffff !important;
+    background-color: #ffffff !important;
     color: #111827 !important;
     display: block !important;
-    min-height: auto !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
   }
 
   main {
@@ -218,23 +240,29 @@
     max-width: 100% !important;
     overflow: visible !important;
     display: block !important;
+    position: static !important;
+    inset: auto !important;
   }
 
   main > div {
     max-width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
+    min-height: 0 !important;
+    height: auto !important;
   }
 
-  /* Estilos para el contenedor de la cotización */
+  /* Estilos para el contenedor de la cotización: ancho completo sin marcos de tarjeta */
   .print-doc {
     box-shadow: none !important;
     border: none !important;
+    border-radius: 0 !important;
     padding: 0 !important;
-    margin: 0 auto !important;
+    margin: 0 !important;
     max-width: 100% !important;
     width: 100% !important;
     background: #ffffff !important;
+    background-color: #ffffff !important;
     color: #111827 !important;
     page-break-inside: auto;
     break-inside: auto;
@@ -247,8 +275,14 @@
   }
 
   .print-doc tr {
-    page-break-inside: avoid;
-    break-inside: avoid;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .print-doc th,
+  .print-doc td {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
   }
 
   /* Salto de página para el consentimiento informado */
@@ -257,7 +291,7 @@
     page-break-before: always !important;
     break-before: page !important;
     margin-top: 0 !important;
-    padding-top: 10mm !important;
+    padding-top: 8mm !important;
   }
 
   /* Evitar cortes indeseados en firmas y bloques */
