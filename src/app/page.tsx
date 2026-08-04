@@ -6,6 +6,7 @@ import BeforeAfterSlider from "@/components/BeforeAfterSlider";
 import BookingCalendar from "@/components/BookingCalendar";
 import CertificatesGallery from "@/components/CertificatesGallery";
 import { Star, CheckCircle, Clock, MapPin, Phone, Award, ArrowRight, ShieldCheck, Smile, Stethoscope, Sparkles } from "lucide-react";
+import { getTenantConfig } from "@/lib/tenant";
 
 // Lucide no incluye logos de marcas por diseño: usamos SVGs propios para redes sociales.
 function InstagramIcon({ size = 18 }: { size?: number }) {
@@ -64,13 +65,30 @@ const values = [
   { title: "Transparencia", desc: "El paciente sabe en todo momento qué tratamiento tiene, qué debe y qué sigue." },
 ];
 
-const wa = "https://wa.me/59172212402?text=Hola%2C%20quiero%20reservar%20una%20consulta.";
+export const dynamic = 'force-dynamic'
 
-export default function Home() {
+export default async function Home() {
+  const config = await getTenantConfig()
+  const { clinic, theme, settings, testimonials } = config
+
+  const clinicName = clinic.name || 'Clínica Odontológica Villarroel'
+  const headline = theme.heroHeadline || 'Recuperá la sonrisa que merecés.'
+  const phone = settings.phone || '+591 72212402'
+  const address = settings.address || 'Calle Man Césped #342 y Washington, Edificio El Porvenir, Cochabamba, Bolivia'
+  const doctorName = settings.doctorName || 'Dra. Villarroel'
+  const specialty = settings.specialty || 'Ortopedia y Ortodoncia'
+  const cleanPhone = phone.replace(/[^\d+]/g, '')
+  const wa = `https://wa.me/${cleanPhone.replace('+', '')}?text=${encodeURIComponent(`Hola, quiero reservar una consulta en ${clinicName}.`)}`
+
   return (
     <main className="min-h-screen bg-bg">
-      <Navbar />
-      <Hero />
+      <Navbar clinicName={clinicName} logoUrl={theme.logoUrl || '/images/logo.png'} phone={phone} />
+      <Hero 
+        clinicName={clinicName} 
+        headline={headline} 
+        phone={phone} 
+        heroImageUrl={theme.heroImageUrl || '/images/paciente.png'} 
+      />
 
       {/* Barra de confianza */}
       <section className="border-y border-border bg-surface">
@@ -78,7 +96,7 @@ export default function Home() {
           <div className="flex items-center gap-2 text-text">
             <Star className="text-accent" fill="currentColor" size={18} /> 4.9 en Google (19+ reseñas reales)
           </div>
-          <Dot /><span>500+ implantes realizados</span>
+          <Dot /><span>500+ pacientes atendidos</span>
           <Dot /><span>20+ años de experiencia clínica</span>
           <Dot /><span>98% satisfacción de pacientes</span>
         </div>
@@ -90,14 +108,14 @@ export default function Home() {
           <span className="eyebrow mb-4">Testimonios</span>
           <h2 className="text-3xl md:text-5xl font-serif text-text mt-3 mb-5">Lo que dicen nuestros pacientes</h2>
           <div className="flex flex-col md:flex-row items-center justify-center gap-4 text-muted">
-            <span className="font-medium text-brand">Reseñas reales de pacientes de Cochabamba</span>
+            <span className="font-medium text-brand">Reseñas reales de pacientes de {clinicName}</span>
             <Dot />
             <span className="chip bg-accent-soft text-accent">
               <Award size={14} /> Negocio liderado por mujeres
             </span>
           </div>
         </div>
-        <ReviewsSlider />
+        <ReviewsSlider testimonials={testimonials} />
       </section>
 
       {/* Antes y después */}
@@ -110,7 +128,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           <BeforeAfterSlider beforeImage="/images/antes.jpg" afterImage="/images/despues.jpg" beforePosition="center 35%" afterPosition="center 65%" />
           <div className="mt-8 text-center">
-            <h3 className="text-xl font-serif text-brand">Ortodoncia y alineación dental</h3>
+            <h3 className="text-xl font-serif text-brand">{specialty}</h3>
             <p className="text-muted mt-2">Transformación real con tratamientos personalizados</p>
           </div>
         </div>
@@ -217,7 +235,7 @@ export default function Home() {
                 <Sparkles className="text-accent" size={22} /> Visión
               </h3>
               <p className="text-muted leading-relaxed">
-                Ser la clínica de referencia en Cochabamba en implantes y diseño de sonrisa, reconocida por la confianza de sus pacientes y por un estándar internacional de calidad clínica.
+                Ser la clínica de referencia en implantes y diseño de sonrisa, reconocida por la confianza de sus pacientes y por un estándar internacional de calidad clínica.
               </p>
             </div>
           </div>
@@ -242,16 +260,16 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 md:px-12">
           <div className="bg-brand-soft/40 rounded-3xl p-8 md:p-16 flex flex-col md:flex-row gap-12 items-center">
             <div className="relative w-56 h-56 md:w-72 md:h-72 rounded-full overflow-hidden ring-4 ring-surface shadow-lift shrink-0">
-              <Image src="/images/doctora.jpg" alt="Dra. Villarroel" fill sizes="288px" className="object-cover" />
+              <Image src="/images/doctora.jpg" alt={doctorName} fill sizes="288px" className="object-cover" />
             </div>
             <div className="flex-1">
               <span className="chip bg-accent-soft text-accent mb-4">
                 <Award size={14} /> Negocio liderado por mujeres
               </span>
-              <h2 className="text-3xl md:text-5xl font-serif text-text mb-2">Dra. Villarroel</h2>
-              <h3 className="text-xl text-brand mb-6">Especialista en Ortopedia y Ortodoncia</h3>
+              <h2 className="text-3xl md:text-5xl font-serif text-text mb-2">{doctorName}</h2>
+              <h3 className="text-xl text-brand mb-6">Especialista en {specialty}</h3>
               <div className="text-muted text-lg leading-relaxed space-y-4 mb-8">
-                <p>La Dra. Marisol Villarroel es una referente en odontología especializada con más de 20 años de trayectoria internacional. Formó su base profesional en la Universidad Mayor de San Simón (UMSS) en Cochabamba.</p>
+                <p>La {doctorName} es una referente en odontología especializada con más de 20 años de trayectoria internacional. Formó su base profesional en la Universidad Mayor de San Simón (UMSS) en Cochabamba.</p>
                 <p>Se especializó en Ortodoncia en el IPENO y continuó su formación con subespecialidades en Buenos Aires, experiencia directa en Washington D.C. y programas de perfeccionamiento avanzado en Brasil.</p>
                 <p>Hoy combina su recorrido académico con un enfoque vanguardista en implantología y estética dental de alta precisión, con los más rigurosos estándares clínicos internacionales.</p>
               </div>
@@ -275,9 +293,9 @@ export default function Home() {
           <div>
             <span className="eyebrow mb-4">Contacto</span>
             <h2 className="text-3xl font-serif text-text mt-3 mb-4">Visitá nuestra clínica</h2>
-            <p className="text-muted mb-8">Calle Man Césped #342 y Washington, Edificio El Porvenir, Cochabamba, Bolivia.</p>
+            <p className="text-muted mb-8">{address}</p>
             <div className="space-y-6 mb-10">
-              <ContactRow icon={<Phone size={18} />} title="WhatsApp directo" value="+591 72212402" />
+              <ContactRow icon={<Phone size={18} />} title="WhatsApp directo" value={phone} />
               <ContactRow icon={<Clock size={18} />} title="Horarios de atención" value={<>Lunes a Viernes<br />Mañana: hasta 12:00 · Tarde: 15:00 a 20:00<br />Sábados: previa cita</>} />
             </div>
             <BookingCalendar />
@@ -317,8 +335,8 @@ export default function Home() {
       <footer className="bg-brand-hover text-brand-fg/80 py-16">
         <div className="max-w-7xl mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="md:col-span-2">
-            <h3 className="text-2xl font-serif text-brand-fg mb-4">Clínica Villarroel</h3>
-            <p className="max-w-sm mb-6">La clínica de implantes y estética dental de referencia en Cochabamba.</p>
+            <h3 className="text-2xl font-serif text-brand-fg mb-4">{clinicName}</h3>
+            <p className="max-w-sm mb-6">La clínica de implantes y estética dental de referencia en {address.includes('Cochabamba') ? 'Cochabamba' : 'la ciudad'}.</p>
             <span className="chip bg-brand-fg/10 text-brand-fg mb-6">
               <Award size={14} /> Negocio liderado por mujeres
             </span>
@@ -348,14 +366,14 @@ export default function Home() {
           <div>
             <h4 className="text-brand-fg font-medium mb-4">Contacto</h4>
             <ul className="space-y-3">
-              <li>+591 72212402</li>
-              <li>Calle Man Césped #342, Ed. El Porvenir, Cbba</li>
+              <li>{phone}</li>
+              <li>{address}</li>
               <li>Lunes a Viernes de 09:00 a 20:00<br/>(Sábados previa cita)</li>
             </ul>
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-6 md:px-12 text-center text-sm text-brand-fg/50 pt-8 border-t border-brand-fg/10">
-          © {new Date().getFullYear()} Clínica Odontológica Villarroel. Todos los derechos reservados.
+          © {new Date().getFullYear()} {clinicName}. Todos los derechos reservados.
         </div>
       </footer>
     </main>

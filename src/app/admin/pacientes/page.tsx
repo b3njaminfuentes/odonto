@@ -4,6 +4,7 @@ import { PatientLeaderboard } from '@/components/patients/PatientLeaderboard'
 import { Patient } from '@/components/patients/PatientCard'
 import { intlBO, toBO } from '@/lib/datetime'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
+import { getCurrentClinicId } from '@/lib/tenant'
 
 async function resolvePhotoUrls(profilePhotoIds: (string | null)[]): Promise<Record<string, string>> {
   const ids = profilePhotoIds.filter((id): id is string => !!id)
@@ -25,6 +26,7 @@ export default async function PacientesPage({
   searchParams?: { q?: string; page?: string; status?: string }
 }) {
   const supabase = createAdminClient()
+  const clinicId = await getCurrentClinicId()
   
   const q = searchParams?.q || ''
   const page = Number(searchParams?.page || '1')
@@ -54,6 +56,7 @@ export default async function PacientesPage({
         status
       )
     `, { count: 'exact' })
+    .eq('clinicId', clinicId)
 
   if (q) {
     query = query.or(`firstName.ilike.%${q}%,lastName.ilike.%${q}%,dni.ilike.%${q}%,phone.ilike.%${q}%,email.ilike.%${q}%`)

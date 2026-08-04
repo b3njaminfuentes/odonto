@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { DollarSign, TrendingUp, Users, ArrowUpRight, Plus } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { getCurrentClinicId } from '@/lib/tenant'
 
 // Cliente
 import FinanzasInteractivityWrapper from './FinanzasWrapper'
@@ -17,6 +18,7 @@ export default async function FinanzasPage({
   searchParams?: { [key: string]: string | undefined }
 }) {
   const supabase = createAdminClient()
+  const clinicId = await getCurrentClinicId()
   const { profile } = await getAuthProfile()
 
   if (profile?.role === 'doctor') {
@@ -27,6 +29,7 @@ export default async function FinanzasPage({
   const { data: rawPatients } = await supabase
     .from('Patient')
     .select('id, firstName, lastName, patientCode')
+    .eq('clinicId', clinicId)
     .eq('status', 'ACTIVE')
     .order('lastName')
 
@@ -53,6 +56,7 @@ export default async function FinanzasPage({
         lastName
       )
     `)
+    .eq('clinicId', clinicId)
     .order('date', { ascending: false })
     .limit(50)
 
@@ -93,6 +97,7 @@ export default async function FinanzasPage({
   const { data: allCompleted } = await supabase
     .from('Payment')
     .select('amount, patientId')
+    .eq('clinicId', clinicId)
     .eq('status', 'COMPLETADO')
 
   const totalIngresos = (allCompleted || []).reduce((acc, curr) => acc + Number(curr.amount), 0)

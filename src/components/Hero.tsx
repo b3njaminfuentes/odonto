@@ -5,7 +5,24 @@ import { MessageCircle, Star, ShieldCheck } from 'lucide-react';
 
 const ease = [0.16, 1, 0.3, 1] as const;
 
-export default function Hero() {
+interface HeroProps {
+  clinicName?: string;
+  headline?: string;
+  city?: string;
+  phone?: string;
+  heroImageUrl?: string | null;
+}
+
+export default function Hero({
+  clinicName = "Clínica Odontológica Villarroel",
+  headline = "Recuperá la sonrisa que merecés.",
+  city = "Cochabamba",
+  phone = "+591 72212402",
+  heroImageUrl = "/images/paciente.png"
+}: HeroProps) {
+  const cleanPhone = phone.replace(/[^\d+]/g, '');
+  const waUrl = `https://wa.me/${cleanPhone.replace('+', '')}?text=${encodeURIComponent(`Hola, quiero reservar una consulta en ${clinicName}.`)}`;
+
   return (
     <section className="relative overflow-hidden pt-28 pb-16 md:pt-36 md:pb-24">
       {/* Fondo: manchas orgánicas salvia/coral */}
@@ -24,7 +41,7 @@ export default function Hero() {
             className="eyebrow mb-5"
           >
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            Odontología y estética · Cochabamba
+            Odontología y estética · {city}
           </motion.span>
 
           <motion.h1
@@ -33,8 +50,14 @@ export default function Hero() {
             transition={{ duration: 0.7, ease }}
             className="text-4xl md:text-6xl font-serif text-text leading-[1.05] tracking-tight mb-6"
           >
-            Recuperá la sonrisa <br className="hidden md:block" />
-            que <span className="text-brand italic">merecés</span>.
+            {headline.includes("merecés") ? (
+              <>
+                Recuperá la sonrisa <br className="hidden md:block" />
+                que <span className="text-brand italic">merecés</span>.
+              </>
+            ) : (
+              headline
+            )}
           </motion.h1>
 
           <motion.p
@@ -43,7 +66,7 @@ export default function Hero() {
             transition={{ duration: 0.7, delay: 0.1, ease }}
             className="text-lg text-muted mb-9 max-w-lg leading-relaxed"
           >
-            Implantes y estética dental de alta precisión en Cochabamba, con la calidez
+            Implantes y estética dental de alta precisión en {city}, con la calidez
             de un equipo que te acompaña en cada paso, sin apuros y sin sorpresas.
           </motion.p>
 
@@ -54,7 +77,7 @@ export default function Hero() {
             className="flex flex-col sm:flex-row gap-3"
           >
             <a
-              href="https://wa.me/59172212402?text=Hola%2C%20quiero%20reservar%20una%20consulta."
+              href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-accent px-7 py-3.5 rounded-full text-base"
@@ -98,8 +121,8 @@ export default function Hero() {
         >
           <div className="relative aspect-[4/5] max-w-md mx-auto rounded-[2rem] overflow-hidden shadow-lift ring-1 ring-border">
             <Image
-              src="/images/paciente.png"
-              alt="Paciente sonriendo en Clínica Villarroel"
+              src={heroImageUrl || "/images/paciente.png"}
+              alt={`Paciente en ${clinicName}`}
               fill
               priority
               sizes="(max-width: 1024px) 100vw, 40vw"

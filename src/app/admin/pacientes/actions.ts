@@ -14,6 +14,7 @@ function serviceClient() {
 }
 import { intlBO, toBO } from '@/lib/datetime'
 import { generatePatientAccess } from './access-actions'
+import { getCurrentClinicId } from '@/lib/tenant'
 
 // Creamos un código de paciente aleatorio. Ej: PT-100234
 const generatePatientCode = () => `PT-${Math.floor(100000 + Math.random() * 900000)}`
@@ -22,6 +23,7 @@ export async function createPatient(formData: FormData) {
   try {
     const supabase = createClient()
     const svc = serviceClient()
+    const clinicId = await getCurrentClinicId()
 
     const firstName = formData.get('firstName') as string
     const lastName = formData.get('lastName') as string
@@ -43,6 +45,7 @@ export async function createPatient(formData: FormData) {
     const { data, error } = await svc
       .from('Patient')
       .insert({
+        clinicId,
         patientCode: generatePatientCode(),
         firstName,
         lastName,

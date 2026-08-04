@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
 enum PatientStatus {
@@ -38,6 +38,140 @@ enum PaymentStatus {
   CANCELADO
 }
 
+// ----------------------------------------------------
+// MULTI-TENANT ENTITIES
+// ----------------------------------------------------
+
+model Clinic {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  slug      String   @unique // ej: "villarroel" -> villarroel.clinicos.app
+  plan      String   @default("core") // core | pro | enterprise
+  createdAt DateTime @default(now())
+
+  branches           Branch[]
+  domains            ClinicDomain[]
+  settings           ClinicSettings?
+  theme              ClinicTheme?
+  testimonials       Testimonial[]
+  galleryItems       GalleryItem[]
+  users              UserClinicMap[]
+  patients           Patient[]
+  appointments       Appointment[]
+  payments           Payment[]
+  doctorPayments     DoctorPayment[]
+  treatments         Treatment[]
+  media              CaseMedia[]
+  timelineEvents     TimelineEvent[]
+  auditLogs          AuditLog[]
+  moldCharts         ToothMoldChart[]
+  cephalometricCases CephalometricCase[]
+
+  @@index([slug])
+}
+
+model Branch {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId  String   @db.Uuid
+  name      String
+  address   String?
+  createdAt DateTime @default(now())
+
+  clinic       Clinic          @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patients     Patient[]
+  appointments Appointment[]
+  users        UserClinicMap[]
+
+  @@index([clinicId])
+}
+
+model ClinicDomain {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId  String   @db.Uuid
+  domain    String   @unique // "clinica-villarroel.vercel.app", "villarroel.clinicos.app"
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  @@index([clinicId])
+  @@index([domain])
+}
+
+model ClinicSettings {
+  id                       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId                 String   @unique @db.Uuid
+  phone                    String?
+  address                  String?
+  currency                 String   @default("BOB")
+  doctorName               String?
+  specialty                String?
+  pendingAppointmentsAlert Boolean  @default(true)
+  updatedAt                DateTime @default(now()) @updatedAt
+
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+}
+
+model ClinicTheme {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId     String   @unique @db.Uuid
+  logoUrl      String?
+  primaryColor String   @default("#0F6E56")
+  heroImageUrl String?
+  heroHeadline String? // Si es null, usa copy default del template
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+}
+
+model Testimonial {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId   String   @db.Uuid
+  authorName String
+  authorRole String?
+  quote      String
+  visible    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  @@index([clinicId])
+}
+
+model GalleryItem {
+  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId String  @db.Uuid
+  type     String  // 'before_after' | 'certificate' | 'general'
+  imageUrl String
+  caption  String?
+  order    Int     @default(0)
+
+  clinic Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+
+  @@index([clinicId])
+}
+
+model UserClinicMap {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @db.Uuid
+  clinicId  String   @db.Uuid
+  role      String   @default("doctor") // 'owner' | 'doctor' | 'receptionist' | 'staff'
+  branchId  String?  @db.Uuid
+  createdAt DateTime @default(now())
+
+  clinic Clinic  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  branch Branch? @relation(fields: [branchId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, clinicId])
+  @@index([userId])
+  @@index([clinicId])
+  @@map("user_clinic_map")
+}
+
+// ----------------------------------------------------
+// CLINICAL ENTITIES
+// ----------------------------------------------------
+
 model Profile {
   id        String   @id @db.Uuid // Referencia a auth.users.id
   role      String   @default("patient") // 'admin' | 'doctor' | 'patient'
@@ -50,49 +184,55 @@ model Profile {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  patient Patient?
-  appointments Appointment[]
-  historyVersions ClinicalHistoryVersion[]
-  paymentsReceived DoctorPayment[]
+  patient            Patient?
+  appointments       Appointment[]
+  historyVersions    ClinicalHistoryVersion[]
+  paymentsReceived   DoctorPayment[]
   cephalometricCases CephalometricCase[]
 
   @@index([email])
 }
 
 model Patient {
-  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  profileId        String?       @unique @db.Uuid
-  patientCode      String        @unique
-  dni              String?       @unique
-  passport         String?
-  firstName        String
-  lastName         String
-  dob              DateTime?     @db.Date
-  email            String?       @unique
-  phone            String?
-  emergencyContactName String?
+  id                    String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId              String        @db.Uuid
+  branchId              String?       @db.Uuid
+  profileId             String?       @unique @db.Uuid
+  patientCode           String        @unique
+  dni                   String?       @unique
+  passport              String?
+  firstName             String
+  lastName              String
+  dob                   DateTime?     @db.Date
+  email                 String?       @unique
+  phone                 String?
+  emergencyContactName  String?
   emergencyContactPhone String?
-  referralSource   String? // Cómo nos conoció: Facebook, Instagram, TikTok, Google Maps, Recomendado, Otro
-  address          String?
-  status           PatientStatus @default(ACTIVE)
-  profilePhotoId   String?       @db.Uuid // Opcional, referencia a CaseMedia o un bucket ID
-  accessCode       String?       @unique // Código de acceso al portal (lo entrega la dra por WhatsApp)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  referralSource        String? // Facebook, Instagram, TikTok, Google Maps, Recomendado, Otro
+  address               String?
+  status                PatientStatus @default(ACTIVE)
+  profilePhotoId        String?       @db.Uuid
+  accessCode            String?       @unique // Código de acceso al portal
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
 
-  profile      Profile?         @relation(fields: [profileId], references: [id])
-  appointments Appointment[]
-  treatments   Treatment[]
-  history      ClinicalHistory?
-  odontogram   Odontogram?
-  diagnoses    Diagnosis[]
-  payments     Payment[]
-  events       TimelineEvent[]
-  media        CaseMedia[]
-  cephalometrics Cephalometry[]
-  moldCharts   ToothMoldChart[]
+  clinic             Clinic                 @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  branch             Branch?                @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  profile            Profile?               @relation(fields: [profileId], references: [id])
+  appointments       Appointment[]
+  treatments         Treatment[]
+  history            ClinicalHistory?
+  odontogram         Odontogram?
+  diagnoses          Diagnosis[]
+  payments           Payment[]
+  events             TimelineEvent[]
+  media              CaseMedia[]
+  cephalometrics     Cephalometry[]
+  moldCharts         ToothMoldChart[]
   cephalometricCases CephalometricCase[]
 
+  @@index([clinicId])
+  @@index([branchId])
   @@index([dni])
   @@index([phone])
   @@index([status])
@@ -102,12 +242,12 @@ model Diagnosis {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   patientId   String   @db.Uuid
   description String
-  toothNumber String? // notación FDI, opcional
+  toothNumber String? // notación FDI
   diagnosedAt DateTime @default(now())
   diagnosedBy String   @db.Uuid
   treatmentId String?  @db.Uuid
 
-  patient   Patient    @relation(fields: [patientId], references: [id])
+  patient   Patient    @relation(fields: [patientId], references: [id], onDelete: Cascade)
   treatment Treatment? @relation(fields: [treatmentId], references: [id])
 
   @@index([patientId])
@@ -120,25 +260,25 @@ model Odontogram {
   chart     Json
   updatedAt DateTime @updatedAt
 
-  patient Patient @relation(fields: [patientId], references: [id])
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 }
 
 model Cephalometry {
-  id                  String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  patientId           String   @db.Uuid
-  sna                 Decimal? @db.Decimal(5, 2)
-  snb                 Decimal? @db.Decimal(5, 2)
-  anb                 Decimal? @db.Decimal(5, 2)
-  planoMandibular     Decimal? @db.Decimal(5, 2)
-  anguloInterincisal  Decimal? @db.Decimal(5, 2)
-  u1SN                Decimal? @db.Decimal(5, 2)
-  impa                Decimal? @db.Decimal(5, 2)
-  convexidadFacial    Decimal? @db.Decimal(5, 2)
-  notes               String?
-  createdBy           String?  @db.Uuid
-  createdAt           DateTime @default(now())
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  patientId          String   @db.Uuid
+  sna                Decimal? @db.Decimal(5, 2)
+  snb                Decimal? @db.Decimal(5, 2)
+  anb                Decimal? @db.Decimal(5, 2)
+  planoMandibular    Decimal? @db.Decimal(5, 2)
+  anguloInterincisal Decimal? @db.Decimal(5, 2)
+  u1SN               Decimal? @db.Decimal(5, 2)
+  impa               Decimal? @db.Decimal(5, 2)
+  convexidadFacial   Decimal? @db.Decimal(5, 2)
+  notes              String?
+  createdBy          String?  @db.Uuid
+  createdAt          DateTime @default(now())
 
-  patient Patient @relation(fields: [patientId], references: [id])
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([patientId])
 }
@@ -151,7 +291,7 @@ model ClinicalHistory {
   observations     String?
   updatedAt        DateTime @updatedAt
 
-  patient  Patient                  @relation(fields: [patientId], references: [id])
+  patient  Patient                  @relation(fields: [patientId], references: [id], onDelete: Cascade)
   versions ClinicalHistoryVersion[]
 }
 
@@ -164,7 +304,7 @@ model ClinicalHistoryVersion {
   changedBy         String   @db.Uuid
   createdAt         DateTime @default(now())
 
-  clinicalHistory ClinicalHistory @relation(fields: [clinicalHistoryId], references: [id])
+  clinicalHistory ClinicalHistory @relation(fields: [clinicalHistoryId], references: [id], onDelete: Cascade)
   author          Profile         @relation(fields: [changedBy], references: [id])
 
   @@index([clinicalHistoryId])
@@ -172,6 +312,7 @@ model ClinicalHistoryVersion {
 
 model Treatment {
   id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId         String          @db.Uuid
   patientId        String          @db.Uuid
   name             String
   description      String?
@@ -183,125 +324,134 @@ model Treatment {
   finalCost        Decimal?        @db.Decimal(10, 2)
   createdAt        DateTime        @default(now())
 
-  patient   Patient     @relation(fields: [patientId], references: [id])
-  media     CaseMedia[]
-  diagnoses Diagnosis[]
-  payments  Payment[]
+  clinic     Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patient    Patient          @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  media      CaseMedia[]
+  diagnoses  Diagnosis[]
+  payments   Payment[]
   moldCharts ToothMoldChart[]
 
+  @@index([clinicId])
   @@index([patientId])
   @@index([status])
 }
 
 model CaseMedia {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  patientId   String   @db.Uuid
-  treatmentId String?  @db.Uuid
-  bucket      String // 'patients-profile', 'cases-images', 'cases-videos', 'radiographs', 'documents'
-  fileUrl     String
-  category    String?
-  description String?
-  mimeType    String?
-  size        Int?
-  uploadedBy  String   @db.Uuid
-  visibleToPatient Boolean @default(false)
-  createdAt   DateTime @default(now())
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId         String   @db.Uuid
+  patientId        String   @db.Uuid
+  treatmentId      String?  @db.Uuid
+  bucket           String // 'patients-profile', 'cases-images', 'cases-videos', 'radiographs', 'documents'
+  fileUrl          String
+  category         String?
+  description      String?
+  mimeType         String?
+  size             Int?
+  uploadedBy       String   @db.Uuid
+  visibleToPatient Boolean  @default(false)
+  createdAt        DateTime @default(now())
 
-  patient   Patient    @relation(fields: [patientId], references: [id])
+  clinic    Clinic     @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patient   Patient    @relation(fields: [patientId], references: [id], onDelete: Cascade)
   treatment Treatment? @relation(fields: [treatmentId], references: [id])
 
+  @@index([clinicId])
   @@index([patientId])
   @@index([treatmentId])
 }
 
 model Appointment {
-  id            String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  patientId     String?           @db.Uuid
-  doctorId      String?           @db.Uuid
-  treatmentType String?
-  startsAt      DateTime
-  endsAt        DateTime
-  status        AppointmentStatus @default(DISPONIBLE)
-  notes         String?
-  clinicalNotes String?
+  id             String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId       String            @db.Uuid
+  branchId       String?           @db.Uuid
+  patientId      String?           @db.Uuid
+  doctorId       String?           @db.Uuid
+  treatmentType  String?
+  startsAt       DateTime
+  endsAt         DateTime
+  status         AppointmentStatus @default(DISPONIBLE)
+  notes          String?
+  clinicalNotes  String?
   reminderSentAt DateTime?
-  createdAt     DateTime          @default(now())
+  createdAt      DateTime          @default(now())
 
-  patient Patient? @relation(fields: [patientId], references: [id])
+  clinic  Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  branch  Branch?  @relation(fields: [branchId], references: [id], onDelete: SetNull)
+  patient Patient? @relation(fields: [patientId], references: [id], onDelete: Cascade)
   doctor  Profile? @relation(fields: [doctorId], references: [id])
 
+  @@index([clinicId])
+  @@index([branchId])
   @@index([patientId])
   @@index([startsAt])
   @@index([status])
 }
 
 model Payment {
-  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  patientId   String        @db.Uuid
-  treatmentId String?       @db.Uuid
-  amount      Decimal       @db.Decimal(10, 2)
-  currency    String        @default("BOB")
-  status      PaymentStatus @default(PENDIENTE)
-  method      String?
-  notes       String?
-  receiptUrl  String?
-  signatureUrl String? // Base64 png data
-  date        DateTime      @default(now())
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId     String        @db.Uuid
+  patientId    String        @db.Uuid
+  treatmentId  String?       @db.Uuid
+  amount       Decimal       @db.Decimal(10, 2)
+  currency     String        @default("BOB")
+  status       PaymentStatus @default(PENDIENTE)
+  method       String?
+  notes        String?
+  receiptUrl   String?
+  signatureUrl String?
+  date         DateTime      @default(now())
 
-  patient   Patient    @relation(fields: [patientId], references: [id])
+  clinic    Clinic     @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patient   Patient    @relation(fields: [patientId], references: [id], onDelete: Cascade)
   treatment Treatment? @relation(fields: [treatmentId], references: [id])
 
+  @@index([clinicId])
   @@index([patientId])
   @@index([treatmentId])
 }
 
 model DoctorPayment {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  doctorId    String   @db.Uuid
-  amount      Decimal  @db.Decimal(10, 2)
-  currency    String   @default("BOB")
-  description String?
-  date        DateTime @default(now())
-  signatureUrl String? // Base64 png data
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId     String   @db.Uuid
+  doctorId     String   @db.Uuid
+  amount       Decimal  @db.Decimal(10, 2)
+  currency     String   @default("BOB")
+  description  String?
+  date         DateTime @default(now())
+  signatureUrl String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  doctor      Profile  @relation(fields: [doctorId], references: [id])
+  clinic Clinic  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  doctor Profile @relation(fields: [doctorId], references: [id])
 
+  @@index([clinicId])
   @@index([doctorId])
 }
 
 model TimelineEvent {
   id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId    String   @db.Uuid
   patientId   String   @db.Uuid
   eventType   String
   title       String
   description String?
   metadata    Json?
-  severity    String?  @default("info") // info, warning, critical
+  severity    String?  @default("info")
   createdBy   String?  @db.Uuid
   createdAt   DateTime @default(now())
 
-  patient Patient @relation(fields: [patientId], references: [id])
+  clinic  Clinic  @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
+  @@index([clinicId])
   @@index([patientId])
   @@index([createdAt])
 }
 
-model ClinicSettings {
-  id                       String   @id @default("main")
-  clinicName               String   @default("Clínica Odontológica Villarroel")
-  phone                    String?
-  address                  String?
-  currency                 String   @default("BOB")
-  doctorName               String?  @default("Dra. Villarroel")
-  specialty                String?
-  pendingAppointmentsAlert Boolean  @default(true)
-  updatedAt                DateTime @default(now()) @updatedAt
-}
-
 model AuditLog {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId  String?  @db.Uuid
   userId    String   @db.Uuid
   action    String
   entity    String
@@ -311,23 +461,29 @@ model AuditLog {
   userAgent String?
   createdAt DateTime @default(now())
 
+  clinic Clinic? @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+
+  @@index([clinicId])
   @@index([userId])
   @@index([entity, entityId])
 }
 
 model ToothMoldChart {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  patientId    String   @db.Uuid
-  treatmentId  String?  @db.Uuid
-  notes        String?
-  createdBy    String   @db.Uuid
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  clinicId    String   @db.Uuid
+  patientId   String   @db.Uuid
+  treatmentId String?  @db.Uuid
+  notes       String?
+  createdBy   String   @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  patient      Patient                @relation(fields: [patientId], references: [id])
+  clinic       Clinic                 @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patient      Patient                @relation(fields: [patientId], references: [id], onDelete: Cascade)
   treatment    Treatment?             @relation(fields: [treatmentId], references: [id])
   measurements ToothMoldMeasurement[]
 
+  @@index([clinicId])
   @@index([patientId])
   @@index([treatmentId])
 }
@@ -335,11 +491,11 @@ model ToothMoldChart {
 model ToothMoldMeasurement {
   id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   chartId        String   @db.Uuid
-  arc            String   // 'upper' | 'lower'
-  moldLine       String   // 'A' | 'B' | 'C' | 'D' | 'E'
-  toothPosition  String   // 'U1'..'U7' | 'L1'..'L7'
+  arc            String // 'upper' | 'lower'
+  moldLine       String // 'A' | 'B' | 'C' | 'D' | 'E'
+  toothPosition  String // 'U1'..'U7' | 'L1'..'L7'
   measurementMm  Decimal? @db.Decimal(4, 2)
-  biteAdjustment String?  // '+1.0mm' | '+0.5mm' | 'media' | '-0.5mm' | '-1.0mm'
+  biteAdjustment String? // '+1.0mm' | '+0.5mm' | 'media' | '-0.5mm' | '-1.0mm'
   isHighlighted  Boolean  @default(false)
 
   chart ToothMoldChart @relation(fields: [chartId], references: [id], onDelete: Cascade)
@@ -348,31 +504,34 @@ model ToothMoldMeasurement {
 }
 
 model CephalometricCase {
-  id                  String   @id @default(cuid())
-  patientId           String   @db.Uuid
-  patient             Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  doctorId            String   @db.Uuid
-  doctor              Profile  @relation(fields: [doctorId], references: [id])
-  imageUrl            String
-  imageWidth          Int
-  imageHeight         Int
-  pixelsPerMm         Float?
-  landmarks           Json     // [{ key: "N", x: 0.42, y: 0.31 }, ...] superset de puntos marcados
-  analysisResults     Json?    // { steiner: { version: "1.0.0", generatedAt: "...", measurements: {...} } }
-  primaryAnalysis     String   @default("steiner") // que analisis se muestra por defecto
-  reportTemplateVersion String? // que version del layout de reporte se uso
-  exportedReportUrl   String?  // PDF exportado guardado en Storage
-  duplicatedFromId    String?  // referencia al original si nacio de "Duplicar caso"
-  doctorSignatureUrl  String?  // firma del doctor al cerrar el caso
-  reportContentHash   String?  // hash del contenido al firmar
-  signedAt            DateTime?
-  status              String   @default("draft") // draft | completed
-  notes               String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                    String    @id @default(cuid())
+  clinicId              String    @db.Uuid
+  patientId             String    @db.Uuid
+  doctorId              String    @db.Uuid
+  imageUrl              String
+  imageWidth            Int
+  imageHeight           Int
+  pixelsPerMm           Float?
+  landmarks             Json // [{ key: "N", x: 0.42, y: 0.31 }, ...]
+  analysisResults       Json?
+  primaryAnalysis       String    @default("steiner")
+  reportTemplateVersion String?
+  exportedReportUrl     String?
+  duplicatedFromId      String?
+  doctorSignatureUrl    String?
+  reportContentHash     String?
+  signedAt              DateTime?
+  status                String    @default("draft")
+  notes                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  events              CephalometricCaseEvent[]
+  clinic Clinic                   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  patient Patient                 @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor Profile                  @relation(fields: [doctorId], references: [id])
+  events CephalometricCaseEvent[]
 
+  @@index([clinicId])
   @@index([patientId])
   @@index([doctorId])
 }
@@ -380,10 +539,11 @@ model CephalometricCase {
 model CephalometricCaseEvent {
   id        String   @id @default(cuid())
   caseId    String
-  case      CephalometricCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  action    String   // "created" | "landmarks_updated" | "analysis_run" | "report_exported" | "duplicated" | "completed"
+  action    String // "created" | "landmarks_updated" | "analysis_run" | "report_exported" | "duplicated" | "completed"
   doctorId  String   @db.Uuid
   createdAt DateTime @default(now())
+
+  case CephalometricCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
 
   @@index([caseId])
 }

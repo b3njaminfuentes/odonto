@@ -4,6 +4,7 @@ import { createClient } from '@/utils/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
+import { getCurrentClinicId } from '@/lib/tenant'
 
 function serviceClient() {
   return createServiceClient(
@@ -121,8 +122,10 @@ export async function saveCephalometricCase(payload: any) {
     return updated
   } else {
     // Es una creacion
+    const clinicId = await getCurrentClinicId()
     const created = await prisma.cephalometricCase.create({
       data: {
+        clinicId,
         patientId,
         doctorId: doctorId || user.id,
         imageUrl,

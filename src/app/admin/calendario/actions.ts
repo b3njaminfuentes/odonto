@@ -2,6 +2,7 @@
 
 import { createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { getCurrentClinicId } from '@/lib/tenant'
 
 export async function createAppointment(formData: FormData) {
   try {
@@ -14,6 +15,7 @@ export async function createAppointment(formData: FormData) {
 
 async function createAppointmentInner(formData: FormData) {
   const supabase = createAdminClient()
+  const clinicId = await getCurrentClinicId()
 
   const patientId = formData.get('patientId') as string
   // Aceptamos startsAt directo, o date + time por separado (UI más simple).
@@ -67,6 +69,7 @@ async function createAppointmentInner(formData: FormData) {
   const { data: overlapping, error: overlapError } = await supabase
     .from('Appointment')
     .select('id, doctorId')
+    .eq('clinicId', clinicId)
     .not('status', 'eq', 'CANCELADO')
     .lt('startsAt', endISO)
     .gt('endsAt', startISO)
@@ -93,6 +96,7 @@ async function createAppointmentInner(formData: FormData) {
   const { data, error } = await supabase
     .from('Appointment')
     .insert({
+      clinicId,
       patientId,
       doctorId,
       startsAt: startISO,

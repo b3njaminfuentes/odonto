@@ -3,9 +3,11 @@
 import { createClient, createAdminClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { logAuditAction } from '@/utils/audit'
+import { getCurrentClinicId } from '@/lib/tenant'
 
 export async function getDoctorPayments() {
   const supabase = createAdminClient()
+  const clinicId = await getCurrentClinicId()
   
   const { data, error } = await supabase
     .from('DoctorPayment')
@@ -13,6 +15,7 @@ export async function getDoctorPayments() {
       *,
       doctor:Profile(id, firstName, lastName, color)
     `)
+    .eq('clinicId', clinicId)
     .order('date', { ascending: false })
 
   if (error) {
@@ -23,9 +26,29 @@ export async function getDoctorPayments() {
   return data
 }
 
+export async function getDoctorsList() {
+  const supabase = createAdminClient()
+  const clinicId = await getCurrentClinicId()
+
+  const { data, error } = await supabase
+    .from('Profile')
+    .select('id, firstName, lastName, role, color')
+    .in('role', ['doctor', 'admin'])
+    .order('firstName')
+
+  if (error) {
+    console.error('Error fetching doctors list:', error)
+    return []
+  }
+
+  return data || []
+}
+
 export async function createDoctorPayment(formData: FormData) {
   const userClient = createClient()
   const supabase = createAdminClient()
+  const clinicId = await getCurrentClinicId()
+
   const { data: { session } } = await userClient.auth.getSession()
   if (!session) return { error: 'No autorizado' }
 
@@ -41,6 +64,7 @@ export async function createDoctorPayment(formData: FormData) {
   const { data, error } = await supabase
     .from('DoctorPayment')
     .insert({
+      clinicId,
       doctorId,
       amount,
       description: description || null,
@@ -60,21 +84,29 @@ export async function createDoctorPayment(formData: FormData) {
     action: 'CREATE',
     entity: 'DoctorPayment',
     entityId: data.id,
-    metadata: { doctorId, amount }
-  }).catch(() => {})
+    metadata: { doctorId, amount, description }
+  })
+
+  revalidatePath('/admin/finanzas')
+  return { success: true, payment: data }
+}
+
+export async function deleteDoctorPayment(id: string) {
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { session } } = await userClient.auth.getSession()
+  if (!session) return { error: 'No autorizado' }
+
+  const { error } = await supabase
+    .from('DoctorPayment')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error deleting doctor payment:', error)
+    return { error: 'No se pudo eliminar el pago' }
+  }
 
   revalidatePath('/admin/finanzas')
   return { success: true }
-}
-
-export async function getDoctorsList() {
-  const supabase = createAdminClient()
-  const { data, error } = await supabase
-    .from('Profile')
-    .select('id, firstName, lastName')
-    .eq('role', 'doctor')
-    .order('firstName', { ascending: true })
-
-  if (error) return []
-  return data
 }

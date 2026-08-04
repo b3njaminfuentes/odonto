@@ -4,6 +4,12 @@ import { MessageCircle } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+interface NavbarProps {
+  clinicName?: string;
+  logoUrl?: string | null;
+  phone?: string;
+}
+
 const links = [
   { href: '#servicios', label: 'Servicios' },
   { href: '#casos', label: 'Resultados' },
@@ -12,7 +18,11 @@ const links = [
   { href: '#contacto', label: 'Contacto' },
 ];
 
-export default function Navbar() {
+export default function Navbar({
+  clinicName = 'Clínica Odontológica Villarroel',
+  logoUrl = '/images/logo.png',
+  phone = '+591 72212402',
+}: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -22,6 +32,9 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const cleanPhone = phone.replace(/[^\d+]/g, '');
+  const waUrl = `https://wa.me/${cleanPhone.replace('+', '')}?text=${encodeURIComponent(`Hola, quiero reservar un turno en ${clinicName}.`)}`;
+
   return (
     <nav
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
@@ -30,11 +43,15 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center">
         <a href="#" className="flex items-center gap-2.5 group">
-          <div className="relative h-11 w-11 rounded-xl overflow-hidden ring-1 ring-border shadow-soft shrink-0">
-            <Image src="/images/logo.png" alt="Clínica Villarroel" fill className="object-cover scale-110" sizes="44px" />
+          <div className="relative h-11 w-11 rounded-xl overflow-hidden ring-1 ring-border shadow-soft shrink-0 bg-surface flex items-center justify-center">
+            {logoUrl ? (
+              <Image src={logoUrl} alt={clinicName} fill className="object-cover scale-110" sizes="44px" />
+            ) : (
+              <span className="font-serif font-bold text-brand text-lg">{clinicName.charAt(0)}</span>
+            )}
           </div>
           <span className="font-serif text-lg md:text-xl text-text font-medium tracking-tight leading-none">
-            Clínica <span className="text-brand">Villarroel</span>
+            {clinicName}
           </span>
         </a>
 
@@ -54,7 +71,7 @@ export default function Navbar() {
             Ingresar
           </Link>
           <a
-            href="https://wa.me/59172212402?text=Hola%2C%20quiero%20reservar%20un%20turno%20en%20Cl%C3%ADnica%20Villarroel."
+            href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-accent rounded-full shadow-lift"
