@@ -154,3 +154,36 @@ export async function updateTreatment(treatmentId: string, formData: FormData) {
   revalidatePath(`/admin/pacientes/${patientId}`)
   return { success: true }
 }
+
+export async function deleteTreatment(treatmentId: string, patientId: string) {
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { session } } = await userClient.auth.getSession()
+
+  if (!session) {
+    return { error: 'No autorizado' }
+  }
+
+  const { error } = await supabase
+    .from('Treatment')
+    .delete()
+    .eq('id', treatmentId)
+
+  if (error) {
+    console.error('Error deleting treatment:', error)
+    return { error: 'No se pudo eliminar el tratamiento' }
+  }
+
+  await logAuditAction({
+    userId: session.user.id,
+    action: 'DELETE',
+    entity: 'Treatment',
+    entityId: treatmentId,
+    metadata: { patientId }
+  }).catch(() => {})
+
+  revalidatePath(`/admin/pacientes/${patientId}`)
+  revalidatePath('/admin/tratamientos')
+  return { success: true }
+}
+

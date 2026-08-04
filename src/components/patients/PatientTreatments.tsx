@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { Plus, CheckCircle, Clock, Loader2, DollarSign, FileText, Activity, MoreVertical, X, Settings2, Save } from 'lucide-react'
-import { getPatientTreatments, createTreatment, updateTreatment, updateTreatmentStatus } from '@/app/admin/pacientes/treatment-actions'
+import { Plus, CheckCircle, Clock, Loader2, DollarSign, FileText, Activity, MoreVertical, X, Settings2, Save, Trash2 } from 'lucide-react'
+import { getPatientTreatments, createTreatment, updateTreatment, updateTreatmentStatus, deleteTreatment } from '@/app/admin/pacientes/treatment-actions'
 import { intlBO, toBO } from '@/lib/datetime'
 
 interface PatientTreatmentsProps {
@@ -65,6 +65,15 @@ export function PatientTreatments({ patientId, userRole = 'admin' }: PatientTrea
     if (!confirm(`¿Cambiar estado a ${status}?`)) return
     await updateTreatmentStatus(id, status, patientId)
     await loadData()
+  }
+
+  const handleDeleteTreatment = async (id: string) => {
+    if (!confirm('¿Estás seguro de que deseas ELIMINAR este tratamiento permanentemente?')) return
+    setIsSaving(true)
+    await deleteTreatment(id, patientId)
+    await loadData()
+    setIsSaving(false)
+    closeModal()
   }
 
   const getStatusColor = (status: string) => {
@@ -253,22 +262,37 @@ export function PatientTreatments({ patientId, userRole = 'admin' }: PatientTrea
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                <button 
-                  type="button" 
-                  onClick={closeModal}
-                  className="px-5 py-2.5 text-muted hover:bg-elevated font-medium rounded-xl transition-colors text-sm"
-                >
-                  Cancelar
-                </button>
-                <button 
-                  type="submit" 
-                  disabled={isSaving}
-                  className="btn-primary px-6 py-2.5 flex items-center gap-2 text-sm"
-                >
-                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                  Guardar Tratamiento
-                </button>
+              <div className="flex items-center justify-between gap-3 pt-4 border-t border-border">
+                {editingTreatment ? (
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteTreatment(editingTreatment.id)}
+                    disabled={isSaving}
+                    className="px-3.5 py-2 text-danger hover:bg-danger-soft border border-danger/20 font-medium rounded-xl transition-colors text-xs flex items-center gap-1.5"
+                    title="Eliminar este tratamiento definitivamente"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Eliminar
+                  </button>
+                ) : <div />}
+
+                <div className="flex items-center gap-2">
+                  <button 
+                    type="button" 
+                    onClick={closeModal}
+                    className="px-4 py-2 text-muted hover:bg-elevated font-medium rounded-xl transition-colors text-xs sm:text-sm"
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    type="submit" 
+                    disabled={isSaving}
+                    className="btn-primary px-5 py-2 flex items-center gap-2 text-xs sm:text-sm"
+                  >
+                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    Guardar
+                  </button>
+                </div>
               </div>
             </form>
           </div>
