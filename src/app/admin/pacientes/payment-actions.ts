@@ -51,6 +51,8 @@ export async function createPayment(formData: FormData) {
   const amount = parseFloat(amountStr)
   if (isNaN(amount) || amount <= 0) return { error: 'Monto inválido' }
 
+  const signatureUrl = formData.get('signatureUrl') as string | null
+
   const { data, error } = await supabase
     .from('Payment')
     .insert({
@@ -204,3 +206,33 @@ export async function updatePaymentStatus(paymentId: string, status: string, pat
   revalidatePath(`/admin/pacientes/${patientId}`)
   return { success: true }
 }
+
+/** Elimina un pago permanentemente */
+export async function deletePayment(paymentId: string, patientId: string) {
+  const userClient = createClient()
+  const supabase = createAdminClient()
+  const { data: { session } } = await userClient.auth.getSession()
+  if (!session) return { error: 'No autorizado' }
+
+  const { error } = await supabase
+    .from('Payment')
+    .delete()
+    .eq('id', paymentId)
+
+  if (error) {
+    console.error('Error deleting payment:', error)
+    return { error: 'No se pudo eliminar el pago' }
+  }
+
+  await logAuditAction({
+    userId: session.user.id,
+    action: 'DELETE',
+    entity: 'Payment',
+    entityId: paymentId,
+    metadata: { patientId }
+  }).catch(() => {})
+
+  revalidatePath(`/admin/pacientes/${patientId}`)
+  return { success: true }
+}
+

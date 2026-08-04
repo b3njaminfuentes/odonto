@@ -42,6 +42,7 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
   const [selected, setSelected] = useState<Record<string, boolean>>(
     () => Object.fromEntries(treatments.map((t) => [t.id, true]))
   )
+  const [showPaymentsBreakdown, setShowPaymentsBreakdown] = useState(false)
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
   const printAreaRef = useRef<HTMLDivElement>(null)
 
@@ -138,12 +139,15 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
       .map(t => `• ${t.name}${t.toothNumber ? ` (Pieza ${t.toothNumber})` : ''}: ${money(t.cost)}`)
       .join('\n')
 
+    const paymentLine = showPaymentsBreakdown 
+      ? `💰 *Presupuesto Total:* ${money(totals.cost)}\n💳 *Saldo Pendiente:* ${money(totals.balance)}`
+      : `💰 *Presupuesto Total:* ${money(totals.cost)}`
+
     const message = `📋 *Cotización Dental - ${clinic.clinicName || 'Clínica Odontológica Villarroel'}*\n` +
       `👤 Paciente: *${patient.firstName} ${patient.lastName}*\n` +
       `📅 Fecha: ${today}\n\n` +
       `*Tratamientos incluidos:*\n${treatmentsSummary || 'Sin tratamientos seleccionados'}\n\n` +
-      `💰 *Presupuesto Total:* ${money(totals.cost)}\n` +
-      `💳 *Saldo Pendiente:* ${money(totals.balance)}\n\n` +
+      `${paymentLine}\n\n` +
       `📍 ${clinic.address || ''}\n` +
       `📞 ${clinic.phone || ''}\n` +
       `✉️ villarroelodontologia@hotmail.com`
@@ -169,6 +173,17 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
           <p className="text-xs text-muted mt-0.5">
             Seleccioná tratamientos y exportá el documento oficial listo para el paciente.
           </p>
+          <div className="mt-2.5 flex items-center gap-2">
+            <label className="inline-flex items-center gap-2 cursor-pointer select-none text-xs text-muted hover:text-text">
+              <input
+                type="checkbox"
+                checked={showPaymentsBreakdown}
+                onChange={(e) => setShowPaymentsBreakdown(e.target.checked)}
+                className="w-3.5 h-3.5 rounded text-brand cursor-pointer"
+              />
+              <span>Incluir desglose de pagos y saldo pendiente</span>
+            </label>
+          </div>
         </div>
 
         {/* Botones de acción responsive */}
@@ -284,13 +299,15 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
                   </th>
                   <th className="text-left font-semibold py-2">Tratamiento</th>
                   <th className="text-right font-semibold py-2">Presupuesto</th>
-                  <th className="text-right font-semibold py-2">Saldo</th>
+                  {showPaymentsBreakdown && (
+                    <th className="text-right font-semibold py-2">Saldo</th>
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {treatments.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-6 text-center text-gray-400 text-xs">
+                    <td colSpan={showPaymentsBreakdown ? 4 : 3} className="py-6 text-center text-gray-400 text-xs">
                       No hay tratamientos registrados para este paciente.
                     </td>
                   </tr>
@@ -322,12 +339,14 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
                         )}
                       </div>
                     </td>
-                    <td className="py-2.5 text-right text-gray-700 tabular-nums align-middle whitespace-nowrap">
+                    <td className="py-2.5 text-right text-gray-900 font-medium tabular-nums align-middle whitespace-nowrap">
                       {money(t.cost)}
                     </td>
-                    <td className="py-2.5 text-right font-bold text-gray-900 tabular-nums align-middle whitespace-nowrap">
-                      {money(t.balance)}
-                    </td>
+                    {showPaymentsBreakdown && (
+                      <td className="py-2.5 text-right font-bold text-gray-900 tabular-nums align-middle whitespace-nowrap">
+                        {money(t.balance)}
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -345,14 +364,18 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
                 <span>Presupuesto Total:</span>
                 <span className="tabular-nums font-semibold">{money(totals.cost)}</span>
               </div>
-              <div className="flex justify-between text-xs text-emerald-700">
-                <span>Total Pagado:</span>
-                <span className="tabular-nums font-semibold">-{money(totals.paid)}</span>
-              </div>
-              <div className="flex justify-between text-xs sm:text-sm font-bold text-gray-900 border-t border-gray-300 pt-1.5">
-                <span>Saldo Pendiente:</span>
-                <span className="tabular-nums text-emerald-800">{money(totals.balance)}</span>
-              </div>
+              {showPaymentsBreakdown && (
+                <>
+                  <div className="flex justify-between text-xs text-emerald-700">
+                    <span>Total Pagado:</span>
+                    <span className="tabular-nums font-semibold">-{money(totals.paid)}</span>
+                  </div>
+                  <div className="flex justify-between text-xs sm:text-sm font-bold text-gray-900 border-t border-gray-300 pt-1.5">
+                    <span>Saldo Pendiente:</span>
+                    <span className="tabular-nums text-emerald-800">{money(totals.balance)}</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
