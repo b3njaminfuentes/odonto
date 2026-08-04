@@ -103,8 +103,11 @@ export async function createClinicOnboarding(formData: FormData) {
 
     await adminClient.from('Profile').upsert({
       id: userId,
+      email: email,
       firstName,
       lastName,
+      specialty: specialty || 'Odontología General',
+      phone: phone || null,
       role: 'admin',
       color: '#0F6E56'
     })

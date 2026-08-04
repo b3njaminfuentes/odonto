@@ -49,7 +49,7 @@ export async function getAuthProfile() {
   const supabase = createClient()
   const { data: { session } } = await supabase.auth.getSession()
   
-  if (!session) return { session: null, profile: null }
+  if (!session) return { session: null, profile: null, clinicId: null }
 
   const { data: profile } = await supabase
     .from('Profile')
@@ -57,5 +57,15 @@ export async function getAuthProfile() {
     .eq('id', session.user.id)
     .single()
 
-  return { session, profile }
+  let clinicId = session.user.user_metadata?.clinicId || null
+  if (!clinicId) {
+    const { data: mapData } = await supabase
+      .from('user_clinic_map')
+      .select('clinicId')
+      .eq('userId', session.user.id)
+      .maybeSingle()
+    if (mapData?.clinicId) clinicId = mapData.clinicId
+  }
+
+  return { session, profile, clinicId }
 }
