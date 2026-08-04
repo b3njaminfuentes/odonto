@@ -5,8 +5,9 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard, Users, Calendar, Stethoscope, CreditCard, FolderOpen, Settings,
-  Menu, X, LogOut, ChevronRight
+  Menu, X, LogOut, ChevronRight, HelpCircle, BookOpen
 } from 'lucide-react'
+import { HelpCenterModal } from './HelpCenterModal'
 
 const navigation = [
   { name: 'Inicio', href: '/admin', icon: LayoutDashboard },
@@ -31,6 +32,7 @@ interface AdminShellProps {
 export function AdminShell({ children, doctorName, initials, specialty, userRole, signOutAction }: AdminShellProps) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
 
   const filteredNavigation = navigation.filter(item => {
     if (userRole === 'doctor') {
@@ -148,6 +150,18 @@ export function AdminShell({ children, doctorName, initials, specialty, userRole
               </Link>
             )
           })}
+
+          {/* Botón Permanente de Guías y Centro de Ayuda */}
+          <div className="pt-4 mt-4 border-t border-border/60">
+            <button
+              onClick={() => setHelpOpen(true)}
+              className="w-full flex items-center gap-3 px-4 py-3 lg:py-2.5 rounded-xl transition-all font-medium text-sm text-brand bg-brand-soft/50 hover:bg-brand-soft border border-brand/20 shadow-sm"
+            >
+              <HelpCircle className="w-5 h-5 shrink-0 text-brand" />
+              <span className="flex-1 text-left">Guías de Uso</span>
+              <span className="text-[10px] uppercase font-bold bg-brand text-white px-1.5 py-0.5 rounded">Ayuda</span>
+            </button>
+          </div>
         </nav>
 
         {/* User Footer */}
@@ -179,6 +193,12 @@ export function AdminShell({ children, doctorName, initials, specialty, userRole
           {children}
         </div>
       </main>
+
+      {/* Modal Permanente de Centro de Ayuda */}
+      <HelpCenterModal 
+        isOpen={helpOpen}
+        onClose={() => setHelpOpen(false)}
+      />
     </div>
   )
 }

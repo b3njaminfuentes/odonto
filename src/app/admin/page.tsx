@@ -8,6 +8,7 @@ import { intlBO, toBO } from '@/lib/datetime'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { ActivityHeatmap } from '@/components/ui/ActivityHeatmap'
 import { RemindersPanel } from '@/components/dashboard/RemindersPanel'
+import { QuickStartGuide } from '@/components/admin/QuickStartGuide'
 
 export const dynamic = 'force-dynamic'
 
@@ -183,6 +184,9 @@ export default async function AdminDashboardPage() {
         <h1 className="text-3xl font-serif text-brand tracking-tight">Dashboard</h1>
         <p className="text-muted">Un vistazo rápido al estado de la clínica y la agenda de hoy.</p>
       </div>
+
+      {/* Guía de Inicio Rápido para Nuevos Clientes */}
+      <QuickStartGuide />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
