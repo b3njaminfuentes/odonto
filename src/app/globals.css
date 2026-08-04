@@ -173,19 +173,98 @@
   }
 }
 
-/* Impresión: ocultar cromo de la app y forzar documento claro */
+/* Impresión: optimización completa para PDF y documentos médicos */
 @media print {
   @page {
-    margin: 0; /* Oculta el encabezado (fecha) y pie de página (URL) por defecto del navegador */
+    size: A4 portrait;
+    margin: 12mm 15mm;
   }
-  body {
-    padding: 1.5cm !important; /* Añade margen interno para que no se pegue al borde de la hoja */
+  
+  *, *::before, *::after {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
   }
-  .no-print { display: none !important; }
-  aside { display: none !important; }
-  main { margin: 0 !important; }
-  html, body { background: #ffffff !important; }
-  .print-doc { box-shadow: none !important; border: none !important; }
+
+  html, body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+  }
+
+  /* Ocultar elementos de interfaz y navegación */
+  .no-print,
+  aside,
+  header,
+  nav {
+    display: none !important;
+  }
+
+  /* Desactivar scroll containers oscuros y anchos de la app */
+  .dark {
+    background: #ffffff !important;
+    color: #111827 !important;
+    display: block !important;
+    min-height: auto !important;
+  }
+
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  main > div {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Estilos para el contenedor de la cotización */
+  .print-doc {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 auto !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+
+  .print-doc table {
+    width: 100% !important;
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+
+  .print-doc tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Salto de página para el consentimiento informado */
+  .page-break-before,
+  .consent-doc {
+    page-break-before: always !important;
+    break-before: page !important;
+    margin-top: 0 !important;
+    padding-top: 10mm !important;
+  }
+
+  /* Evitar cortes indeseados en firmas y bloques */
+  .avoid-break {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
 }
 
 /* Lenis smooth scroll */

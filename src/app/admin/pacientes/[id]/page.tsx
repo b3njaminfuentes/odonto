@@ -75,7 +75,7 @@ export default async function PatientProfilePage({ params }: { params: { id: str
           Volver a pacientes
         </Link>
         <div className="flex gap-2">
-          {isAdmin && (
+          {(isAdmin || authProfile?.role === 'doctor') && (
             <Link
               href={`/admin/pacientes/${patient.id}/cotizacion`}
               className="px-4 py-2 bg-surface border border-border text-muted font-medium rounded-xl hover:border-brand hover:text-brand transition-colors flex items-center gap-2 shadow-sm text-sm"

@@ -71,7 +71,7 @@ export function AdminShell({ children, doctorName, initials, specialty, userRole
     <div className="dark flex min-h-screen bg-bg text-text">
 
       {/* ── MOBILE: Top Bar ── */}
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-xl border-b border-border h-16 flex items-center justify-between px-4 shadow-sm">
+      <header className="no-print lg:hidden fixed top-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-xl border-b border-border h-16 flex items-center justify-between px-4 shadow-sm">
         <button
           onClick={() => setSidebarOpen(true)}
           className="p-2 -ml-1 rounded-xl text-muted hover:text-brand hover:bg-brand-soft transition-colors"
@@ -92,7 +92,7 @@ export function AdminShell({ children, doctorName, initials, specialty, userRole
       {/* ── MOBILE: Overlay backdrop ── */}
       {sidebarOpen && (
         <div
-          className="lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
+          className="no-print lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -100,6 +100,7 @@ export function AdminShell({ children, doctorName, initials, specialty, userRole
       {/* ── Sidebar (Desktop: fijo, Mobile: drawer) ── */}
       <aside
         className={`
+          no-print
           fixed inset-y-0 left-0 z-50
           w-72 lg:w-64
           bg-surface border-r border-border
