@@ -49,6 +49,12 @@ model Clinic {
   plan      String   @default("core") // core | pro | enterprise
   createdAt DateTime @default(now())
 
+  lsSubscriptionId   String?   // Lemon Squeezy subscription ID
+  lsCustomerId       String?   // Lemon Squeezy customer ID  
+  subscriptionStatus String    @default("trialing") // trialing | active | cancelled | past_due
+  trialEndsAt        DateTime?
+  currentPeriodEnd   DateTime?
+
   branches           Branch[]
   domains            ClinicDomain[]
   settings           ClinicSettings?

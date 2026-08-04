@@ -14,11 +14,27 @@ import {
   ExternalLink
 } from 'lucide-react'
 
+const CHECKOUT_URLS: Record<string, string> = {
+  starter: 'https://clinicos.lemonsqueezy.com/checkout/buy/STARTER_ID',
+  profesional: 'https://clinicos.lemonsqueezy.com/checkout/buy/PRO_ID', 
+  enterprise: 'https://clinicos.lemonsqueezy.com/checkout/buy/ENTERPRISE_ID',
+}
+// TODO: Replace with real Lemon Squeezy product URLs after creating your store
+
 export function SuscripcionPanel() {
   const [isSimulatingCheckout, setIsSimulatingCheckout] = useState(false)
   const [paymentDone, setPaymentDone] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState<'starter' | 'profesional' | 'enterprise'>('profesional')
   const [loading, setLoading] = useState(false)
+  const [realMode, setRealMode] = useState(false)
+
+  const handleCheckoutClick = () => {
+    if (realMode) {
+      window.location.href = CHECKOUT_URLS[selectedPlan]
+    } else {
+      setIsSimulatingCheckout(true)
+    }
+  }
 
   const handleSimulatePayment = () => {
     setLoading(true)
@@ -47,20 +63,42 @@ export function SuscripcionPanel() {
           </p>
         </div>
 
-        <div>
+        <div className="flex flex-col items-end gap-3">
           {paymentDone ? (
             <span className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-sm font-semibold">
               <CheckCircle2 className="w-4 h-4" /> Suscripción Activa
             </span>
           ) : (
-            <button
-              onClick={() => setIsSimulatingCheckout(true)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition-colors shadow-lg shadow-emerald-500/20"
-            >
-              <CreditCard className="w-4 h-4" /> Activar Pago con Tarjeta ($99)
-            </button>
+            <>
+              <button
+                onClick={handleCheckoutClick}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition-colors shadow-lg shadow-emerald-500/20"
+              >
+                <CreditCard className="w-4 h-4" /> 
+                {realMode ? 'Ir al Checkout Real' : 'Activar Pago (Simulador)'}
+              </button>
+              
+              <div className="flex items-center gap-2 text-xs">
+                <label className="text-slate-300">Simulador</label>
+                <button
+                  type="button"
+                  className={`w-10 h-5 rounded-full p-1 transition-colors ${realMode ? 'bg-emerald-500' : 'bg-slate-700'}`}
+                  onClick={() => setRealMode(!realMode)}
+                >
+                  <div className={`w-3 h-3 bg-white rounded-full transition-transform ${realMode ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
+                <label className="text-emerald-400 font-bold">Checkout Real</label>
+              </div>
+            </>
           )}
         </div>
+      </div>
+
+      <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-sm flex gap-3">
+        <Sparkles className="w-5 h-5 flex-shrink-0" />
+        <p>
+          <strong>Nota:</strong> Para activar pagos reales, configure las variables <code className="bg-blue-500/20 px-1 py-0.5 rounded text-xs">LEMONSQUEEZY_API_KEY</code> y <code className="bg-blue-500/20 px-1 py-0.5 rounded text-xs">LEMONSQUEEZY_WEBHOOK_SECRET</code> en .env.local
+        </p>
       </div>
 
       {/* Explicación de la Ruta del Dinero */}
