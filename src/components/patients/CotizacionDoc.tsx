@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo, useState, useRef } from 'react'
-import { Printer, Download, FileWarning, Share2, Loader2, FileCheck, Stethoscope, CheckSquare, Square } from 'lucide-react'
+import { Printer, Download, FileWarning, Share2, Loader2, FileCheck } from 'lucide-react'
 
 interface TreatmentRow {
   id: string
@@ -64,7 +64,7 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
   const surgeryTreatments = chosen.filter((t) => isSurgery(t.name))
   const hasSurgery = surgeryTreatments.length > 0
 
-  // Generador de PDF oficial y descarga directa al dispositivo móvil/escritorio
+  // Generador de PDF oficial y descarga directa en 1 página A4 limpia
   const handleDownloadPdf = async () => {
     if (!printAreaRef.current) return
     setIsGeneratingPdf(true)
@@ -80,11 +80,11 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
       noPrintElements.forEach(el => ((el as HTMLElement).style.display = 'none'))
 
       const canvas = await html2canvas(element, {
-        scale: 2.5,
+        scale: 2.2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        windowWidth: 800, // Fijar ancho virtual para consistencia en móviles
+        windowWidth: 794,
       })
 
       // Restaurar controles
@@ -100,17 +100,23 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
       const imgWidth = 210
       const pageHeight = 297
       const imgHeight = (canvas.height * imgWidth) / canvas.width
-      let heightLeft = imgHeight
-      let position = 0
 
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST')
-      heightLeft -= pageHeight
-
-      while (heightLeft > 5) {
-        position = heightLeft - imgHeight
-        pdf.addPage()
+      if (!hasSurgery) {
+        // Garantizar que la cotización estándar entre 100% en 1 sola hoja A4
+        const renderH = Math.min(imgHeight, 287)
+        pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, renderH, undefined, 'FAST')
+      } else {
+        let heightLeft = imgHeight
+        let position = 0
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST')
         heightLeft -= pageHeight
+
+        while (heightLeft > 10) {
+          position = heightLeft - imgHeight
+          pdf.addPage()
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, undefined, 'FAST')
+          heightLeft -= pageHeight
+        }
       }
 
       const fileName = `Cotizacion_${patient.firstName}_${patient.lastName}_${patient.patientCode || 'Doc'}.pdf`
@@ -132,14 +138,15 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
       .map(t => `• ${t.name}${t.toothNumber ? ` (Pieza ${t.toothNumber})` : ''}: ${money(t.cost)}`)
       .join('\n')
 
-    const message = `📋 *Cotización Dental - ${clinic.clinicName || 'Clínica Odontológica'}*\n` +
+    const message = `📋 *Cotización Dental - ${clinic.clinicName || 'Clínica Odontológica Villarroel'}*\n` +
       `👤 Paciente: *${patient.firstName} ${patient.lastName}*\n` +
       `📅 Fecha: ${today}\n\n` +
       `*Tratamientos incluidos:*\n${treatmentsSummary || 'Sin tratamientos seleccionados'}\n\n` +
       `💰 *Presupuesto Total:* ${money(totals.cost)}\n` +
       `💳 *Saldo Pendiente:* ${money(totals.balance)}\n\n` +
       `📍 ${clinic.address || ''}\n` +
-      `📞 ${clinic.phone || ''}`
+      `📞 ${clinic.phone || ''}\n` +
+      `✉️ villarroelodontologia@hotmail.com`
 
     const encoded = encodeURIComponent(message)
     const phoneClean = (patient.phone || '').replace(/\D/g, '')
@@ -164,7 +171,7 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
           </p>
         </div>
 
-        {/* Botones de acción optimizados para mobile */}
+        {/* Botones de acción responsive */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full md:w-auto">
           <button
             onClick={handleShareWhatsApp}
@@ -222,22 +229,14 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
       <div ref={printAreaRef} id="cotizacion-print-area" className="w-full">
         
         {/* DOCUMENTO: COTIZACIÓN (PÁGINA 1) */}
-        <div className="print-doc mx-auto w-full bg-white text-gray-900 rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-8 md:p-10 mb-8">
+        <div className="print-doc mx-auto w-full bg-white text-gray-900 rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8 md:p-10 mb-6">
           
-          {/* Encabezado Clínica */}
+          {/* Encabezado Clínica Limpio y Elegante */}
           <div className="flex flex-col sm:flex-row items-start justify-between border-b-2 border-gray-200 pb-4 sm:pb-5 mb-5 gap-3">
             <div className="w-full sm:w-auto">
-              <div className="flex items-center gap-2.5 mb-1">
-                <div className="w-7 h-7 rounded-lg bg-emerald-700 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                  <Stethoscope className="w-4 h-4" />
-                </div>
-                <h1 className="text-lg sm:text-2xl font-bold text-gray-900 font-serif tracking-tight">
-                  {clinic.clinicName || 'Clínica Odontológica Villarroel'}
-                </h1>
-              </div>
-              <p className="text-[11px] sm:text-xs font-semibold text-emerald-800 tracking-wide uppercase">
-                {clinic.specialty || 'Ortodoncia · Ortopedia Funcional · Rehabilitación Oral'}
-              </p>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 font-serif tracking-tight">
+                {clinic.clinicName || 'Clínica Odontológica Villarroel'}
+              </h1>
               <div className="text-[11px] sm:text-xs text-gray-500 mt-1.5 space-y-0.5">
                 {clinic.address && <p>📍 {clinic.address}</p>}
                 <div className="flex flex-wrap gap-x-3 gap-y-0.5">
@@ -338,8 +337,7 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
           {/* Resumen Financiero y Totales */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-t-2 border-gray-200 pt-4 mb-6">
             <div className="text-[11px] text-gray-500 max-w-xs space-y-0.5">
-              <p>📌 <strong>Validez:</strong> Presupuesto válido por 30 días.</p>
-              <p>💳 <strong>Pagos:</strong> Efectivo, Transferencia bancaria o QR.</p>
+              <p>💳 <strong>Formas de Pago:</strong> Efectivo, Transferencia bancaria o QR.</p>
             </div>
 
             <div className="w-full sm:w-64 bg-gray-50 rounded-xl p-3.5 border border-gray-200 space-y-1.5">
@@ -368,7 +366,7 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
                 {clinic.doctorName || 'Dra. Marisol Villarroel'}
               </p>
               <p className="text-[10px] text-gray-500">
-                {clinic.specialty || 'Directora & Especialista'}
+                Directora · Clínica Villarroel
               </p>
             </div>
 
@@ -385,13 +383,13 @@ export function CotizacionDoc({ patient, treatments, clinic, today }: {
 
           {/* Pie de página institucional */}
           <div className="text-[10px] text-gray-400 text-center mt-6 pt-3 border-t border-gray-100">
-            {clinic.clinicName || 'Clínica Odontológica'} · Documento oficial · {clinic.phone ? `Consultas: ${clinic.phone}` : ''}
+            {clinic.clinicName || 'Clínica Odontológica Villarroel'} · Documento oficial · {clinic.phone ? `Consultas: ${clinic.phone}` : ''}
           </div>
         </div>
 
         {/* DOCUMENTO: CONSENTIMIENTO INFORMADO (PÁGINA 2 - SOLO SI HAY CIRUGÍA) */}
         {hasSurgery && (
-          <div className="print-doc consent-doc page-break-before mx-auto w-full bg-white text-gray-900 rounded-2xl border border-gray-200 shadow-sm p-5 sm:p-8 md:p-10">
+          <div className="print-doc consent-doc page-break-before mx-auto w-full bg-white text-gray-900 rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8 md:p-10">
             
             <div className="border-b-2 border-gray-200 pb-4 mb-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
