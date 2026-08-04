@@ -1,13 +1,15 @@
 'use client'
 
 import React, { useState } from 'react'
-import { User, Building, Bell, Shield, Loader2, Check } from 'lucide-react'
+import { User, Building, Bell, Shield, CreditCard, Loader2, Check } from 'lucide-react'
 import { SettingsForm } from './SettingsForm'
+import { SuscripcionPanel } from '@/components/configuracion/SuscripcionPanel'
 import { saveProfessionalProfile, saveNotificationPreference, type ClinicSettings } from './actions'
 import { changeAdminPassword } from './security-actions'
 
 const TABS = [
   { key: 'clinica', label: 'Datos de la Clínica', icon: Building },
+  { key: 'suscripcion', label: 'Suscripción & Pagos SaaS', icon: CreditCard },
   { key: 'perfil', label: 'Perfil Profesional', icon: User },
   { key: 'notificaciones', label: 'Notificaciones', icon: Bell },
   { key: 'seguridad', label: 'Seguridad', icon: Shield },
@@ -39,6 +41,11 @@ export function ConfiguracionTabs({ initial }: { initial: ClinicSettings }) {
         {tab === 'clinica' && (
           <Panel title="Datos de la Clínica">
             <SettingsForm initial={initial} />
+          </Panel>
+        )}
+        {tab === 'suscripcion' && (
+          <Panel title="Suscripción ClinicOS & Facturación">
+            <SuscripcionPanel />
           </Panel>
         )}
         {tab === 'perfil' && <ProfessionalPanel initial={initial} />}
